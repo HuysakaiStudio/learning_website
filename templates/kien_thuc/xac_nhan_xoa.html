@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Xóa bài viết{% endblock %}
+
+{% block content %}
+<div style="max-width:480px;margin:60px auto;text-align:center">
+  <div style="background:white;border-radius:12px;padding:40px;
+              box-shadow:0 2px 8px rgba(0,0,0,0.08)">
+    <div style="font-size:48px;margin-bottom:16px">🗑️</div>
+    <h2 style="margin-bottom:8px">Xóa bài viết?</h2>
+    <p style="color:#666;margin-bottom:8px">Bạn chắc chắn muốn xóa bài viết:</p>
+    <p style="font-weight:500;color:#333;margin-bottom:24px;
+              padding:12px;background:#f8f8f8;border-radius:8px">
+      "{{ bai.tieu_de }}"
+    </p>
+    <p style="color:#e53935;font-size:13px;margin-bottom:28px">
+      ⚠️ Hành động này không thể hoàn tác.
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <a href="/kien-thuc/bai/{{ bai.id }}/"
+         style="padding:11px 28px;border:1px solid #ddd;border-radius:8px;
+                text-decoration:none;color:#555;font-size:15px">
+        Hủy
+      </a>
+      <form method="post" style="margin:0">
+        {% csrf_token %}
+        <button type="submit"
+                style="padding:11px 28px;background:#e53935;color:white;
+                       border:none;border-radius:8px;font-size:15px;cursor:pointer">
+          Xóa bài viết
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

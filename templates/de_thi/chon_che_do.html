@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Chọn chế độ — {{ de.ten }}{% endblock %}
+{% block content %}
+<div style="max-width:560px;margin:0 auto">
+  <a href="/de-thi/" style="color:#1a73e8;text-decoration:none">← Danh sách đề thi</a>
+
+  <div style="background:white;border-radius:12px;padding:32px;
+              box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-top:16px">
+    <h2 style="margin-bottom:6px">{{ de.ten }}</h2>
+    <p style="color:#888;font-size:14px;margin-bottom:28px">
+      {{ de.mon }} &nbsp;•&nbsp; {{ de.tong_cau }} câu &nbsp;•&nbsp; {{ de.thoi_gian_phut }} phút
+    </p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <!-- Luyện tập -->
+      <a href="/de-thi/{{ de.id }}/lam/?che_do=luyen_tap"
+         style="border:2px solid #e8e8e8;border-radius:12px;padding:24px;
+                text-decoration:none;color:#333;text-align:center;
+                transition:all 0.2s;display:block"
+         onmouseover="this.style.borderColor='#34a853';this.style.background='#f0faf3'"
+         onmouseout="this.style.borderColor='#e8e8e8';this.style.background='white'">
+        <div style="font-size:40px;margin-bottom:12px">🧘</div>
+        <h3 style="font-size:16px;margin-bottom:8px;color:#34a853">Luyện tập</h3>
+        <p style="font-size:13px;color:#666;line-height:1.6">
+          Không giới hạn thời gian<br>
+          Làm từng bước, không áp lực
+        </p>
+      </a>
+
+      <!-- Thi thật -->
+      <a href="/de-thi/{{ de.id }}/lam/?che_do=thi_that"
+         style="border:2px solid #e8e8e8;border-radius:12px;padding:24px;
+                text-decoration:none;color:#333;text-align:center;
+                transition:all 0.2s;display:block"
+         onmouseover="this.style.borderColor='#ea4335';this.style.background='#fff0f0'"
+         onmouseout="this.style.borderColor='#e8e8e8';this.style.background='white'">
+        <div style="font-size:40px;margin-bottom:12px">⏱️</div>
+        <h3 style="font-size:16px;margin-bottom:8px;color:#ea4335">Thi thật</h3>
+        <p style="font-size:13px;color:#666;line-height:1.6">
+          Đếm ngược {{ de.thoi_gian_phut }} phút<br>
+          Mô phỏng đúng áp lực phòng thi
+        </p>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

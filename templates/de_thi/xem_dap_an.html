@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Đáp án — {{ kq.de_thi.ten }}{% endblock %}
+{% block content %}
+<div style="max-width:760px;margin:0 auto">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+    <h2>📋 Đáp án chi tiết</h2>
+    <a href="/de-thi/ket-qua/{{ kq.id }}/" style="color:#1a73e8;text-decoration:none">← Kết quả</a>
+  </div>
+
+  {% for tl in tra_loi_list %}
+  <div style="background:white;border-radius:12px;padding:24px;margin-bottom:12px;
+              box-shadow:0 2px 6px rgba(0,0,0,0.06);
+              border-left:4px solid {% if tl.dung %}#34a853{% else %}#ea4335{% endif %}">
+
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+      <span style="font-weight:500;color:#333">Câu {{ forloop.counter }}</span>
+      <span style="font-weight:500;color:{% if tl.dung %}#34a853{% else %}#ea4335{% endif %}">
+        {% if tl.dung %}✅ Đúng (+{{ tl.diem_duoc }}){% else %}❌ Sai{% endif %}
+      </span>
+    </div>
+
+    <div style="font-size:15px;line-height:1.7;margin-bottom:16px;color:#333">
+      {{ tl.cau_hoi.noi_dung|linebreaks }}
+    </div>
+
+    {% if tl.cau_hoi.loai == 'tn' %}
+    <div style="font-size:14px;color:#555;margin-bottom:8px">
+      Bạn chọn: <strong>{{ tl.chon|default:"(Chưa trả lời)" }}</strong>
+      &nbsp;|&nbsp;
+      Đáp án đúng: <strong style="color:#34a853">{{ tl.cau_hoi.dap_an_dung }}</strong>
+    </div>
+
+    {% elif tl.cau_hoi.loai == 'dien' %}
+    <div style="font-size:14px;color:#555;margin-bottom:8px">
+      Bạn điền: <strong>{{ tl.so_dien|default:"(Chưa trả lời)" }}</strong>
+      &nbsp;|&nbsp;
+      Đáp án đúng: <strong style="color:#34a853">{{ tl.cau_hoi.dap_an_so }}</strong>
+    </div>
+
+    {% elif tl.cau_hoi.loai == 'ds' %}
+    <div style="font-size:14px;color:#555;margin-bottom:8px">
+      <table style="width:100%;border-collapse:collapse">
+        <tr style="background:#f8f8f8">
+          <th style="padding:8px;text-align:left">Ý</th>
+          <th style="padding:8px">Bạn chọn</th>
+          <th style="padding:8px">Đáp án</th>
+        </tr>
+        {% for nhan, ban_chon, dung in 'a,b,c,d'|zip:'' %}{% endfor %}
+        <tr><td style="padding:8px">a) {{ tl.cau_hoi.y_a }}</td>
+            <td style="padding:8px;text-align:center">{% if tl.chon_a %}Đúng{% else %}Sai{% endif %}</td>
+            <td style="padding:8px;text-align:center;color:#34a853">{% if tl.cau_hoi.dung_sai_a %}Đúng{% else %}Sai{% endif %}</td></tr>
+        <tr style="background:#f8f8f8">
+            <td style="padding:8px">b) {{ tl.cau_hoi.y_b }}</td>
+            <td style="padding:8px;text-align:center">{% if tl.chon_b %}Đúng{% else %}Sai{% endif %}</td>
+            <td style="padding:8px;text-align:center;color:#34a853">{% if tl.cau_hoi.dung_sai_b %}Đúng{% else %}Sai{% endif %}</td></tr>
+        <tr><td style="padding:8px">c) {{ tl.cau_hoi.y_c }}</td>
+            <td style="padding:8px;text-align:center">{% if tl.chon_c %}Đúng{% else %}Sai{% endif %}</td>
+            <td style="padding:8px;text-align:center;color:#34a853">{% if tl.cau_hoi.dung_sai_c %}Đúng{% else %}Sai{% endif %}</td></tr>
+        <tr style="background:#f8f8f8">
+            <td style="padding:8px">d) {{ tl.cau_hoi.y_d }}</td>
+            <td style="padding:8px;text-align:center">{% if tl.chon_d %}Đúng{% else %}Sai{% endif %}</td>
+            <td style="padding:8px;text-align:center;color:#34a853">{% if tl.cau_hoi.dung_sai_d %}Đúng{% else %}Sai{% endif %}</td></tr>
+      </table>
+    </div>
+    {% endif %}
+
+    {% if tl.cau_hoi.giai_thich %}
+    <div style="background:#f0f6ff;border-radius:8px;padding:12px 16px;
+                font-size:14px;color:#333;line-height:1.6">
+      💡 <strong>Giải thích:</strong> {{ tl.cau_hoi.giai_thich }}
+    </div>
+    {% endif %}
+
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

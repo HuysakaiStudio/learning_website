@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Kết quả{% endblock %}
+{% block content %}
+<div style="max-width:520px;margin:0 auto;text-align:center">
+
+  <div style="background:white;border-radius:16px;padding:40px 32px;
+              box-shadow:0 4px 16px rgba(0,0,0,0.1)">
+
+    {% if kq.diem >= 8 %}
+      <div style="font-size:64px;margin-bottom:8px">🏆</div>
+      <p style="color:#34a853;font-weight:500;margin-bottom:16px">Xuất sắc!</p>
+    {% elif kq.diem >= 6.5 %}
+      <div style="font-size:64px;margin-bottom:8px">👍</div>
+      <p style="color:#1a73e8;font-weight:500;margin-bottom:16px">Khá tốt!</p>
+    {% elif kq.diem >= 5 %}
+      <div style="font-size:64px;margin-bottom:8px">📚</div>
+      <p style="color:#f9ab00;font-weight:500;margin-bottom:16px">Cần ôn thêm!</p>
+    {% else %}
+      <div style="font-size:64px;margin-bottom:8px">💪</div>
+      <p style="color:#ea4335;font-weight:500;margin-bottom:16px">Cố gắng hơn nhé!</p>
+    {% endif %}
+
+    <div style="font-size:72px;font-weight:500;
+                color:{% if kq.diem >= 8 %}#34a853{% elif kq.diem >= 5 %}#1a73e8{% else %}#ea4335{% endif %}">
+      {{ kq.diem }}
+    </div>
+    <div style="color:#888;font-size:16px;margin-bottom:28px">/ 10 điểm</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:32px">
+      <div style="background:#f8f8f8;border-radius:10px;padding:16px">
+        <div style="font-size:20px;font-weight:500;color:#333">{{ kq.tong_cau }}</div>
+        <div style="font-size:12px;color:#888;margin-top:4px">Tổng câu</div>
+      </div>
+      <div style="background:#f8f8f8;border-radius:10px;padding:16px">
+        <div style="font-size:20px;font-weight:500;color:#333">
+          {% widthratio kq.diem 10 kq.tong_cau %}
+        </div>
+        <div style="font-size:12px;color:#888;margin-top:4px">Câu đúng</div>
+      </div>
+      <div style="background:#f8f8f8;border-radius:10px;padding:16px">
+        <div style="font-size:20px;font-weight:500;color:#333">
+          {% if kq.thoi_gian_lam >= 60 %}
+            {{ kq.thoi_gian_lam|divisibleby:60 }}p
+          {% else %}
+            {{ kq.thoi_gian_lam }}s
+          {% endif %}
+        </div>
+        <div style="font-size:12px;color:#888;margin-top:4px">Thời gian</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <a href="/de-thi/ket-qua/{{ kq.id }}/dap-an/"
+         style="padding:12px;background:#f0f6ff;color:#1a73e8;
+                border-radius:8px;text-decoration:none;font-weight:500">
+        📋 Xem đáp án chi tiết
+      </a>
+      <a href="/de-thi/{{ kq.de_thi.id }}/"
+         style="padding:12px;background:#f8f8f8;color:#555;
+                border-radius:8px;text-decoration:none">
+        🔄 Làm lại đề này
+      </a>
+      <a href="/de-thi/"
+         style="padding:12px;background:#f8f8f8;color:#555;
+                border-radius:8px;text-decoration:none">
+        📝 Chọn đề khác
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

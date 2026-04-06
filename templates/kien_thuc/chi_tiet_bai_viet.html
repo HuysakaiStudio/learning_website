@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}{{ bai.tieu_de }}{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+  <a href="/kien-thuc/{{ bai.mon.id }}/" style="color:#1a73e8;text-decoration:none">
+    ← {{ bai.mon.icon }} {{ bai.mon.ten }}
+  </a>
+  {% if user.is_staff %}
+  <a href="/kien-thuc/bai/{{ bai.id }}/xoa/"
+     style="padding:8px 16px;background:#fce8e8;color:#e53935;
+            border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">
+    🗑️ Xóa bài
+  </a>
+  {% endif %}
+</div>
+
+<div style="background:white;padding:32px;border-radius:12px;
+            box-shadow:0 2px 8px rgba(0,0,0,0.08)">
+  <h1 style="font-size:24px;margin-bottom:8px">{{ bai.tieu_de }}</h1>
+  <p style="color:#888;font-size:13px;margin-bottom:24px;
+            padding-bottom:24px;border-bottom:1px solid #eee">
+    {{ bai.mon.ten }} • {{ bai.ngay_tao|date:"d/m/Y" }}
+  </p>
+  <div style="line-height:1.8;font-size:16px" id="noi-dung-bai">{{ bai.noi_dung|linebreaks }}</div>
+</div>
+{% endblock %}

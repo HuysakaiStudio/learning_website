@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Đề thi{% endblock %}
+{% block content %}
+<h2>📝 Đề thi online</h2>
+<p style="color:#666;margin:8px 0 24px">Chọn đề thi để bắt đầu luyện tập</p>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+  {% for de in de_list %}
+  <a href="/de-thi/{{ de.id }}/"
+     style="background:white;padding:24px;border-radius:12px;text-decoration:none;
+            color:#333;box-shadow:0 2px 8px rgba(0,0,0,0.08);display:block;
+            transition:transform 0.2s"
+     onmouseover="this.style.transform='translateY(-4px)'"
+     onmouseout="this.style.transform='translateY(0)'">
+    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+      <span style="background:#e8f0fe;color:#1a73e8;padding:4px 10px;
+                   border-radius:20px;font-size:12px;font-weight:500">
+        {{ de.mon }}
+      </span>
+      <span style="color:#888;font-size:12px">{{ de.thoi_gian_phut }} phút</span>
+    </div>
+    <h3 style="font-size:16px;margin-bottom:8px;line-height:1.4">{{ de.ten }}</h3>
+    <p style="color:#888;font-size:13px;margin-bottom:16px">{{ de.mo_ta|truncatewords:12 }}</p>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="color:#666;font-size:13px">{{ de.tong_cau }} câu hỏi</span>
+      <span style="color:#1a73e8;font-weight:500;font-size:14px">Làm bài →</span>
+    </div>
+  </a>
+  {% empty %}
+  <p style="color:#888">Chưa có đề thi nào. Admin hãy thêm qua trang quản trị!</p>
+  {% endfor %}
+</div>
+{% endblock %}

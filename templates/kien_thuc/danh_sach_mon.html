@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Kiến thức nền tảng{% endblock %}
+{% block content %}
+<h2>📚 Kiến thức nền tảng</h2>
+<p style="color:#666;margin:8px 0 24px">Chọn môn học để bắt đầu ôn tập</p>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+  <p style="color:#666">Chọn môn học để bắt đầu ôn tập</p>
+  {% if user.is_staff %}
+  <a href="/kien-thuc/tao-bai/"
+     style="padding:10px 20px;background:#1a73e8;color:white;
+            border-radius:8px;text-decoration:none;font-weight:500">
+    ✍️ Tạo bài viết
+  </a>
+  {% endif %}
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px">
+  {% for mon in mon_list %}
+  <a href="/kien-thuc/{{ mon.id }}/"
+     style="background:white;padding:24px;border-radius:12px;text-decoration:none;
+            color:#333;box-shadow:0 2px 8px rgba(0,0,0,0.08);
+            transition:transform 0.2s;display:block"
+     onmouseover="this.style.transform='translateY(-4px)'"
+     onmouseout="this.style.transform='translateY(0)'">
+    <div style="font-size:36px;margin-bottom:12px">{{ mon.icon }}</div>
+    <h3 style="font-size:18px;margin-bottom:8px">{{ mon.ten }}</h3>
+    <p style="color:#888;font-size:14px">{{ mon.mo_ta }}</p>
+    <p style="color:#1a73e8;font-size:13px;margin-top:12px">
+      {{ mon.bai_viet.count }} bài viết →
+    </p>
+  </a>
+  {% empty %}
+  <p style="color:#888">Chưa có môn học nào. Hãy thêm qua trang Admin!</p>
+  {% endfor %}
+</div>
+{% endblock %}

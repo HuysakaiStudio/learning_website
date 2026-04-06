@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Trang chủ — Ôn Thi THPTQG{% endblock %}
+{% block content %}
+<h1>Chào mừng đến với Ôn Thi THPTQG 🎓</h1>
+<p>Chọn tính năng để bắt đầu:</p>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:24px">
+  <a href="/kien-thuc/" style="background:white;padding:24px;border-radius:12px;text-decoration:none;color:#333;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+    <h2>📚 Kiến thức nền tảng</h2>
+    <p>Lý thuyết theo từng môn</p>
+  </a>
+  <a href="/de-thi/" style="background:white;padding:24px;border-radius:12px;text-decoration:none;color:#333;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+    <h2>📝 Đề thi online</h2>
+    <p>Luyện tập trắc nghiệm có chấm điểm</p>
+  </a>
+  <a href="/leaderboard/" style="background:white;padding:24px;border-radius:12px;text-decoration:none;color:#333;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+    <h2>🏆 Bảng xếp hạng</h2>
+    <p>Thi đua cùng bạn bè</p>
+  </a>
+  <a href="/nguoi-dung/dang-ky/" style="background:white;padding:24px;border-radius:12px;text-decoration:none;color:#333;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+    <h2>👤 Tạo tài khoản</h2>
+    <p>Lưu điểm và theo dõi tiến độ</p>
+  </a>
+</div>
+{% endblock %}
