@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Chỉnh sửa đề thi{% endblock %}
+{% block content %}
+<style>
+    .form-container { max-width: 800px; margin: 40px auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: 600; margin-bottom: 8px; color: #444; }
+    input, select, textarea { width: 100%; padding: 14px; border: 1px solid #e0e0e0; border-radius: 10px; background: #f9f9f9; font-size: 15px; box-sizing: border-box; }
+    input:focus, textarea:focus, select:focus { border-color: #1a73e8; outline: none; background: white; }
+    .btn-group { display: flex; gap: 12px; margin-top: 24px; }
+    .btn { padding: 14px 28px; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 600; }
+    .btn-submit { background: #1a73e8; color: white; width: 100%; }
+    .btn-submit:hover { background: #1557b0; }
+    .btn-secondary { background: #e8e8e8; color: #333; text-decoration: none; display: inline-block; }
+    .btn-secondary:hover { background: #d8d8d8; }
+    .header-box { text-align: center; margin-bottom: 30px; }
+    .header-box h2 { color: #1a73e8; margin-bottom: 10px; }
+</style>
+
+<div class="form-container">
+    <div class="header-box">
+        <h2>✏️ Chỉnh sửa đề thi</h2>
+        <p style="color: #666; margin-bottom: 8px;">{{ de.ten }}</p>
+        <p style="color: #999; font-size: 13px;">Tạo lúc: {{ de.ngay_tao|date:'d/m/Y H:i' }}</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                    <div style="color: #d32f2f; margin-top: 8px; font-size: 13px;">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div class="btn-group">
+            <button type="submit" class="btn btn-submit">💾 Lưu thay đổi</button>
+            <a href="{% url 'de_thi:them_cau_hoi' de.id %}" class="btn btn-secondary">← Quay lại</a>
+        </div>
+    </form>
+</div>
+
+<!-- MathJax support -->
+<script>
+    if (window.MathJax) {
+        MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+    }
+</script>
+{% endblock %}

@@ -45,21 +45,26 @@
           <th style="padding:8px">Bạn chọn</th>
           <th style="padding:8px">Đáp án</th>
         </tr>
-        {% for nhan, ban_chon, dung in 'a,b,c,d'|zip:'' %}{% endfor %}
-        <tr><td style="padding:8px">a) {{ tl.cau_hoi.y_a }}</td>
-            <td style="padding:8px;text-align:center">{% if tl.chon_a %}Đúng{% else %}Sai{% endif %}</td>
-            <td style="padding:8px;text-align:center;color:#34a853">{% if tl.cau_hoi.dung_sai_a %}Đúng{% else %}Sai{% endif %}</td></tr>
-        <tr style="background:#f8f8f8">
-            <td style="padding:8px">b) {{ tl.cau_hoi.y_b }}</td>
-            <td style="padding:8px;text-align:center">{% if tl.chon_b %}Đúng{% else %}Sai{% endif %}</td>
-            <td style="padding:8px;text-align:center;color:#34a853">{% if tl.cau_hoi.dung_sai_b %}Đúng{% else %}Sai{% endif %}</td></tr>
-        <tr><td style="padding:8px">c) {{ tl.cau_hoi.y_c }}</td>
-            <td style="padding:8px;text-align:center">{% if tl.chon_c %}Đúng{% else %}Sai{% endif %}</td>
-            <td style="padding:8px;text-align:center;color:#34a853">{% if tl.cau_hoi.dung_sai_c %}Đúng{% else %}Sai{% endif %}</td></tr>
-        <tr style="background:#f8f8f8">
-            <td style="padding:8px">d) {{ tl.cau_hoi.y_d }}</td>
-            <td style="padding:8px;text-align:center">{% if tl.chon_d %}Đúng{% else %}Sai{% endif %}</td>
-            <td style="padding:8px;text-align:center;color:#34a853">{% if tl.cau_hoi.dung_sai_d %}Đúng{% else %}Sai{% endif %}</td></tr>
+        <tr>
+          <td style="padding:8px">A) {{ tl.cau_hoi.y_a }}</td>
+          <td style="padding:8px;text-align:center">{% if tl.chon_a %}Đúng{% else %}Sai{% endif %}</td>
+          <td style="padding:8px;text-align:center;color:#34a853">{% if tl.cau_hoi.dung_sai_a %}Đúng{% else %}Sai{% endif %}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px">B) {{ tl.cau_hoi.y_b }}</td>
+          <td style="padding:8px;text-align:center">{% if tl.chon_b %}Đúng{% else %}Sai{% endif %}</td>
+          <td style="padding:8px;text-align:center;color:#34a853">{% if tl.cau_hoi.dung_sai_b %}Đúng{% else %}Sai{% endif %}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px">C) {{ tl.cau_hoi.y_c }}</td>
+          <td style="padding:8px;text-align:center">{% if tl.chon_c %}Đúng{% else %}Sai{% endif %}</td>
+          <td style="padding:8px;text-align:center;color:#34a853">{% if tl.cau_hoi.dung_sai_c %}Đúng{% else %}Sai{% endif %}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px">D) {{ tl.cau_hoi.y_d }}</td>
+          <td style="padding:8px;text-align:center">{% if tl.chon_d %}Đúng{% else %}Sai{% endif %}</td>
+          <td style="padding:8px;text-align:center;color:#34a853">{% if tl.cau_hoi.dung_sai_d %}Đúng{% else %}Sai{% endif %}</td>
+        </tr>
       </table>
     </div>
     {% endif %}

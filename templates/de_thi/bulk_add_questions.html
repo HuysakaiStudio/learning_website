@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block title %}Thêm câu hỏi hàng loạt{% endblock %}
+{% block content %}
+<style>
+  .form-container { max-width: 900px; margin: 40px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .info-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 16px; border-radius: 6px; margin-bottom: 20px; }
+  .info-box h4 { color: #1565c0; margin-bottom: 8px; }
+  .info-box code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
+  .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; }
+  .form-group textarea:focus { outline: none; border-color: #2196f3; box-shadow: 0 0 0 3px rgba(33,150,243,0.1); }
+  .btn-group { display: flex; gap: 12px; margin-top: 24px; }
+  .btn { padding: 12px 24px; border: none; border-radius: 6px; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .btn-primary { background: #2196f3; color: white; }
+  .btn-primary:hover { background: #1976d2; }
+  .btn-secondary { background: #e8e8e8; color: #333; }
+  .btn-secondary:hover { background: #d8d8d8; }
+  .example { background: #f9f9f9; border: 1px solid #eee; padding: 12px; border-radius: 6px; font-size: 13px; margin-top: 8px; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .format-list { list-style: none; padding: 0; }
+  .format-list li { padding: 8px 0; border-bottom: 1px solid #eee; }
+  .format-list strong { color: #1565c0; }
+</style>
+
+<div class="form-container">
+  <h2>📋 Thêm câu hỏi hàng loạt cho: <strong>{{ de.ten }}</strong></h2>
+  
+  <form method="post" id="bulk-form">
+    {% csrf_token %}
+    
+    <!-- Chọn loại câu hỏi -->
+    <div class="form-group">
+      <label>Loại câu hỏi:</label>
+      <div style="margin-top: 12px;">
+        {% for value, label in form.loai.field.choices %}
+          <label style="display: flex; align-items: center; margin-bottom: 12px; cursor: pointer;">
+            <input type="radio" name="loai" value="{{ value }}" {% if forloop.first %}checked{% endif %} onchange="updateExample()">
+            <span style="margin-left: 8px;">{{ label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Hướng dẫn cho từng loại -->
+    <div class="info-box" id="info-box">
+      <h4 id="info-title">📌 Trắc nghiệm ABCD</h4>
+      <div id="info-content"></div>
+    </div>
+
+    <!-- Textarea nhập câu hỏi -->
+    <div class="form-group">
+      <label>Nhập câu hỏi:</label>
+      {{ form.questions_text }}
+      {% if form.questions_text.errors %}
+        <div style="color: #d32f2f; margin-top: 8px;">{{ form.questions_text.errors }}</div>
+      {% endif %}
+    </div>
+
+    <div class="btn-group">
+      <button type="submit" class="btn btn-primary">✅ Thêm câu hỏi</button>
+      <a href="{% url 'de_thi:them_cau_hoi' de.id %}" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">← Quay lại</a>
+    </div>
+  </form>
+</div>
+
+<script>
+const formats = {
+  'tn': {
+    title: '📌 Trắc nghiệm ABCD (4 đáp án)',
+    content: `
+      <p><strong>Định dạng:</strong> nội_dung | đáp_án_A | đáp_án_B | đáp_án_C | đáp_án_D | đáp_án_đúng (A/B/C/D) | giải_thích</p>
+      <ul class="format-list">
+        <li><strong>nội_dung:</strong> Nội dung câu hỏi</li>
+        <li><strong>đáp_án_A:</strong> Lựa chọn thứ nhất</li>
+        <li><strong>đáp_án_B:</strong> Lựa chọn thứ hai</li>
+        <li><strong>đáp_án_C:</strong> Lựa chọn thứ ba</li>
+        <li><strong>đáp_án_D:</strong> Lựa chọn thứ tư</li>
+        <li><strong>đáp_án_đúng:</strong> A, B, C, hoặc D</li>
+        <li><strong>giải_thích:</strong> Giải thích cho câu (tùy chọn)</li>
+      </ul>
+      <div class="example">
+        <strong>Ví dụ:</strong><br>
+        Thủ đô của Việt Nam là gì?|Hà Nội|TP.HCM|Đà Nẵng|Huế|A|Hà Nội là thủ đô, nằm ở miền Bắc<br>
+        Ai là tác giả Truyện Kiều?|Nguyễn Du|Trần Hưng Đạo|Bá Triệu|Trương Vương|A|Tác phẩm kinh điển của Nguyễn Du
+      </div>
+    `
+  },
+  'ds': {
+    title: '✅ Trắc nghiệm Đúng/Sai (4 ý)',
+    content: `
+      <p><strong>Định dạng:</strong> nội_dung | ý_A | ý_B | ý_C | ý_D | D/S;D/S;D/S;D/S | giải_thích</p>
+      <ul class="format-list">
+        <li><strong>nội_dung:</strong> Nội dung câu hỏi</li>
+        <li><strong>ý_A, ý_B, ý_C, ý_D:</strong> Nội dung 4 ý</li>
+        <li><strong>D/S;</strong> Đúng hoặc Sai cho mỗi ý (D=Đúng, S=Sai), ngăn cách bằng ;</li>
+        <li><strong>giải_thích:</strong> Giải thích (tùy chọn)</li>
+      </ul>
+      <div class="example">
+        <strong>Ví dụ:</strong><br>
+        Hà Nội|Là thủ đô Việt Nam|Nằm ở miền Bắc|Có dân số 1 triệu|Là thành phố lớn nhất VN|D;D;S;S|Hà Nội là thủ đô, người dân số hơn 8 triệu<br>
+        Paris|Là thủ đô Pháp|Nằm ở châu Á|Có tháp Eiffel|Là thành phố xinh đẹp|D;S;D;D|Paris nằm ở châu Âu
+      </div>
+    `
+  },
+  'dien': {
+    title: '🔢 Trả lời ngắn (Điền số)',
+    content: `
+      <p><strong>Định dạng:</strong> nội_dung | đáp_án_số | giải_thích</p>
+      <ul class="format-list">
+        <li><strong>nội_dung:</strong> Nội dung câu hỏi</li>
+        <li><strong>đáp_án_số:</strong> Đáp án (phải là số)</li>
+        <li><strong>giải_thích:</strong> Giải thích (tùy chọn)</li>
+      </ul>
+      <div class="example">
+        <strong>Ví dụ:</strong><br>
+        2 + 2 bằng bao nhiêu?|4|Phép cộng cơ bản<br>
+        Căn bậc 2 của 9 là bao nhiêu?|3|√9 = 3<br>
+        Chu vi hình tròn có bán kính 5 là bao nhiêu?|31.4159|C = 2πr
+      </div>
+    `
+  }
+};
+
+function updateExample() {
+  const loai = document.querySelector('input[name="loai"]:checked').value;
+  const format = formats[loai];
+  document.getElementById('info-title').textContent = format.title;
+  document.getElementById('info-content').innerHTML = format.content;
+  
+  // Update placeholder
+  const textarea = document.querySelector('textarea[name="questions_text"]');
+  if (loai === 'tn') {
+    textarea.placeholder = 'Câu 1?|A|B|C|D|A|Giải thích\nCâu 2?|A|B|C|D|B|Giải thích';
+  } else if (loai === 'ds') {
+    textarea.placeholder = 'Câu 1?|Ý A|Ý B|Ý C|Ý D|D;D;S;S|Giải thích';
+  } else if (loai === 'dien') {
+    textarea.placeholder = 'Câu 1?|4|Giải thích\nCâu 2?|3|Giải thích';
+  }
+}
+
+// Initialize on page load
+updateExample();
+</script>
+{% endblock %}

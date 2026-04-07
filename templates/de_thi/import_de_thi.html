@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Import đề thi{% endblock %}
+{% block content %}
+<style>
+  .form-container { max-width: 800px; margin: 40px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .info-box { background: #f3e5f5; border-left: 4px solid #9c27b0; padding: 16px; border-radius: 6px; margin-bottom: 20px; }
+  .info-box h4 { color: #7b1fa2; margin-bottom: 8px; }
+  .info-box code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
+  .form-group input[type="text"],
+  .form-group select,
+  .form-group input[type="file"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; }
+  .form-group input[type="text"]:focus,
+  .form-group select:focus,
+  .form-group input[type="file"]:focus { outline: none; border-color: #9c27b0; box-shadow: 0 0 0 3px rgba(156,39,176,0.1); }
+  .btn-group { display: flex; gap: 12px; margin-top: 24px; }
+  .btn { padding: 12px 24px; border: none; border-radius: 6px; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .btn-primary { background: #9c27b0; color: white; }
+  .btn-primary:hover { background: #7b1fa2; }
+  .btn-secondary { background: #e8e8e8; color: #333; }
+  .btn-secondary:hover { background: #d8d8d8; }
+  .template-link { display: inline-block; margin-top: 8px; padding: 8px 16px; background: #e1f5fe; border: 1px solid #81d4fa; border-radius: 6px; text-decoration: none; color: #01579b; font-size: 13px; }
+</style>
+
+<div class="form-container">
+  <h2>📥 Import đề thi mới</h2>
+  
+  <div class="info-box">
+    <h4>📋 Định dạng CSV (Trộn lẫn tất cả 3 loại):</h4>
+    
+    <p style="margin-bottom: 12px;"><strong>Cột đầu tiên luôn là loại câu hỏi:</strong> <code>tn</code>, <code>ds</code>, hoặc <code>dien</code></p>
+    
+    <div style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #d4a5e0;">
+      <strong style="color: #7b1fa2;">1️⃣ Trắc nghiệm ABCD (8 cột)</strong>
+      <p style="margin: 8px 0; font-size: 13px;"><code>tn,nội_dung,A,B,C,D,đáp_án_đúng,giải_thích</code></p>
+      <ul style="margin: 6px 0; font-size: 12px;">
+        <li>Cột 1: <code>tn</code> (bắt buộc)</li>
+        <li>Cột 7: A, B, C hoặc D</li>
+        <li>Ví dụ: <code>tn,Thủ đô VN?,Hà Nội,TP.HCM,Đà Nẵng,Huế,A,Là thủ đô</code></li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #d4a5e0;">
+      <strong style="color: #7b1fa2;">✅ Trắc nghiệm Đúng/Sai (8 cột)</strong>
+      <p style="margin: 8px 0; font-size: 13px;"><code>ds,nội_dung,Ý_A,Ý_B,Ý_C,Ý_D,D/S;D/S;D/S;D/S,giải_thích</code></p>
+      <ul style="margin: 6px 0; font-size: 12px;">
+        <li>Cột 1: <code>ds</code> (bắt buộc)</li>
+        <li>Cột 7: Dùng D (Đúng) hoặc S (Sai) tách bằng dấu (;)</li>
+        <li>Ví dụ: <code>ds,Hà Nội,Là thủ đô,Ở miền Bắc,Có 8 triệu dân,Lớn VN,D;D;S;S,Thông tin chính xác</code></li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 16px;">
+      <strong style="color: #7b1fa2;">🔢 Điền số (4 cột)</strong>
+      <p style="margin: 8px 0; font-size: 13px;"><code>dien,nội_dung,đáp_án_số,giải_thích</code></p>
+      <ul style="margin: 6px 0; font-size: 12px;">
+        <li>Cột 1: <code>dien</code> (bắt buộc)</li>
+        <li>Cột 3: Một giá trị số</li>
+        <li>Ví dụ: <code>dien,2+2=?,4,Phép cộng</code></li>
+      </ul>
+    </div>
+
+    <p><strong>⚠️ Lưu ý chung:</strong></p>
+    <ul>
+      <li>✅ Có thể trộn lẫn cả 3 loại trong một file CSV</li>
+      <li>Sử dụng dấu phẩy (,) để phân tách các cột</li>
+      <li>Hỗ trợ công thức toán: $x^2 + y^2 = z^2$</li>
+      <li>Hàng đầu tiên sẽ được bỏ qua nếu là tiêu đề</li>
+    </ul>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div class="form-group">
+      {{ form.ten.label_tag }}
+      {{ form.ten }}
+      {% if form.ten.errors %}
+        <div style="color: #d32f2f; margin-top: 8px;">{{ form.ten.errors }}</div>
+      {% endif %}
+    </div>
+
+    <div class="form-group">
+      {{ form.mon.label_tag }}
+      {{ form.mon }}
+      {% if form.mon.errors %}
+        <div style="color: #d32f2f; margin-top: 8px;">{{ form.mon.errors }}</div>
+      {% endif %}
+    </div>
+
+    <div class="form-group">
+      {{ form.csv_file.label_tag }}
+      {{ form.csv_file }}
+      <p style="font-size: 13px; color: #666; margin-top: 8px;">{{ form.csv_file.help_text }}</p>
+      {% if form.csv_file.errors %}
+        <div style="color: #d32f2f; margin-top: 8px;">{{ form.csv_file.errors }}</div>
+      {% endif %}
+    </div>
+
+    <div class="btn-group">
+      <button type="submit" class="btn btn-primary">📤 Import</button>
+      <a href="{% url 'de_thi:tao_de_thi' %}" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">← Quay lại</a>
+    </div>
+  </form>
+
+  <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #eee;">
+    <h4>📝 Ví dụ file CSV (Trộn lẫn 3 loại):</h4>
+    <pre style="background: #f5f5f5; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 12px;">tn,Thủ đô của Việt Nam là gì?,Hà Nội,TP.HCM,Đà Nẵng,Huế,A,Là thủ đô chính trị
+ds,Hà Nội,Là thủ đô VN,Ở miền Bắc,Có 7 triệu dân,Lớn nhất VN,D;D;S;S,Thông tin chính xác về HN
+dien,Tính 2^3 = ?,8,2 nhân 2 nhân 2
+tn,Ai là tác giả Truyện Kiều?,Nguyễn Du,Trần Hưng Đạo,Bá Triệu,Trương Vương,A,Tác phẩm của Nguyễn Du
+ds,Python,Là ngôn ngữ lập trình,Được tạo 1991,Chỉ dùng web,Mã nguồn mở,D;D;S;D,Python là ngôn ngữ đa năng
+dien,Giải phương trình $x^2 = 16$?,4,Căn bậc 2 của 16
+tn,2 + 2 bằng mấy?,3,4,5,6,B,Phép cộng cơ bản</pre>
+  </div>
+
+  <script>
+    // Tự động render MathJax trong ví dụ
+    if (window.MathJax) {
+      MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+    }
+  </script>
+</div>
+{% endblock %}

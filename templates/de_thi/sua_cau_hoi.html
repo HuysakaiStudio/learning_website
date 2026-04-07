@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}Chỉnh sửa câu hỏi{% endblock %}
+{% block content %}
+<style>
+    .form-container { max-width: 800px; margin: 40px auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: 600; margin-bottom: 8px; color: #444; }
+    input, select, textarea { width: 100%; padding: 14px; border: 1px solid #e0e0e0; border-radius: 10px; background: #f9f9f9; font-size: 15px; box-sizing: border-box; }
+    input:focus, textarea:focus, select:focus { border-color: #1a73e8; outline: none; background: white; }
+    .btn-submit { background: #1a73e8; color: white; padding: 14px 28px; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; width: 100%; font-weight: 600; }
+    .btn-submit:hover { background: #1557b0; }
+    .btn-secondary { background: #e8e8e8; color: #333; padding: 14px 28px; text-decoration: none; border-radius: 10px; display: inline-block; margin-top: 10px; }
+    .btn-secondary:hover { background: #d8d8d8; }
+    .header-box { text-align: center; margin-bottom: 30px; }
+    .header-box h2 { color: #1a73e8; margin-bottom: 10px; }
+    .question-form { display: none; }
+    .question-form.active { display: block; }
+</style>
+
+<div class="form-container">
+    <div class="header-box">
+        <h2>✏️ Chỉnh sửa câu hỏi</h2>
+        <p style="color: #666; margin-bottom: 8px;">Đề thi: {{ de.ten }}</p>
+    </div>
+
+    <form method="post" id="main-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_loai">Loại câu hỏi:</label>
+            <select name="loai" id="id_loai" onchange="toggleForms()">
+                <option value="tn" {% if cau.loai == 'tn' %}selected{% endif %}>Trắc nghiệm ABCD</option>
+                <option value="ds" {% if cau.loai == 'ds' %}selected{% endif %}>Trắc nghiệm Đúng/Sai</option>
+                <option value="dien" {% if cau.loai == 'dien' %}selected{% endif %}>Điền số</option>
+            </select>
+        </div>
+
+        <!-- Nội dung chung -->
+        <div class="form-group">
+            <label for="id_noi_dung">Nội dung câu hỏi:</label>
+            <textarea name="noi_dung" id="id_noi_dung" rows="4" required>{{ cau.noi_dung }}</textarea>
+            <p style="font-size: 12px; color: #666; margin-top: 6px;">Hỗ trợ công thức toán: $x^2 + y^2 = z^2$</p>
+        </div>
+
+        <!-- Form Trắc nghiệm ABCD -->
+        <div id="form-tn" class="question-form">
+            {% for field in form_tn %}
+                {% if field.name != 'noi_dung' and field.name != 'giai_thich' %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div style="color: red;">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Form Đúng/Sai -->
+        <div id="form-ds" class="question-form">
+            {% for field in form_ds %}
+                {% if field.name != 'noi_dung' and field.name != 'giai_thich' %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div style="color: red;">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Form Điền số -->
+        <div id="form-dien" class="question-form">
+            {% for field in form_dien %}
+                {% if field.name != 'noi_dung' and field.name != 'giai_thich' %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div style="color: red;">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Giải thích -->
+        <div class="form-group">
+            <label for="id_giai_thich">Giải thích (tùy chọn):</label>
+            <textarea name="giai_thich" id="id_giai_thich" rows="3">{{ cau.giai_thich }}</textarea>
+        </div>
+
+        <button type="submit" class="btn-submit">💾 Lưu câu hỏi</button>
+        <a href="{% url 'de_thi:them_cau_hoi' de.id %}" class="btn-secondary">← Quay lại</a>
+    </form>
+</div>
+
+<script>
+function toggleForms() {
+    const loai = document.getElementById('id_loai').value;
+    
+    document.querySelectorAll('.question-form').forEach(form => {
+        form.classList.remove('active');
+        form.querySelectorAll('input, select, textarea').forEach(el => el.disabled = true);
+    });
+    
+    const selectedForm = document.getElementById('form-' + loai);
+    if (selectedForm) {
+        selectedForm.classList.add('active');
+        selectedForm.querySelectorAll('input, select, textarea').forEach(el => el.disabled = false);
+    }
+}
+
+window.onload = function() {
+    toggleForms();
+    if (window.MathJax) {
+        MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+    }
+};
+</script>
+{% endblock %}

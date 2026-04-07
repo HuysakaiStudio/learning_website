@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Xác nhận xóa đề thi{% endblock %}
+{% block content %}
+<div class="form-container" style="text-align:center;">
+    <h2>Xác nhận xóa đề thi</h2>
+    <p>Bạn có chắc chắn muốn xóa đề thi <strong>{{ de.ten }}</strong> không? Hành động này không thể hoàn tác.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" style="background:#ea4335;color:white;padding:12px 24px;border:none;border-radius:8px;cursor:pointer;">Xóa đề thi</button>
+        <a href="{% url 'de_thi:danh_sach_de' %}" style="display:inline-block;padding:12px 24px;background:#ddd;color:#333;text-decoration:none;border-radius:8px;margin-left:10px;">Hủy bỏ</a>
+    </form>
+</div>
+{% endblock %}

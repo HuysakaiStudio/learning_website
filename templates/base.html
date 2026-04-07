@@ -20,8 +20,16 @@
     };
   </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    /* Toast container */
+    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+    .toast { background: #333; color: white; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; opacity: 0.9; }
+    .toast.error { background: #ea4335; }
+    .toast.success { background: #34a853; }
+  </style>
 </head>
 <body>
+  <div id="toast-container"></div>
   <nav>
     <a href="/">🏠 Trang chủ</a>
     <a href="/kien-thuc/">📚 Kiến thức</a>
@@ -47,7 +55,7 @@
   </main>
 
   <footer>
-    <p>© 2025 Ôn Thi THPTQG — Chúc bạn đạt điểm cao!</p>
+    <p>© 2026 Ôn Thi THPTQG — Chúc bạn đạt điểm cao!</p>
   </footer>
 
   <script src="{% static 'js/main.js' %}"></script>

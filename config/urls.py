@@ -17,14 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
+from django.http import HttpResponseNotFound
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
     path('nguoi-dung/', include('apps.nguoi_dung.urls')),
     path('kien-thuc/', include('apps.kien_thuc.urls')),
     path('de-thi/', include('apps.de_thi.urls')),
     path('leaderboard/', include('apps.leaderboard.urls')),
+    path('.well-known/appspecific/com.chrome.devtools.json', lambda r: HttpResponseNotFound()),
 ]

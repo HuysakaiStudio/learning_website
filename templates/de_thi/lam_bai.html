@@ -2,6 +2,16 @@
 {% block title %}{{ de.ten }}{% endblock %}
 
 {% block content %}
+<style>
+  @keyframes slideIn {
+    from { transform: translateX(400px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(400px); opacity: 0; }
+  }
+</style>
 <!-- Thanh trên cùng cố định -->
 <div style="position:sticky;top:0;background:white;z-index:100;
             border-bottom:1px solid #eee;padding:12px 0;margin-bottom:24px">
@@ -28,6 +38,19 @@
       </button>
     </div>
   </div>
+  <div style="max-width:960px;margin: 16px auto 0; padding: 0 16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px;">
+        <div style="font-size:13px;color:#555">Tiến độ làm bài</div>
+        <div id="autosave-status" style="font-size:13px;color:#666">Tự động lưu mỗi 30 giây</div>
+      </div>
+      <div style="background:#e8f0fe;border-radius:999px;overflow:hidden;height:12px">
+        <div id="progress-bar" style="width:0%;height:100%;background:#1a73e8;transition:width 0.3s;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:13px;color:#555">
+        <div id="progress-text">0% hoàn thành</div>
+        <div id="draft-message" style="display:none;color:#34a853;">Bản nháp đã khôi phục</div>
+      </div>
+    </div>
 </div>
 
 <div style="max-width:760px;margin:0 auto">
@@ -66,68 +89,22 @@
       <!-- Trắc nghiệm ABCD -->
       {% if cau.loai == 'tn' %}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        {% for nhan, nd in 'A,B,C,D'|divisibleby:2|yesno:',' %}{% endfor %}
-        {% with choices=cau.dap_an_a|add:'|||'|add:cau.dap_an_b|add:'|||'|add:cau.dap_an_c|add:'|||'|add:cau.dap_an_d %}
-        {% for label, text in 'A,B,C,D'|zip:choices %}{% endfor %}
-        {% endwith %}
-
-        {% for item in 'A,B,C,D'|make_list %}{% endfor %}
-
-        <!-- A -->
-        <label style="border:2px solid #e8e8e8;border-radius:10px;padding:14px 16px;
-                      cursor:pointer;display:flex;align-items:center;gap:12px;
-                      transition:all 0.15s" class="lua-chon">
-          <input type="radio" name="cau_{{ cau.id }}" value="A"
-                 style="display:none" class="radio-tn">
-          <span style="width:28px;height:28px;border-radius:50%;border:2px solid #ddd;
-                       display:flex;align-items:center;justify-content:center;
-                       font-weight:500;font-size:13px;flex-shrink:0" class="nhan-letter">A</span>
-          <span style="font-size:15px">{{ cau.dap_an_a }}</span>
-        </label>
-        <!-- B -->
-        <label style="border:2px solid #e8e8e8;border-radius:10px;padding:14px 16px;
-                      cursor:pointer;display:flex;align-items:center;gap:12px;
-                      transition:all 0.15s" class="lua-chon">
-          <input type="radio" name="cau_{{ cau.id }}" value="B"
-                 style="display:none" class="radio-tn">
-          <span style="width:28px;height:28px;border-radius:50%;border:2px solid #ddd;
-                       display:flex;align-items:center;justify-content:center;
-                       font-weight:500;font-size:13px;flex-shrink:0" class="nhan-letter">B</span>
-          <span style="font-size:15px">{{ cau.dap_an_b }}</span>
-        </label>
-        <!-- C -->
-        <label style="border:2px solid #e8e8e8;border-radius:10px;padding:14px 16px;
-                      cursor:pointer;display:flex;align-items:center;gap:12px;
-                      transition:all 0.15s" class="lua-chon">
-          <input type="radio" name="cau_{{ cau.id }}" value="C"
-                 style="display:none" class="radio-tn">
-          <span style="width:28px;height:28px;border-radius:50%;border:2px solid #ddd;
-                       display:flex;align-items:center;justify-content:center;
-                       font-weight:500;font-size:13px;flex-shrink:0" class="nhan-letter">C</span>
-          <span style="font-size:15px">{{ cau.dap_an_c }}</span>
-        </label>
-        <!-- D -->
-        <label style="border:2px solid #e8e8e8;border-radius:10px;padding:14px 16px;
-                      cursor:pointer;display:flex;align-items:center;gap:12px;
-                      transition:all 0.15s" class="lua-chon">
-          <input type="radio" name="cau_{{ cau.id }}" value="D"
-                 style="display:none" class="radio-tn">
-          <span style="width:28px;height:28px;border-radius:50%;border:2px solid #ddd;
-                       display:flex;align-items:center;justify-content:center;
-                       font-weight:500;font-size:13px;flex-shrink:0" class="nhan-letter">D</span>
-          <span style="font-size:15px">{{ cau.dap_an_d }}</span>
-        </label>
+        {% for label, text in cau.choices %}
+          <label style="border:2px solid #e8e8e8;border-radius:10px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all 0.15s" class="lua-chon">
+            <input type="radio" name="cau_{{ cau.id }}" value="{{ label }}" style="display:none" class="radio-tn">
+            <span style="width:28px;height:28px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:13px;flex-shrink:0" class="nhan-letter">{{ label }}</span>
+            <span style="font-size:15px">{{ text }}</span>
+          </label>
+        {% endfor %}
       </div>
 
-      <!-- Đúng/Sai -->
+  <!-- Đúng/Sai -->
       {% elif cau.loai == 'ds' %}
       <div style="display:flex;flex-direction:column;gap:10px">
-        {% for nhan, noidung in 'a,b,c,d'|zip:cau.y_a %}{% endfor %}
-
-        {% for item in 'a b c d'|split:' ' %}
+        {% for item in 'abcd'|make_list %}
         <div style="border:1px solid #e8e8e8;border-radius:10px;padding:14px 16px">
           <div style="font-size:15px;margin-bottom:10px">
-            <strong>{{ item }})</strong>
+            <strong>{{ item|upper }})</strong>
             {% if item == 'a' %}{{ cau.y_a }}
             {% elif item == 'b' %}{{ cau.y_b }}
             {% elif item == 'c' %}{{ cau.y_c }}
@@ -183,6 +160,176 @@
 </div>
 
 <script>
+const form = document.getElementById('form-lam-bai');
+const progressBar = document.getElementById('progress-bar');
+const progressText = document.getElementById('progress-text');
+const autosaveStatus = document.getElementById('autosave-status');
+const draftMessage = document.getElementById('draft-message');
+const examDraftKey = `exam_draft_{{ de.id }}_{{ che_do }}`;
+const questionMeta = [
+  {% for cau in cau_hoi_list %}
+  { id: {{ cau.id }}, type: '{{ cau.loai }}' },
+  {% endfor %}
+];
+
+// ── Toast Notification ──────────────────────────────
+function showToast(message, type = 'success') {
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 16px 24px;
+    background: ${type === 'error' ? '#f44336' : '#4caf50'};
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-size: 15px;
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.animation = 'slideOut 0.3s ease-out';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+function refreshSelectionStyles() {
+  document.querySelectorAll('.lua-chon').forEach(label => {
+    const input = label.querySelector('input[type="radio"]');
+    if (!input) return;
+    if (input.checked) {
+      label.style.borderColor = '#1a73e8';
+      label.style.background = '#f0f6ff';
+      const dot = label.querySelector('.nhan-letter');
+      if (dot) {
+        dot.style.borderColor = '#1a73e8';
+        dot.style.color = '#1a73e8';
+      }
+    } else {
+      label.style.borderColor = '#e8e8e8';
+      label.style.background = 'white';
+      const dot = label.querySelector('.nhan-letter');
+      if (dot) {
+        dot.style.borderColor = '#ddd';
+        dot.style.color = '#555';
+      }
+    }
+  });
+
+  document.querySelectorAll('.ds-label').forEach(label => {
+    const input = label.querySelector('input[type="radio"]');
+    if (!input) return;
+    if (input.checked) {
+      label.style.borderColor = '#1a73e8';
+      label.style.background = '#f0f6ff';
+    } else {
+      label.style.borderColor = '#e8e8e8';
+      label.style.background = 'white';
+    }
+  });
+}
+
+function gatherDraftValues() {
+  const values = {};
+  form.querySelectorAll('input[name], textarea[name], select[name]').forEach(el => {
+    if (el.type === 'radio') {
+      if (el.checked) {
+        values[el.name] = el.value;
+      }
+    } else if (el.type === 'checkbox') {
+      values[el.name] = el.checked;
+    } else {
+      values[el.name] = el.value;
+    }
+  });
+  return { values, savedAt: Date.now() };
+}
+
+function saveDraft(updateStatus = true) {
+  if (!window.localStorage) return;
+  try {
+    const payload = gatherDraftValues();
+    localStorage.setItem(examDraftKey, JSON.stringify(payload));
+    if (updateStatus) {
+      const time = new Date(payload.savedAt).toLocaleTimeString();
+      autosaveStatus.textContent = `Đã lưu tự động lúc ${time}`;
+    }
+  } catch (error) {
+    console.warn('Lưu nháp thất bại:', error);
+  }
+}
+
+function restoreDraft() {
+  if (!window.localStorage) return;
+  const saved = localStorage.getItem(examDraftKey);
+  if (!saved) return;
+  try {
+    const payload = JSON.parse(saved);
+    if (!payload || !payload.values) return;
+    Object.entries(payload.values).forEach(([name, value]) => {
+      const inputs = form.querySelectorAll(`[name="${name}"]`);
+      if (!inputs.length) return;
+      inputs.forEach(input => {
+        if (input.type === 'radio') {
+          input.checked = input.value === value;
+        } else if (input.type === 'checkbox') {
+          input.checked = value;
+        } else {
+          input.value = value;
+        }
+      });
+    });
+    draftMessage.style.display = 'inline';
+    const time = payload.savedAt ? new Date(payload.savedAt).toLocaleTimeString() : '';
+    autosaveStatus.textContent = time ? `Bản nháp khôi phục lúc ${time}` : 'Bản nháp đã khôi phục';
+    refreshSelectionStyles();
+  } catch (error) {
+    console.warn('Khôi phục nháp thất bại:', error);
+  }
+}
+
+function clearDraft() {
+  if (!window.localStorage) return;
+  localStorage.removeItem(examDraftKey);
+}
+
+function getAnsweredCount() {
+  let count = 0;
+  questionMeta.forEach(q => {
+    if (q.type === 'tn') {
+      if (form.querySelector(`input[name="cau_${q.id}"]:checked`)) {
+        count += 1;
+      }
+    } else if (q.type === 'ds') {
+      const a = form.querySelector(`input[name="cau_${q.id}_a"]:checked`);
+      const b = form.querySelector(`input[name="cau_${q.id}_b"]:checked`);
+      const c = form.querySelector(`input[name="cau_${q.id}_c"]:checked`);
+      const d = form.querySelector(`input[name="cau_${q.id}_d"]:checked`);
+      if (a && b && c && d) {
+        count += 1;
+      }
+    } else if (q.type === 'dien') {
+      const input = form.querySelector(`input[name="cau_${q.id}"]`);
+      if (input && input.value.trim()) {
+        count += 1;
+      }
+    }
+  });
+  return count;
+}
+
+function updateProgress() {
+  const done = getAnsweredCount();
+  const total = questionMeta.length;
+  const percent = total ? Math.round((done / total) * 100) : 0;
+  if (progressBar) progressBar.style.width = `${percent}%`;
+  if (progressText) progressText.textContent = `${percent}% hoàn thành`;
+}
+
 // ── Highlight lựa chọn trắc nghiệm ──────────────────
 document.querySelectorAll('.lua-chon').forEach(label => {
   label.addEventListener('click', function() {
@@ -198,6 +345,8 @@ document.querySelectorAll('.lua-chon').forEach(label => {
     this.style.background = '#f0f6ff';
     this.querySelector('.nhan-letter').style.borderColor = '#1a73e8';
     this.querySelector('.nhan-letter').style.color = '#1a73e8';
+    updateProgress();
+    saveDraft(false);
   });
 });
 
@@ -211,6 +360,27 @@ document.querySelectorAll('.ds-label').forEach(label => {
     });
     this.style.borderColor = '#1a73e8';
     this.style.background = '#f0f6ff';
+    updateProgress();
+    saveDraft(false);
+  });
+});
+
+form.querySelectorAll('input[type="number"]').forEach(input => {
+  input.addEventListener('input', () => {
+    updateProgress();
+    saveDraft(false);
+  });
+});
+
+form.querySelectorAll('textarea').forEach(textarea => {
+  textarea.addEventListener('input', () => {
+    saveDraft(false);
+  });
+});
+
+form.querySelectorAll('input[type="text"]').forEach(input => {
+  input.addEventListener('input', () => {
+    saveDraft(false);
   });
 });
 
@@ -245,26 +415,55 @@ function nopBai() {
   const chuaLam = [];
   {% for cau in cau_hoi_list %}
     {% if cau.loai == 'tn' %}
-    if (!document.querySelector('input[name="cau_{{ cau.id }}"]:checked')) {
-      chuaLam.push('Câu {{ forloop.counter }}');
-    }
+      if (!document.querySelector('input[name="cau_{{ cau.id }}"]:checked')) {
+        chuaLam.push('Câu {{ forloop.counter }}');
+      }
+    {% elif cau.loai == 'ds' %}
+      const ds_a = document.querySelector('input[name="cau_{{ cau.id }}_a"]:checked');
+      const ds_b = document.querySelector('input[name="cau_{{ cau.id }}_b"]:checked');
+      const ds_c = document.querySelector('input[name="cau_{{ cau.id }}_c"]:checked');
+      const ds_d = document.querySelector('input[name="cau_{{ cau.id }}_d"]:checked');
+      if (!ds_a || !ds_b || !ds_c || !ds_d) {
+        chuaLam.push('Câu {{ forloop.counter }}');
+      }
+    {% elif cau.loai == 'dien' %}
+      if (!document.querySelector('input[name="cau_{{ cau.id }}"]').value.trim()) {
+        chuaLam.push('Câu {{ forloop.counter }}');
+      }
     {% endif %}
   {% endfor %}
 
   if (chuaLam.length > 0) {
-    const ok = confirm(`Bạn chưa trả lời: ${chuaLam.join(', ')}.\nVẫn nộp bài?`);
-    if (!ok) return;
+    showToast('Bạn chưa làm: ' + chuaLam.join(', '), 'error');
+    const firstId = chuaLam[0].replace('Câu ', '');
+    document.getElementById('cau-' + firstId).scrollIntoView({ behavior: 'smooth' });
+    return;
   }
 
   document.getElementById('thoi_gian_lam').value = daChay;
-
-  // Render MathJax xong mới submit (tránh lỗi)
-  document.getElementById('form-lam-bai').submit();
+  clearDraft();
+  form.submit();
 }
 
 // ── MathJax render ───────────────────────────────────
-if (window.MathJax) {
-  MathJax.typesetPromise();
+function renderMathJax() {
+  if (window.MathJax) {
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+  }
 }
+
+restoreDraft();
+updateProgress();
+saveDraft(false);
+
+// Re-render after form submission if needed
+const originalNopBai = nopBai;
+nopBai = function() {
+  renderMathJax();
+  originalNopBai();
+};
+
+window.addEventListener('beforeunload', saveDraft);
+setInterval(saveDraft, 30000);
 </script>
 {% endblock %}

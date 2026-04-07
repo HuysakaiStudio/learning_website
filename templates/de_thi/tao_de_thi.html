@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Tạo đề thi tùy chỉnh{% endblock %}
+{% block content %}
+<style>
+    .form-container { max-width: 800px; margin: 20px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .tab-buttons { display: flex; gap: 12px; margin-bottom: 24px; }
+    .tab-btn { padding: 10px 20px; background: #e8e8e8; color: #333; border: 2px solid transparent; border-radius: 6px; cursor: pointer; font-weight: 500; text-decoration: none; display: inline-block; }
+    .tab-btn.active { background: #1a73e8; color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
+    input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+    .btn-submit { background: #1a73e8; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 10px; }
+    .btn-submit:hover { background: #1557b0; }
+</style>
+
+<div class="form-container">
+    <h2>📝 Tạo Đề Thi Tùy Chỉnh</h2>
+    
+    <div class="tab-buttons">
+        <button class="tab-btn active" onclick="showTab('tao', event)">➕ Tạo mới</button>
+        <a href="{% url 'de_thi:import_de_thi' %}" class="tab-btn">📥 Import</a>
+    </div>
+    
+    <div id="tao" class="tab-content active">
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div style="color: red;">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn-submit">Tiếp theo: Thêm câu hỏi</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function showTab(tabName, event) {
+    event.preventDefault();
+    const contents = document.querySelectorAll('.tab-content');
+    const buttons = document.querySelectorAll('.tab-btn');
+    
+    contents.forEach(c => c.classList.remove('active'));
+    buttons.forEach(b => b.classList.remove('active'));
+    
+    if (document.getElementById(tabName)) {
+        document.getElementById(tabName).classList.add('active');
+    }
+    event.target.classList.add('active');
+}
+</script>
+{% endblock %}

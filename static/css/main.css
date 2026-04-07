@@ -4,7 +4,11 @@ nav { background: #1a73e8; padding: 12px 24px; display: flex; gap: 16px; align-i
 nav a { color: white; text-decoration: none; font-weight: 500; }
 nav span { color: white; margin-left: auto; }
 main { max-width: 960px; margin: 32px auto; padding: 0 16px; }
-.alert { padding: 12px; border-radius: 6px; margin-bottom: 16px; background: #e8f5e9; }
+.alert { padding: 12px; border-radius: 6px; margin-bottom: 16px; }
+.alert-success { background: #e8f5e9; color: #363; border: 1px solid #4caf50; }
+.alert-error { background: #fce8e6; color: #c33; border: 1px solid #f44336; }
+.alert-info { background: #e3f2fd; color: #1565c0; border: 1px solid #2196f3; }
+.alert-warning { background: #fff3e0; color: #ef6c00; border: 1px solid #ff9800; }
 footer { text-align: center; padding: 24px; color: #888; margin-top: 48px; }
 input[type="text"],
 input[type="password"],

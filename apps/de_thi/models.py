@@ -1,13 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
+from apps.kien_thuc.models import Mon
 
 class DeThi(models.Model):
     ten = models.CharField(max_length=200)
-    mon = models.CharField(max_length=100)
+    mon = models.ForeignKey(Mon, on_delete=models.SET_NULL, null=True, related_name='de_thi')
     mo_ta = models.TextField(blank=True)
     thoi_gian_phut = models.IntegerField(default=50)
     ngay_tao = models.DateTimeField(auto_now_add=True)
     an = models.BooleanField(default=False)
+    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_de_thi')
+    is_custom = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Đề thi'

@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% block title %}Thêm câu hỏi{% endblock %}
+{% block content %}
+<style>
+    .form-container { max-width: 800px; margin: 40px auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: 600; margin-bottom: 8px; color: #444; }
+    input, select, textarea { width: 100%; padding: 14px; border: 1px solid #e0e0e0; border-radius: 10px; background: #f9f9f9; font-size: 15px; }
+    input:focus, textarea:focus { border-color: #1a73e8; outline: none; background: white; }
+    .btn-submit { background: #1a73e8; color: white; padding: 14px 28px; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; width: 100%; font-weight: 600; }
+    .btn-submit:hover { background: #1557b0; }
+    .header-box { text-align: center; margin-bottom: 30px; }
+    .header-box h2 { color: #1a73e8; margin-bottom: 10px; }
+    .question-form { display: none; }
+</style>
+
+<div class="form-container">
+    <div class="header-box">
+        <h2>Thêm câu hỏi cho: <strong>{{ de.ten }}</strong></h2>
+        <div style="display: flex; gap: 12px; justify-content: center; margin-top: 16px;">
+            <a href="{% url 'de_thi:sua_de_thi' de.id %}" style="padding: 10px 20px; background: #ff9800; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500;">⚙️ Sửa đề thi</a>
+            <a href="{% url 'de_thi:bulk_add_questions' de.id %}" style="padding: 10px 20px; background: #34a853; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500;">📋 Thêm hàng loạt</a>
+        </div>
+    </div>
+    <form method="post" id="main-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_loai">Loại câu hỏi:</label>
+            <select name="loai" id="id_loai" onchange="toggleForms()">
+                <option value="tn" {% if loai == 'tn' %}selected{% endif %}>Trắc nghiệm ABCD</option>
+                <option value="ds" {% if loai == 'ds' %}selected{% endif %}>Trắc nghiệm Đúng/Sai</option>
+                <option value="dien" {% if loai == 'dien' %}selected{% endif %}>Điền số</option>
+            </select>
+        </div>
+
+        <div id="form-tn" class="question-form">
+            {% for field in form_tn %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div style="color: red;">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        <div id="form-ds" class="question-form">
+            {% for field in form_ds %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div style="color: red;">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        <div id="form-dien" class="question-form">
+            {% for field in form_dien %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div style="color: red;">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn-submit" id="btn-submit">Thêm câu hỏi này</button>
+    </form>
+</div>
+
+<!-- Danh sách câu hỏi hiện có -->
+{% if cau_hoi_list %}
+<div style="max-width: 800px; margin: 40px auto;">
+    <h3 style="color: #1a73e8; margin-bottom: 20px; font-size: 18px;">📚 Danh sách câu hỏi ({{ cau_hoi_list|length }})</h3>
+    
+    {% for cau in cau_hoi_list %}
+    <div style="background: white; border-radius: 12px; padding: 18px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border-left: 4px solid {% if cau.loai == 'tn' %}#1a73e8{% elif cau.loai == 'ds' %}#ea4335{% else %}#34a853{% endif %};">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <span style="background: #f0f0f0; color: #555; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;">Câu {{ forloop.counter }}</span>
+                    {% if cau.loai == 'tn' %}
+                    <span style="background: #e8f0fe; color: #1a73e8; padding: 3px 10px; border-radius: 20px; font-size: 12px;">📌 Trắc nghiệm</span>
+                    {% elif cau.loai == 'ds' %}
+                    <span style="background: #fce8e8; color: #ea4335; padding: 3px 10px; border-radius: 20px; font-size: 12px;">✅ Đúng/Sai</span>
+                    {% elif cau.loai == 'dien' %}
+                    <span style="background: #e6f4ea; color: #34a853; padding: 3px 10px; border-radius: 20px; font-size: 12px;">🔢 Điền số</span>
+                    {% endif %}
+                </div>
+                <p style="font-size: 15px; margin: 8px 0; line-height: 1.5; color: #333;">{{ cau.noi_dung|truncatewords:30 }}</p>
+                {% if cau.giai_thich %}
+                <p style="font-size: 13px; color: #666; margin-top: 6px; border-top: 1px solid #eee; padding-top: 6px;">
+                    <strong>Giải thích:</strong> {{ cau.giai_thich|truncatewords:20 }}
+                </p>
+                {% endif %}
+            </div>
+            <div style="display: flex; gap: 8px; margin-left: 12px;">
+                <a href="{% url 'de_thi:sua_cau_hoi' cau.id %}" style="padding: 8px 12px; background: #ff9800; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer;">✏️ Sửa</a>
+                <a href="{% url 'de_thi:xoa_cau_hoi' cau.id %}" style="padding: 8px 12px; background: #ea4335; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer;">🗑️ Xóa</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+function toggleForms() {
+    const loai = document.getElementById('id_loai').value;
+    
+    // Ẩn tất cả form và disable các trường input
+    document.querySelectorAll('.question-form').forEach(form => {
+        form.style.display = 'none';
+        form.querySelectorAll('input, select, textarea').forEach(el => el.disabled = true);
+    });
+    
+    // Hiển thị form đã chọn và enable các trường input
+    const selectedForm = document.getElementById('form-' + loai);
+    if (selectedForm) {
+        selectedForm.style.display = 'block';
+        selectedForm.querySelectorAll('input, select, textarea').forEach(el => el.disabled = false);
+    }
+}
+// Render MathJax
+function renderMathJax() {
+  if (window.MathJax) {
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+  }
+}
+
+// Chạy ngay khi load để đảm bảo hiển thị đúng
+window.onload = function() {
+  toggleForms();
+  renderMathJax();
+  console.log("Loaded toggleForms and MathJax");
+};
+
+// AJAX logic
+const form = document.getElementById('main-form');
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    console.log("Submitting form...");
+    const formData = new FormData(form);
+    
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        console.log("Response status:", response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log("Response data:", data);
+        if (data.success) {
+            alert('Câu hỏi đã được thêm!');
+            form.reset();
+            toggleForms();
+        } else {
+            let errorMsg = 'Có lỗi xảy ra: \n';
+            for (const [field, messages] of Object.entries(data.errors)) {
+                errorMsg += `${field}: ${messages.join(', ')}\n`;
+            }
+            alert(errorMsg);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Đã xảy ra lỗi kết nối');
+    });
+});
+</script>
+{% endblock %}
