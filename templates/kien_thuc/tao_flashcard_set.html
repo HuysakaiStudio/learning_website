@@ -128,6 +128,24 @@
         <textarea name="mo_ta" id="mo_ta" placeholder="Mô tả ngắn gọn về nội dung bộ flashcard..."></textarea>
       </div>
 
+      <!-- Hướng dẫn tạo flashcard -->
+      <div style="margin-top:20px;padding:16px;background:#e3f2fd;border-left:4px solid #2196f3;border-radius:8px;font-size:13px;line-height:1.8">
+        <strong style="color:#1976d2">💡 Hướng dẫn tạo Flashcard chất lượng:</strong>
+        <div style="margin-top:10px;color:#555">
+          <strong>Sử dụng MathJax cho công thức:</strong><br>
+          • Mặt trước: <code>Tính đạo hàm của $f(x) = x^2$</code><br>
+          • Mặt sau: <code>$$f'(x) = 2x$$</code><br><br>
+          
+          <strong>Nguyên tắc tạo flashcard:</strong><br>
+          ✅ Ngắn gọn, súc tích - mỗi thẻ 1 khái niệm<br>
+          ✅ Câu hỏi rõ ràng, câu trả lời chính xác<br>
+          ✅ Sử dụng công thức MathJax đúng cú pháp: <code>$inline$</code> hoặc <code>$$block$$</code><br>
+          ✅ Có ví dụ cụ thể khi cần thiết<br>
+          ❌ Không tạo thẻ quá dài, khó nhớ<br>
+          ❌ Không sao chép nguyên văn từ sách mà không hiểu
+        </div>
+      </div>
+
       <div class="form-buttons">
         <button type="submit" class="btn btn-submit">✅ Tạo Bộ</button>
         <a href="{% url 'kien_thuc:danh_sach_flashcard_sets' %}" class="btn btn-cancel">❌ Hủy</a>

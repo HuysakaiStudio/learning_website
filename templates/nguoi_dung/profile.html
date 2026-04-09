@@ -55,7 +55,7 @@
     <div class="col-lg-8">
         <!-- Gamification Stats -->
         {% if is_own_profile %}
-        <div class="card-psychology mb-4" style="background: linear-gradient(135deg, var(--primary-600) 0%, var(--accent-500) 100%); padding: var(--space-6); color: white; border: none;">
+        <div class="card mb-4 gamification-stats-card" style="padding: var(--space-6); color: white; border: none;">
             <div class="row g-4 align-items-center">
                 <div class="col-md-3 text-center">
                     <div class="mb-2" style="font-size: var(--text-5xl);">🏆</div>
@@ -84,8 +84,8 @@
                     <span>Tiến độ lên cấp</span>
                     <span id="xp-progress-text">0 / 100 XP</span>
                 </div>
-                <div class="progress-psychology">
-                    <div id="xp-progress-bar" class="progress-psychology-fill" style="width: 0%; background: linear-gradient(90deg, rgba(255,255,255,0.8), rgba(255,255,255,1));"></div>
+                <div class="progress">
+                    <div id="xp-progress-bar" class="progress-bar" style="width: 0%; background: linear-gradient(90deg, rgba(255,255,255,0.8), rgba(255,255,255,1));"></div>
                 </div>
             </div>
         </div>
@@ -123,19 +123,65 @@
             </div>
         </div>
 
+        <!-- Thành tựu Xếp hạng -->
+        {% if user_achievements %}
+        <div class="card border-0 mb-4 achievement-card" style="color: white;">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3 d-flex align-items-center">
+                    <span class="me-2">🏆</span> Thành tựu Xếp hạng
+                </h5>
+                <div class="row g-3">
+                    {% for achievement in user_achievements %}
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="me-2" style="font-size: 1.5rem;">
+                                    {% if achievement.achievement_type == 'top_100_all_time' %}🌟
+                                    {% elif achievement.achievement_type == 'top_10_monthly' %}💎
+                                    {% elif achievement.achievement_type == 'top_10_weekly' %}⭐
+                                    {% elif achievement.achievement_type == 'top_10_daily' %}✨
+                                    {% elif achievement.achievement_type == 'subject_master' %}📚
+                                    {% elif achievement.achievement_type == 'exam_champion' %}🎯
+                                    {% elif achievement.achievement_type == 'flashcard_king' %}🎴
+                                    {% else %}🏅{% endif %}
+                                </span>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">{{ achievement.get_achievement_type_display }}</div>
+                                    <div class="small" style="opacity: 0.9;">
+                                        {% if achievement.rank_achieved %}Hạng #{{ achievement.rank_achieved }}{% endif %}
+                                        {% if achievement.mon %} - {{ achievement.mon.ten }}{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="small" style="opacity: 0.8;">
+                                <i class="bi bi-calendar-check"></i> {{ achievement.earned_at|date:"d/m/Y" }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center mt-3">
+                    <a href="/leaderboard/achievements/" class="btn btn-light btn-sm">
+                        <i class="bi bi-trophy"></i> Xem tất cả thành tựu
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Huy hiệu -->
         <div class="card border-0 mb-4">
             <div class="card-body p-4">
-                <h5 class="fw-bold mb-3">Thành tích & Huy hiệu</h5>
+                <h5 class="fw-bold mb-3">Huy hiệu</h5>
                 <div class="d-flex flex-wrap gap-2">
                     {% for item in display_badges %}
                         {% if item.achieved %}
                             <div class="badge-custom badge-tier-{{ item.badge.tier }}" title="{{ item.badge.description }}" data-bs-toggle="tooltip">
-                                <span>🏅</span> <strong>{{ item.badge.name }}</strong>
+                                <span>🏅</span> <strong>{{ item.badge.get_vietnamese_name }}</strong>
                             </div>
                         {% else %}
                             <div class="badge-custom border" style="background:#f8f9fa; color:#adb5bd; opacity:0.7; cursor:help;" title="Chưa đạt: {{ item.badge.description }}" data-bs-toggle="tooltip">
-                                <span>🔒</span> {{ item.badge.name }}
+                                <span>🔒</span> {{ item.badge.get_vietnamese_name }}
                             </div>
                         {% endif %}
                     {% empty %}
@@ -230,40 +276,48 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
     
-    // Update gamification stats from localStorage
-    if (window.gamification) {
-        const xp = window.gamification.xp;
-        const level = window.gamification.level;
-        const streak = window.gamification.streak;
-        
-        // Update displays
-        const levelDisplay = document.getElementById('user-level-display');
-        const xpDisplay = document.getElementById('user-xp-display');
-        const streakDisplay = document.getElementById('user-streak-display');
-        
-        if (levelDisplay) levelDisplay.textContent = `Level ${level}`;
-        if (xpDisplay) xpDisplay.textContent = `${xp} XP`;
-        if (streakDisplay) streakDisplay.textContent = streak;
-        
-        // Calculate XP progress to next level
-        const currentLevelXP = Math.pow(level * 100, 1.5);
-        const nextLevelXP = Math.pow((level + 1) * 100, 1.5);
-        const xpInCurrentLevel = xp - currentLevelXP;
-        const xpNeededForNextLevel = nextLevelXP - currentLevelXP;
-        const progressPercent = Math.min(100, (xpInCurrentLevel / xpNeededForNextLevel) * 100);
-        
-        // Update progress bar
-        const progressBar = document.getElementById('xp-progress-bar');
-        const progressText = document.getElementById('xp-progress-text');
-        
-        if (progressBar) {
-            progressBar.style.width = progressPercent + '%';
-        }
-        
-        if (progressText) {
-            progressText.textContent = `${Math.floor(xpInCurrentLevel)} / ${Math.floor(xpNeededForNextLevel)} XP`;
-        }
+    {% if gamification_data %}
+    // Update gamification stats from server data
+    const xp = {{ gamification_data.xp }};
+    const level = {{ gamification_data.level }};
+    const streak = {{ gamification_data.current_streak }};
+    
+    // Update displays
+    const levelDisplay = document.getElementById('user-level-display');
+    const xpDisplay = document.getElementById('user-xp-display');
+    const streakDisplay = document.getElementById('user-streak-display');
+    
+    if (levelDisplay) levelDisplay.textContent = `Level ${level}`;
+    if (xpDisplay) xpDisplay.textContent = `${xp} XP`;
+    if (streakDisplay) streakDisplay.textContent = streak;
+    
+    // Calculate XP progress to next level
+    const currentLevelXP = Math.pow(level * 100, 1.5);
+    const nextLevelXP = Math.pow((level + 1) * 100, 1.5);
+    const xpInCurrentLevel = xp - currentLevelXP;
+    const xpNeededForNextLevel = nextLevelXP - currentLevelXP;
+    const progressPercent = Math.min(100, (xpInCurrentLevel / xpNeededForNextLevel) * 100);
+    
+    // Update progress bar
+    const progressBar = document.getElementById('xp-progress-bar');
+    const progressText = document.getElementById('xp-progress-text');
+    
+    if (progressBar) {
+        progressBar.style.width = progressPercent + '%';
     }
+    
+    if (progressText) {
+        progressText.textContent = `${Math.floor(xpInCurrentLevel)} / ${Math.floor(xpNeededForNextLevel)} XP`;
+    }
+    
+    // Also update window.gamification for other scripts
+    if (!window.gamification) {
+        window.gamification = {};
+    }
+    window.gamification.xp = xp;
+    window.gamification.level = level;
+    window.gamification.streak = streak;
+    {% endif %}
 });
 </script>
 {% endblock %}

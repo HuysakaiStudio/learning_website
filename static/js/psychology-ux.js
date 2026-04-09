@@ -156,23 +156,93 @@ class MicroInteractions {
 
 class GamificationSystem {
   constructor() {
-    this.xp = parseInt(localStorage.getItem('userXP')) || 0;
-    this.level = this.calculateLevel(this.xp);
-    this.streak = parseInt(localStorage.getItem('studyStreak')) || 0;
-    this.lastStudyDate = localStorage.getItem('lastStudyDate');
+    // Initialize with default values - will be loaded from server
+    this.xp = 0;
+    this.level = 0;
+    this.streak = 0;
+    this.lastStudyDate = null;
+    this.syncing = false;
+    this.serverLoaded = false;
     this.init();
   }
 
   init() {
-    this.checkStreak();
-    this.updateDisplay();
+    this.loadFromServer();
+  }
+
+  async loadFromServer() {
+    try {
+      const response = await fetch('/nguoi-dung/api/gamification/stats/');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          // Update from server - server is source of truth
+          this.xp = data.data.xp;
+          this.level = data.data.level;
+          this.streak = data.data.current_streak;
+          this.serverLoaded = true;
+          
+          // Update localStorage as cache only (read-only for display)
+          localStorage.setItem('userXP', this.xp);
+          localStorage.setItem('studyStreak', this.streak);
+          
+          this.updateDisplay();
+          
+          // One-time migration from old localStorage data
+          await this.migrateOldData();
+        }
+      }
+    } catch (error) {
+      console.log('Server unavailable, using cached data');
+      // Fallback to localStorage cache for offline display only
+      this.xp = parseInt(localStorage.getItem('userXP')) || 0;
+      this.level = this.calculateLevel(this.xp);
+      this.streak = parseInt(localStorage.getItem('studyStreak')) || 0;
+      this.updateDisplay();
+    }
+  }
+
+  async migrateOldData() {
+    // One-time migration: if localStorage has more data, sync it to server
+    const localXP = parseInt(localStorage.getItem('userXP')) || 0;
+    const localStreak = parseInt(localStorage.getItem('studyStreak')) || 0;
+    
+    if (localXP > this.xp || localStreak > this.streak) {
+      try {
+        const response = await fetch('/nguoi-dung/api/gamification/sync/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            xp: localXP,
+            streak: localStreak
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            this.xp = data.data.xp;
+            this.level = data.data.level;
+            this.streak = data.data.current_streak;
+            localStorage.setItem('userXP', this.xp);
+            localStorage.setItem('studyStreak', this.streak);
+            this.updateDisplay();
+            console.log('Old data migrated successfully');
+          }
+        }
+      } catch (error) {
+        console.log('Migration failed, will retry later');
+      }
+    }
   }
 
   calculateLevel(xp) {
     return Math.floor(Math.pow(xp / 100, 1 / 1.5));
   }
 
-  addXP(amount, reason = '') {
+  async addXP(amount, reason = '') {
     this.xp += amount;
     const newLevel = this.calculateLevel(this.xp);
     
@@ -188,6 +258,42 @@ class GamificationSystem {
     }
     
     this.updateDisplay();
+    
+    // Sync to server
+    this.syncXPToServer(amount, reason);
+  }
+
+  async syncXPToServer(amount, reason) {
+    if (this.syncing) return;
+    
+    try {
+      this.syncing = true;
+      const response = await fetch('/nguoi-dung/api/gamification/add-xp/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: amount,
+          reason: reason
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          // Update from server response
+          this.xp = data.data.total_xp;
+          this.level = data.data.new_level;
+          localStorage.setItem('userXP', this.xp);
+          this.updateDisplay();
+        }
+      }
+    } catch (error) {
+      console.log('XP sync failed, saved locally');
+    } finally {
+      this.syncing = false;
+    }
   }
 
   showXPNotification(amount, reason) {
@@ -252,35 +358,35 @@ class GamificationSystem {
     document.body.appendChild(modal);
   }
 
-  checkStreak() {
-    const today = new Date().toDateString();
-    const lastDate = this.lastStudyDate;
-    
-    if (lastDate === today) {
-      // Already studied today
-      return;
-    }
-    
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    if (lastDate === yesterday.toDateString()) {
-      // Continuing streak
-      this.streak++;
-    } else if (lastDate !== today) {
-      // Streak broken
-      if (this.streak > 0) {
-        this.showStreakLostNotification();
+  async checkStreak() {
+    // Streak is now managed by server only
+    // Call server to update streak
+    try {
+      const response = await fetch('/nguoi-dung/api/gamification/update-streak/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          const oldStreak = this.streak;
+          this.streak = data.data.current_streak;
+          
+          // Update localStorage cache
+          localStorage.setItem('studyStreak', this.streak);
+          this.updateDisplay();
+          
+          // Check for streak milestones
+          if ([3, 7, 30, 100].includes(this.streak) && this.streak > oldStreak) {
+            this.showStreakMilestone(this.streak);
+          }
+        }
       }
-      this.streak = 1;
-    }
-    
-    localStorage.setItem('studyStreak', this.streak);
-    localStorage.setItem('lastStudyDate', today);
-    
-    // Check for streak milestones
-    if ([3, 7, 30, 100].includes(this.streak)) {
-      this.showStreakMilestone(this.streak);
+    } catch (error) {
+      console.log('Streak update failed - server unavailable');
     }
   }
 
@@ -306,13 +412,13 @@ class GamificationSystem {
     // Update XP display if element exists
     const xpDisplay = document.getElementById('user-xp');
     if (xpDisplay) {
-      xpDisplay.textContent = this.xp;
+      xpDisplay.textContent = `${this.xp} XP`;
     }
     
     // Update level display
     const levelDisplay = document.getElementById('user-level');
     if (levelDisplay) {
-      levelDisplay.textContent = this.level;
+      levelDisplay.textContent = `Level ${this.level}`;
     }
     
     // Update streak display

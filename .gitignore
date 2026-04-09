@@ -1,7 +1,47 @@
+# Environment variables
 .env
+
+# Virtual environment
 venv/
+env/
+
+# Python cache
 __pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Django
 db.sqlite3
+db.sqlite3-journal
 staticfiles/
-*.pyc
+media/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Roo
 .roo/skills
+.roo/cache/
+
+# Temporary files
+temp_*.css
+temp_*.js
+*.tmp
+
+# Test files
+test_*.py
+.coverage
+htmlcov/
+
+# Logs
+*.log

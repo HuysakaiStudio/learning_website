@@ -359,7 +359,7 @@
    ============================================ */
 
 /* Buttons */
-.btn-psychology {
+.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -376,37 +376,37 @@
   white-space: nowrap;
 }
 
-.btn-psychology:hover {
+.btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
-.btn-psychology:active {
+.btn:active {
   transform: translateY(0);
 }
 
-.btn-psychology-primary {
+.btn-primary {
   background-color: var(--color-primary);
   color: var(--text-inverse);
 }
 
-.btn-psychology-primary:hover {
+.btn-primary:hover {
   background-color: var(--color-primary-hover);
   box-shadow: var(--shadow-primary);
 }
 
-.btn-psychology-success {
+.btn-success {
   background-color: var(--color-success);
   color: var(--text-inverse);
 }
 
-.btn-psychology-success:hover {
+.btn-success:hover {
   background-color: var(--success-700);
   box-shadow: var(--shadow-success);
 }
 
-/* Cards with Psychology */
-.card-psychology {
+/* Cards */
+.card {
   background: var(--bg-primary);
   border-radius: var(--radius-xl);
   padding: var(--space-4);
@@ -415,21 +415,21 @@
   border: 1px solid var(--border-light);
 }
 
-.card-psychology:hover {
+.card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
 }
 
-.card-psychology-interactive {
+.card-interactive {
   cursor: pointer;
 }
 
-.card-psychology-interactive:active {
+.card-interactive:active {
   transform: translateY(-2px);
 }
 
 /* Progress Bars */
-.progress-psychology {
+.progress {
   width: 100%;
   height: 12px;
   background-color: var(--neutral-200);
@@ -438,7 +438,7 @@
   position: relative;
 }
 
-.progress-psychology-fill {
+.progress-bar {
   height: 100%;
   background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
   border-radius: var(--radius-full);
@@ -447,7 +447,7 @@
   overflow: hidden;
 }
 
-.progress-psychology-fill::after {
+.progress-bar::after {
   content: '';
   position: absolute;
   top: 0;
@@ -469,7 +469,7 @@
 }
 
 /* Badges & Achievement Tags */
-.badge-psychology {
+.badge {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -480,7 +480,7 @@
   transition: var(--transition-fast);
 }
 
-.badge-psychology:hover {
+.badge:hover {
   transform: scale(1.05);
 }
 
@@ -602,12 +602,12 @@
 }
 
 /* Tooltip */
-.tooltip-psychology {
+.tooltip {
   position: relative;
   display: inline-block;
 }
 
-.tooltip-psychology::after {
+.tooltip::after {
   content: attr(data-tooltip);
   position: absolute;
   bottom: 100%;
@@ -625,7 +625,7 @@
   z-index: var(--z-tooltip);
 }
 
-.tooltip-psychology:hover::after {
+.tooltip:hover::after {
   opacity: 1;
   transform: translateX(-50%) translateY(-4px);
 }
@@ -653,14 +653,13 @@
   }
   
   /* Stack buttons vertically on mobile */
-  .btn-psychology,
   .btn {
     width: 100%;
     justify-content: center;
   }
   
   /* Adjust card padding */
-  .card-psychology {
+  .card {
     padding: var(--space-3) !important;
   }
   
@@ -685,7 +684,6 @@
   .hide-tablet { display: none !important; }
   
   /* Tablet adjustments */
-  .btn-psychology,
   .btn {
     min-width: 150px;
   }

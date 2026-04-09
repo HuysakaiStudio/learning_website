@@ -1,0 +1,2416 @@
+/* ============================================
+   DARK MODE STYLES - Optimized for Eye Comfort
+   ============================================ */
+
+/* Dark mode variables - Optimized for Maximum Eye Comfort (Anti-Fatigue) */
+:root {
+  /* Warm, neutral dark gray background (reduces blue-light eye strain) */
+  --dm-bg-primary: #202124;
+  --dm-bg-secondary: #292a2d;
+  --dm-bg-tertiary: #35363a;
+  --dm-bg-card: #292a2d;
+  --dm-bg-hover: #3c4043;
+  
+  /* Lower contrast text to prevent halation and eye fatigue */
+  --dm-text-primary: #e8eaed;
+  --dm-text-secondary: #9aa0a6;
+  --dm-text-muted: #80868b;
+  
+  --dm-border: #3c4043;
+  --dm-border-subtle: #35363a;
+  
+  /* Muted pastel brand colors to avoid harsh glare */
+  --dm-primary: #8ab4f8;
+  --dm-success: #81c995;
+  --dm-warning: #fde293;
+  --dm-danger: #f28b82;
+  --dm-info: #81c995;
+  
+  --dm-shadow: rgba(0, 0, 0, 0.25);
+  --dm-shadow-strong: rgba(0, 0, 0, 0.45);
+}
+
+/* Dark mode active */
+body.dark-mode {
+  background-color: var(--dm-bg-primary);
+  color: var(--dm-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================
+   GLOBAL BOOTSTRAP UTILITIES OVERRIDES
+   ============================================ */
+body.dark-mode .bg-white,
+body.dark-mode .bg-light,
+body.dark-mode .bg-body {
+  background-color: var(--dm-bg-card) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .text-dark,
+body.dark-mode .text-body,
+body.dark-mode .text-black {
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode p,
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6,
+body.dark-mode li {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .list-group-item {
+  background-color: var(--dm-bg-card);
+  border-color: var(--dm-border);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .list-group-item:hover {
+  background-color: var(--dm-bg-hover);
+}
+
+body.dark-mode hr {
+  border-color: var(--dm-border);
+}
+
+/* Pagination Overrides */
+body.dark-mode .page-link {
+  background-color: var(--dm-bg-card);
+  border-color: var(--dm-border);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .page-link:hover {
+  background-color: var(--dm-bg-hover);
+  color: var(--dm-primary);
+}
+
+body.dark-mode .page-item.active .page-link {
+  background-color: var(--dm-primary);
+  border-color: var(--dm-primary);
+  color: #1a1d23;
+}
+
+body.dark-mode .page-item.disabled .page-link {
+  background-color: var(--dm-bg-secondary);
+  border-color: var(--dm-border);
+  color: var(--dm-text-muted);
+}
+
+/* ============================================
+   NAVBAR
+   ============================================ */
+body.dark-mode .navbar {
+  background-color: var(--dm-bg-secondary) !important;
+  border-bottom: 1px solid var(--dm-border);
+}
+
+body.dark-mode .navbar-brand {
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode .nav-link {
+  color: var(--dm-text-secondary) !important;
+} 
+
+body.dark-mode .nav-link:hover {
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .nav-link.text-primary {
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode .dropdown-menu {
+  background-color: var(--dm-bg-card);
+  border-color: var(--dm-border);
+}
+
+body.dark-mode .dropdown-item {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .dropdown-item:hover {
+  background-color: var(--dm-bg-hover);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .dropdown-divider {
+  border-color: var(--dm-border);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+body.dark-mode .btn-outline-primary {
+  color: var(--dm-primary);
+  border-color: var(--dm-primary);
+}
+
+body.dark-mode .btn-outline-primary:hover {
+  background-color: var(--dm-primary);
+  color: #1a1d23;
+}
+
+body.dark-mode .btn-primary {
+  background-color: var(--dm-primary);
+  border-color: var(--dm-primary);
+  color: #1a1d23;
+}
+
+body.dark-mode .btn-primary:hover {
+  background-color: #5a95ff;
+  border-color: #5a95ff;
+}
+
+body.dark-mode button[style*="background:#1a73e8"] {
+  background: var(--dm-primary) !important;
+  color: #1a1d23 !important;
+}
+
+body.dark-mode button[style*="background:#1a73e8"]:hover {
+  background: #5a95ff !important;
+}
+
+body.dark-mode a[style*="background:#1a73e8"] {
+  background: var(--dm-primary) !important;
+  color: #1a1d23 !important;
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+body.dark-mode .card {
+  background-color: var(--dm-bg-card);
+  border-color: var(--dm-border);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .card-interactive:hover {
+  background-color: var(--dm-bg-hover);
+  border-color: var(--dm-primary);
+}
+
+/* Override inline white backgrounds */
+body.dark-mode div[style*="background:white"],
+body.dark-mode div[style*="background: white"] {
+  background: var(--dm-bg-card) !important;
+}
+
+body.dark-mode div[style*="background:white"][style*="border-radius:12px"] {
+  background: var(--dm-bg-card) !important;
+  box-shadow: 0 2px 8px var(--dm-shadow) !important;
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+body.dark-mode .hero-section {
+  background: linear-gradient(135deg, #2d3748 0%, #4a1d5c 100%);
+}
+
+/* ============================================
+   FORMS
+   ============================================ */
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select,
+body.dark-mode .form-control {
+  background-color: var(--dm-bg-tertiary);
+  border-color: var(--dm-border);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode input:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus,
+body.dark-mode .form-control:focus {
+  background-color: var(--dm-bg-secondary);
+  border-color: var(--dm-primary);
+  color: var(--dm-text-primary);
+  box-shadow: 0 0 0 0.2rem rgba(107, 163, 255, 0.25);
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: var(--dm-text-muted);
+}
+
+body.dark-mode input[type="number"],
+body.dark-mode input[type="text"][style*="border:"] {
+  background: var(--dm-bg-tertiary) !important;
+  border-color: var(--dm-border) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+body.dark-mode table {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .table {
+  --bs-table-bg: var(--dm-bg-card);
+  --bs-table-border-color: var(--dm-border);
+}
+
+body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: var(--dm-bg-tertiary);
+}
+
+body.dark-mode table[style*="border-collapse"] {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode table tr[style*="background:#f8f8f8"] {
+  background: var(--dm-bg-tertiary) !important;
+}
+
+body.dark-mode table th,
+body.dark-mode table td {
+  border-color: var(--dm-border) !important;
+}
+
+/* ============================================
+   ALERTS
+   ============================================ */
+body.dark-mode .alert {
+  background-color: var(--dm-bg-card);
+  border-color: var(--dm-border);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .alert-success {
+  background-color: rgba(76, 175, 80, 0.15);
+  border-color: var(--dm-success);
+  color: var(--dm-success);
+}
+
+body.dark-mode .alert-warning {
+  background-color: rgba(255, 167, 38, 0.15);
+  border-color: var(--dm-warning);
+  color: var(--dm-warning);
+}
+
+body.dark-mode .alert-danger {
+  background-color: rgba(239, 83, 80, 0.15);
+  border-color: var(--dm-danger);
+  color: var(--dm-danger);
+}
+
+body.dark-mode .alert-info {
+  background-color: rgba(41, 182, 246, 0.15);
+  border-color: var(--dm-info);
+  color: var(--dm-info);
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+body.dark-mode .badge {
+  background-color: var(--dm-bg-hover);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .badge {
+  background-color: var(--dm-bg-hover);
+  border-color: var(--dm-border);
+}
+
+/* Badge styles - Câu hỏi labels */
+body.dark-mode span[style*="background:#f0f0f0"] {
+  background: var(--dm-bg-hover) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode span[style*="background:#e8f0fe"] {
+  background: rgba(107, 163, 255, 0.2) !important;
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode span[style*="background:#fce8e8"] {
+  background: rgba(239, 83, 80, 0.2) !important;
+  color: var(--dm-danger) !important;
+}
+
+body.dark-mode span[style*="background:#e6f4ea"],
+body.dark-mode span[style*="background:#e8f5e9"] {
+  background: rgba(76, 175, 80, 0.2) !important;
+  color: var(--dm-success) !important;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+body.dark-mode footer {
+  background-color: var(--dm-bg-secondary) !important;
+  border-top-color: var(--dm-border) !important;
+  color: var(--dm-text-secondary);
+}
+
+/* ============================================
+   TEXT COLORS
+   ============================================ */
+body.dark-mode .text-muted,
+body.dark-mode .text-secondary {
+  color: var(--dm-text-secondary) !important;
+}
+
+body.dark-mode .text-primary {
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode .text-success {
+  color: var(--dm-success) !important;
+}
+
+body.dark-mode .text-warning {
+  color: var(--dm-warning) !important;
+}
+
+body.dark-mode .text-danger {
+  color: var(--dm-danger) !important;
+}
+
+/* Override inline text colors */
+body.dark-mode [style*="color:#333"],
+body.dark-mode [style*="color: #333"] {
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode [style*="color:#555"],
+body.dark-mode [style*="color: #555"] {
+  color: var(--dm-text-secondary) !important;
+}
+
+body.dark-mode [style*="color:#888"],
+body.dark-mode [style*="color: #888"],
+body.dark-mode [style*="color:#666"],
+body.dark-mode [style*="color: #666"] {
+  color: var(--dm-text-muted) !important;
+}
+
+/* ============================================
+   BORDERS
+   ============================================ */
+body.dark-mode .border,
+body.dark-mode .border-top,
+body.dark-mode .border-bottom {
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode [style*="border:1px solid #eee"],
+body.dark-mode [style*="border-bottom:1px solid #eee"],
+body.dark-mode [style*="border-top:1px solid #e0e0e0"] {
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode [style*="border:2px solid #e8e8e8"] {
+  border-color: var(--dm-border) !important;
+}
+
+/* Border colors for correct/incorrect answers */
+body.dark-mode div[style*="border-left:4px solid #34a853"] {
+  border-left-color: var(--dm-success) !important;
+}
+
+body.dark-mode div[style*="border-left:4px solid #ea4335"] {
+  border-left-color: var(--dm-danger) !important;
+}
+
+body.dark-mode div[style*="border-left:4px solid #f57f17"] {
+  border-left-color: var(--dm-warning) !important;
+}
+
+/* ============================================
+   SHADOWS
+   ============================================ */
+body.dark-mode .shadow,
+body.dark-mode .shadow-sm {
+  box-shadow: 0 0.125rem 0.25rem var(--dm-shadow) !important;
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+body.dark-mode .modal-content {
+  background-color: var(--dm-bg-card);
+  border-color: var(--dm-border);
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+  border-color: var(--dm-border);
+}
+
+/* ============================================
+   EXAM PAGES - Làm bài & Xem đáp án
+   ============================================ */
+
+/* Sticky header trong trang làm bài */
+body.dark-mode div[style*="position:sticky"][style*="background:white"] {
+  background: var(--dm-bg-secondary) !important;
+  border-bottom-color: var(--dm-border) !important;
+}
+
+/* Progress bar background */
+body.dark-mode div[style*="background:#e8f0fe"] {
+  background: var(--dm-bg-tertiary) !important;
+}
+
+/* Progress bar fill */
+body.dark-mode div[style*="background:#1a73e8"][style*="height:100%"] {
+  background: var(--dm-primary) !important;
+}
+
+/* Answer options - Lựa chọn trắc nghiệm */
+body.dark-mode label.lua-chon {
+  border-color: var(--dm-border) !important;
+  background: var(--dm-bg-tertiary) !important;
+}
+
+body.dark-mode label.lua-chon:hover {
+  background: var(--dm-bg-hover) !important;
+  border-color: var(--dm-primary) !important;
+}
+
+body.dark-mode label.lua-chon.selected {
+  background: rgba(107, 163, 255, 0.15) !important;
+  border-color: var(--dm-primary) !important;
+}
+
+/* Letter badges (A, B, C, D) */
+body.dark-mode .nhan-letter {
+  border-color: var(--dm-border) !important;
+  color: var(--dm-text-secondary) !important;
+}
+
+body.dark-mode label.lua-chon.selected .nhan-letter {
+  background: var(--dm-primary) !important;
+  border-color: var(--dm-primary) !important;
+  color: #1a1d23 !important;
+}
+
+/* True/False checkboxes */
+body.dark-mode .checkbox-ds {
+  border-color: var(--dm-border) !important;
+  background: var(--dm-bg-tertiary) !important;
+}
+
+body.dark-mode .checkbox-ds:checked {
+  background: var(--dm-success) !important;
+  border-color: var(--dm-success) !important;
+}
+
+/* Explanation boxes */
+body.dark-mode div[style*="background:#f0f6ff"] {
+  background: rgba(107, 163, 255, 0.1) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode div[style*="background:#fff8e1"] {
+  background: rgba(255, 167, 38, 0.1) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode div[style*="background:#f8f8f8"],
+body.dark-mode div[style*="background:#f8f9fa"] {
+  background: var(--dm-bg-tertiary) !important;
+}
+
+/* ============================================
+   LEADERBOARD & STATS
+   ============================================ */
+body.dark-mode .leaderboard-container,
+body.dark-mode .leaderboard-table,
+body.dark-mode .user-rank-card {
+  background-color: var(--dm-bg-card);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .leaderboard-header {
+  background: linear-gradient(135deg, #2d3748 0%, #4a1d5c 100%) !important;
+}
+
+body.dark-mode .table-row:hover {
+  background-color: var(--dm-bg-hover);
+}
+
+body.dark-mode .stat-box {
+  background: var(--dm-bg-card) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .rank-badge {
+  color: var(--dm-text-primary) !important;
+}
+
+/* ============================================
+   FLASHCARD PAGES (Danh sách, Tạo, Sửa, Học)
+   ============================================ */
+body.dark-mode .flashcard {
+  background: var(--dm-bg-card) !important;
+  border-color: var(--dm-border) !important;
+  box-shadow: 0 4px 12px var(--dm-shadow) !important;
+}
+
+body.dark-mode .flashcard-front,
+body.dark-mode .flashcard-back {
+  background: var(--dm-bg-card) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .flashcard-card,
+body.dark-mode .form-card,
+body.dark-mode .cards-list,
+body.dark-mode .card-item-content {
+  background-color: var(--dm-bg-card) !important;
+  color: var(--dm-text-primary) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .card-title,
+body.dark-mode .card-desc,
+body.dark-mode .form-title,
+body.dark-mode .card-item-title,
+body.dark-mode .cards-count,
+body.dark-mode .header h2,
+body.dark-mode .header-section h2 {
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .card-mon,
+body.dark-mode .stat-label,
+body.dark-mode .empty-state,
+body.dark-mode .empty-list,
+body.dark-mode .card-item-desc {
+  color: var(--dm-text-secondary) !important;
+}
+
+body.dark-mode .card-item {
+  background-color: var(--dm-bg-tertiary) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .btn-secondary,
+body.dark-mode .btn-cancel,
+body.dark-mode .btn-clear {
+  background-color: var(--dm-bg-secondary) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .btn-secondary:hover,
+body.dark-mode .btn-cancel:hover,
+body.dark-mode .btn-clear:hover {
+  background-color: var(--dm-bg-hover) !important;
+}
+
+/* Inline style overrides for Flashcard instruction boxes */
+body.dark-mode div[style*="background:#e3f2fd"],
+body.dark-mode div[style*="background: #e3f2fd"],
+body.dark-mode div[style*="background:#f0f7ff"],
+body.dark-mode div[style*="background: #f0f7ff"] {
+  background-color: rgba(138, 180, 248, 0.1) !important;
+  border-left-color: var(--dm-primary) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode strong[style*="color:#1976d2"],
+body.dark-mode strong[style*="color: #1976d2"] {
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode strong[style*="color:#555"],
+body.dark-mode div[style*="color:#555"],
+body.dark-mode div[style*="color: #555"] {
+  color: var(--dm-text-secondary) !important;
+}
+
+/* ============================================
+   KNOWLEDGE BASE PAGES
+   ============================================ */
+body.dark-mode .bai-viet-content {
+  background: var(--dm-bg-card) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .bai-viet-content h1,
+body.dark-mode .bai-viet-content h2,
+body.dark-mode .bai-viet-content h3 {
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .bai-viet-content code {
+  background: var(--dm-bg-tertiary) !important;
+  color: var(--dm-info) !important;
+}
+
+/* ============================================
+   FORUM PAGES
+   ============================================ */
+body.dark-mode .forum-post {
+  background: var(--dm-bg-card) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .forum-reply {
+  background: var(--dm-bg-tertiary) !important;
+  border-color: var(--dm-border) !important;
+}
+
+/* ============================================
+   NOTIFICATION WIDGET
+   ============================================ */
+body.dark-mode .notification-item {
+  background: var(--dm-bg-card) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .notification-item:hover {
+  background: var(--dm-bg-hover) !important;
+}
+
+body.dark-mode .notification-item.unread {
+  background: rgba(107, 163, 255, 0.1) !important;
+}
+
+/* ============================================
+   TOAST NOTIFICATIONS
+   ============================================ */
+body.dark-mode .toast {
+  background-color: var(--dm-bg-card);
+  color: var(--dm-text-primary);
+  border: 1px solid var(--dm-border);
+}
+
+/* ============================================
+   CODE BLOCKS
+   ============================================ */
+body.dark-mode code {
+  background-color: var(--dm-bg-tertiary);
+  color: var(--dm-info);
+}
+
+body.dark-mode pre {
+  background-color: var(--dm-bg-tertiary);
+  border-color: var(--dm-border);
+}
+
+/* ============================================
+   LINKS
+   ============================================ */
+body.dark-mode a {
+  color: var(--dm-primary);
+}
+
+body.dark-mode a:hover {
+  color: #8bb9ff;
+}
+
+/* ============================================
+   SCROLLBAR (webkit browsers)
+   ============================================ */
+body.dark-mode ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+  background: var(--dm-bg-secondary);
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background: var(--dm-bg-hover);
+  border-radius: 6px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}
+
+/* ============================================
+   MATHJAX FORMULAS
+   ============================================ */
+body.dark-mode .MathJax,
+body.dark-mode .MathJax_Display {
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode mjx-container {
+  color: var(--dm-text-primary) !important;
+}
+
+/* ============================================
+   DARK MODE TOGGLE BUTTON
+   ============================================ */
+.dark-mode-toggle {
+  position: relative;
+  width: 60px;
+  height: 30px;
+  background-color: #e0e0e0;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border: none;
+  padding: 0;
+  overflow: hidden;
+}
+
+.dark-mode-toggle::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark-mode-toggle::after {
+  content: '\2600';
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  transform: translateY(-50%);
+  font-size: 16px;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+body.dark-mode .dark-mode-toggle {
+  background-color: #4a5568;
+}
+
+body.dark-mode .dark-mode-toggle::before {
+  transform: translateX(30px);
+  background-color: #2d3748;
+}
+
+body.dark-mode .dark-mode-toggle::after {
+  content: '\263E';
+  left: auto;
+  right: 8px;
+  color: #fbbf24;
+}
+
+/* ============================================
+   SMOOTH TRANSITIONS
+   ============================================ */
+body,
+.navbar,
+.card,
+.btn,
+input,
+textarea,
+select,
+div,
+span {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ============================================
+   ACCESSIBILITY - Reduced Eye Strain
+   ============================================ */
+
+/* Enable smooth font rendering for dark mode to reduce text halo/glow effect */
+body.dark-mode {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Slightly dim images so they don't break eye adjustment */
+body.dark-mode img {
+  filter: brightness(0.85);
+  transition: filter 0.3s ease;
+}
+
+body.dark-mode img:hover {
+  filter: brightness(1.0);
+}
+
+/* Ensure good contrast for important elements */
+body.dark-mode strong,
+body.dark-mode b {
+  color: var(--dm-text-primary);
+  font-weight: 600;
+}
+
+/* Better focus indicators */
+body.dark-mode *:focus {
+  outline: 2px solid var(--dm-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   HOME PAGE - Enhanced
+   ============================================ */
+
+/* Hero stats cards */
+body.dark-mode .card[style*="rgba(255, 255, 255, 0.1)"] {
+  background: rgba(107, 163, 255, 0.1) !important;
+  border-color: var(--dm-border) !important;
+}
+
+/* Feature cards on home */
+body.dark-mode .card-interactive {
+  background: var(--dm-bg-card) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .card-interactive:hover {
+  background: var(--dm-bg-hover) !important;
+  border-color: var(--dm-primary) !important;
+  transform: translateY(-4px);
+}
+
+/* Badge psychology styles */
+body.dark-mode .badge {
+  background: var(--dm-bg-hover) !important;
+  border: 1px solid var(--dm-border) !important;
+}
+
+body.dark-mode .badge-epic {
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(103, 58, 183, 0.2)) !important;
+  color: #ba68c8 !important;
+  border-color: #9c27b0 !important;
+}
+
+body.dark-mode .badge-legendary {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.2), rgba(255, 193, 7, 0.2)) !important;
+  color: #ffb74d !important;
+  border-color: #ff9800 !important;
+}
+
+body.dark-mode .badge-rare {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.2), rgba(3, 169, 244, 0.2)) !important;
+  color: #64b5f6 !important;
+  border-color: #2196f3 !important;
+}
+
+body.dark-mode .badge-common {
+  background: rgba(158, 158, 158, 0.2) !important;
+  color: #bdbdbd !important;
+  border-color: #9e9e9e !important;
+}
+
+/* CTA Section */
+body.dark-mode .card[style*="linear-gradient(135deg, var(--primary-600)"] {
+  background: linear-gradient(135deg, #2d3748 0%, #4a1d5c 100%) !important;
+}
+
+/* ============================================
+   LEADERBOARD PAGE - Complete Redesign
+   ============================================ */
+
+/* Filter groups */
+body.dark-mode .filter-group {
+  background: none !important;
+}
+
+body.dark-mode .filter-btn {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+body.dark-mode .filter-btn:hover {
+  background: rgba(107, 163, 255, 0.2) !important;
+}
+
+body.dark-mode .filter-btn.active {
+  background: var(--dm-primary) !important;
+  color: #1a1d23 !important;
+}
+
+/* User rank card */
+body.dark-mode .user-rank-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  box-shadow: 0 8px 16px var(--dm-shadow-strong);
+}
+
+/* Rank cells with medals */
+body.dark-mode .rank-cell.top-1 {
+  color: #ffd700 !important;
+}
+
+body.dark-mode .rank-cell.top-2 {
+  color: #c0c0c0 !important;
+}
+
+body.dark-mode .rank-cell.top-3 {
+  color: #cd7f32 !important;
+}
+
+/* User cell */
+body.dark-mode .user-cell {
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .user-avatar {
+  background: var(--dm-bg-hover) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .user-name {
+  color: var(--dm-text-primary) !important;
+}
+
+/* Score and stat cells */
+body.dark-mode .score-cell,
+body.dark-mode .stat-cell {
+  color: var(--dm-text-primary) !important;
+}
+
+/* Empty state */
+body.dark-mode .empty-state {
+  color: var(--dm-text-secondary) !important;
+}
+
+body.dark-mode .empty-state h3 {
+  color: var(--dm-text-primary) !important;
+}
+
+/* ============================================
+   FLASHCARD LEARNING PAGE
+   ============================================ */
+
+/* Study header with gradient */
+body.dark-mode .study-header {
+  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
+  box-shadow: 0 4px 12px var(--dm-shadow);
+}
+
+/* Progress bar */
+body.dark-mode .progress-bar {
+  background: rgba(107, 163, 255, 0.2) !important;
+}
+
+body.dark-mode .progress-fill {
+  background: var(--dm-primary) !important;
+}
+
+/* Flashcard faces */
+body.dark-mode .card-front {
+  background: var(--dm-bg-card) !important;
+  color: var(--dm-text-primary) !important;
+  border-color: var(--dm-border) !important;
+  box-shadow: 0 10px 30px var(--dm-shadow-strong) !important;
+}
+
+body.dark-mode .card-back {
+  background: var(--dm-bg-tertiary) !important;
+  color: var(--dm-text-primary) !important;
+  border-color: var(--dm-primary) !important;
+  box-shadow: 0 10px 30px var(--dm-shadow-strong) !important;
+}
+
+/* Hint text */
+body.dark-mode .hint-text {
+  color: var(--dm-text-muted) !important;
+}
+
+/* Control buttons */
+body.dark-mode .btn-flip {
+  background: var(--dm-bg-hover) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .btn-flip:hover {
+  background: var(--dm-bg-tertiary) !important;
+}
+
+body.dark-mode .btn-again {
+  background: var(--dm-danger) !important;
+}
+
+body.dark-mode .btn-hard {
+  background: #ff6f00 !important;
+}
+
+body.dark-mode .btn-good {
+  background: var(--dm-success) !important;
+}
+
+body.dark-mode .btn-easy {
+  background: var(--dm-info) !important;
+}
+
+/* Stats display */
+body.dark-mode .stats-container {
+  background: var(--dm-bg-card) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .stat-item {
+  color: var(--dm-text-primary) !important;
+}
+
+/* Completion screen */
+body.dark-mode .completion-screen {
+  background: var(--dm-bg-card) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+/* ============================================
+   STUDIO PAGE
+   ============================================ */
+
+body.dark-mode .studio-header {
+  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
+}
+
+body.dark-mode .studio-card {
+  background: var(--dm-bg-card) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .studio-card:hover {
+  background: var(--dm-bg-hover) !important;
+  border-color: var(--dm-primary) !important;
+}
+
+body.dark-mode .video-thumbnail {
+  background: var(--dm-bg-tertiary) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .video-title {
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .video-meta {
+  color: var(--dm-text-secondary) !important;
+}
+
+/* Upload form */
+body.dark-mode .upload-form {
+  background: var(--dm-bg-card) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .upload-area {
+  background: var(--dm-bg-tertiary) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .upload-area:hover {
+  background: var(--dm-bg-hover) !important;
+  border-color: var(--dm-primary) !important;
+}
+
+/* ============================================
+   BADGE SYSTEM - All Badge Types
+   ============================================ */
+
+/* Achievement badges */
+body.dark-mode .achievement-badge {
+  background: var(--dm-bg-card) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .achievement-badge.locked {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+body.dark-mode .achievement-badge.unlocked {
+  box-shadow: 0 4px 12px var(--dm-shadow), 0 0 20px rgba(107, 163, 255, 0.3);
+}
+
+/* Badge icon */
+body.dark-mode .badge-icon {
+  background: var(--dm-bg-hover) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+/* Badge title and description */
+body.dark-mode .badge-title {
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .badge-description {
+  color: var(--dm-text-secondary) !important;
+}
+
+/* Badge progress */
+body.dark-mode .badge-progress {
+  background: var(--dm-bg-tertiary) !important;
+}
+
+body.dark-mode .badge-progress-fill {
+  background: var(--dm-primary) !important;
+}
+
+/* Rarity indicators */
+body.dark-mode .rarity-common {
+  border-color: #9e9e9e !important;
+}
+
+body.dark-mode .rarity-rare {
+  border-color: #2196f3 !important;
+}
+
+body.dark-mode .rarity-epic {
+  border-color: #9c27b0 !important;
+}
+
+body.dark-mode .rarity-legendary {
+  border-color: #ff9800 !important;
+  box-shadow: 0 0 20px rgba(255, 152, 0, 0.4);
+}
+
+/* ============================================
+   PROFILE PAGE - User Stats & Badges
+   ============================================ */
+
+body.dark-mode .profile-header {
+  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
+}
+
+body.dark-mode .profile-avatar {
+  background: var(--dm-bg-card) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .profile-stats {
+  background: var(--dm-bg-card) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .stat-card {
+  background: var(--dm-bg-tertiary) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .stat-card:hover {
+  background: var(--dm-bg-hover) !important;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  body.dark-mode .leaderboard-table {
+    overflow-x: auto;
+  }
+  
+  body.dark-mode .table-header,
+  body.dark-mode .table-row {
+    grid-template-columns: 60px 1fr 80px 80px 80px;
+    font-size: 13px;
+  }
+  
+  body.dark-mode .flip-card {
+    height: 250px;
+  }
+  
+  body.dark-mode .card-face {
+    font-size: 18px;
+    padding: 24px;
+  }
+}
+
+/* ============================================
+   DESIGN SYSTEM (Psychology CSS) DARK MODE
+   ============================================ */
+
+/* Override design system color variables for dark mode */
+body.dark-mode {
+  /* Primary colors adjusted for dark mode */
+  --color-primary: var(--dm-primary);
+  --color-primary-hover: #5a95ff;
+  --color-primary-light: #8bb9ff;
+  --color-success: var(--dm-success);
+  --color-warning: var(--dm-warning);
+  --color-error: var(--dm-danger);
+  --color-info: var(--dm-info);
+  
+  /* Background colors */
+  --bg-primary: var(--dm-bg-primary);
+  --bg-secondary: var(--dm-bg-secondary);
+  --bg-tertiary: var(--dm-bg-tertiary);
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+  
+  /* Text colors */
+  --text-primary: var(--dm-text-primary);
+  --text-secondary: var(--dm-text-secondary);
+  --text-tertiary: var(--dm-text-muted);
+  --text-inverse: #1a1d23;
+  
+  /* Border colors */
+  --border-light: var(--dm-border);
+  --border-medium: var(--dm-border);
+  --border-dark: var(--dm-border-subtle);
+}
+
+/* Psychology Buttons */
+body.dark-mode .btn {
+  background: var(--dm-bg-card);
+  color: var(--dm-text-primary);
+  border-color: var(--dm-border);
+}
+
+body.dark-mode .btn:hover {
+  background: var(--dm-bg-hover);
+  box-shadow: 0 8px 16px var(--dm-shadow);
+}
+
+body.dark-mode .btn-primary {
+  background: linear-gradient(135deg, var(--dm-primary) 0%, #4a8fff 100%);
+  color: #1a1d23;
+  border: none;
+}
+
+body.dark-mode .btn-primary:hover {
+  background: linear-gradient(135deg, #5a95ff 0%, #6ba3ff 100%);
+  box-shadow: 0 8px 20px rgba(107, 163, 255, 0.4);
+}
+
+body.dark-mode .btn-success {
+  background: linear-gradient(135deg, var(--dm-success) 0%, #66bb6a 100%);
+  color: white;
+}
+
+body.dark-mode .btn-success:hover {
+  background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+}
+
+/* Psychology Cards */
+body.dark-mode .card {
+  background: var(--dm-bg-card);
+  border-color: var(--dm-border);
+  box-shadow: 0 2px 8px var(--dm-shadow);
+}
+
+body.dark-mode .card:hover {
+  box-shadow: 0 10px 25px var(--dm-shadow-strong);
+}
+
+/* Progress Bars */
+body.dark-mode .progress {
+  background-color: var(--dm-bg-tertiary);
+}
+
+body.dark-mode .progress-bar {
+  background: linear-gradient(90deg, var(--dm-primary), #5a95ff);
+}
+
+body.dark-mode .progress-bar::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+}
+
+/* Badges - Psychology System */
+body.dark-mode .badge-common {
+  background-color: rgba(158, 158, 158, 0.2);
+  color: #bdbdbd;
+  border-color: #9e9e9e;
+}
+
+body.dark-mode .badge-rare {
+  background-color: rgba(33, 150, 243, 0.2);
+  color: #64b5f6;
+  border-color: #2196f3;
+}
+
+body.dark-mode .badge-epic {
+  background-color: rgba(156, 39, 176, 0.2);
+  color: #ba68c8;
+  border-color: #9c27b0;
+}
+
+body.dark-mode .badge-legendary {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.3) 0%, rgba(255, 152, 0, 0.3) 100%);
+  color: #ffb74d;
+  border-color: #ff9800;
+  box-shadow: 0 0 20px rgba(255, 152, 0, 0.3);
+}
+
+/* Notification Bell */
+body.dark-mode .notification-bell {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .notification-badge {
+  background-color: var(--dm-danger);
+  box-shadow: 0 0 10px rgba(239, 83, 80, 0.5);
+}
+
+/* Focus Mode Overlay */
+body.dark-mode .focus-mode-active {
+  background-color: rgba(0, 0, 0, 0.85);
+}
+
+/* Loading Skeleton */
+body.dark-mode .skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--dm-bg-tertiary) 25%,
+    var(--dm-bg-hover) 50%,
+    var(--dm-bg-tertiary) 75%
+  );
+}
+
+/* Hero Section from Design System */
+body.dark-mode .hero-section {
+  background: linear-gradient(135deg, #2d3748 0%, #4a1d5c 100%);
+}
+
+/* Stat Cards */
+body.dark-mode .stat-card {
+  background: var(--dm-bg-card);
+  border-color: var(--dm-border);
+}
+
+body.dark-mode .stat-value {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .stat-label {
+  color: var(--dm-text-secondary);
+}
+
+/* Input Focus States */
+body.dark-mode input:focus-visible,
+body.dark-mode textarea:focus-visible,
+body.dark-mode select:focus-visible {
+  outline: 2px solid var(--dm-primary);
+  outline-offset: 2px;
+  border-color: var(--dm-primary);
+}
+
+/* Tooltips */
+body.dark-mode .tooltip {
+  background: var(--dm-bg-card);
+  color: var(--dm-text-primary);
+  border: 1px solid var(--dm-border);
+  box-shadow: 0 4px 12px var(--dm-shadow-strong);
+}
+
+/* Dropdown Menus */
+body.dark-mode .dropdown {
+  background: var(--dm-bg-card);
+  border-color: var(--dm-border);
+  box-shadow: 0 8px 24px var(--dm-shadow-strong);
+}
+
+body.dark-mode .dropdown-item {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .dropdown-item:hover {
+  background: var(--dm-bg-hover);
+}
+
+/* Tabs */
+body.dark-mode .tab {
+  color: var(--dm-text-secondary);
+  border-bottom-color: transparent;
+}
+
+body.dark-mode .tab:hover {
+  color: var(--dm-text-primary);
+  background: var(--dm-bg-hover);
+}
+
+body.dark-mode .tab.active {
+  color: var(--dm-primary);
+  border-bottom-color: var(--dm-primary);
+  background: transparent;
+}
+
+/* Dividers */
+body.dark-mode .divider {
+  background: var(--dm-border);
+}
+
+/* Chips/Tags */
+body.dark-mode .chip {
+  background: var(--dm-bg-tertiary);
+  color: var(--dm-text-primary);
+  border-color: var(--dm-border);
+}
+
+body.dark-mode .chip:hover {
+  background: var(--dm-bg-hover);
+}
+
+/* Avatar */
+body.dark-mode .avatar {
+  background: var(--dm-bg-hover);
+  color: var(--dm-text-primary);
+  border-color: var(--dm-border);
+}
+
+/* Breadcrumbs */
+body.dark-mode .breadcrumb {
+  color: var(--dm-text-secondary);
+}
+
+body.dark-mode .breadcrumb a {
+  color: var(--dm-primary);
+}
+
+body.dark-mode .breadcrumb a:hover {
+  color: #8bb9ff;
+}
+
+/* Pagination */
+body.dark-mode .pagination {
+  background: var(--dm-bg-card);
+  border-color: var(--dm-border);
+}
+
+body.dark-mode .pagination-item {
+  color: var(--dm-text-primary);
+  border-color: var(--dm-border);
+}
+
+body.dark-mode .pagination-item:hover {
+  background: var(--dm-bg-hover);
+  border-color: var(--dm-primary);
+}
+
+body.dark-mode .pagination-item.active {
+  background: var(--dm-primary);
+  color: #1a1d23;
+  border-color: var(--dm-primary);
+}
+
+/* Accordion */
+body.dark-mode .accordion {
+  background: var(--dm-bg-card);
+  border-color: var(--dm-border);
+}
+
+body.dark-mode .accordion-header {
+  background: var(--dm-bg-tertiary);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .accordion-header:hover {
+  background: var(--dm-bg-hover);
+}
+
+body.dark-mode .accordion-content {
+  background: var(--dm-bg-card);
+  color: var(--dm-text-primary);
+}
+
+/* Timeline */
+body.dark-mode .timeline {
+  border-left-color: var(--dm-border);
+}
+
+body.dark-mode .timeline-item {
+  background: var(--dm-bg-card);
+  border-color: var(--dm-border);
+}
+
+body.dark-mode .timeline-dot {
+  background: var(--dm-primary);
+  border-color: var(--dm-bg-primary);
+}
+
+/* Stepper */
+body.dark-mode .stepper-step {
+  color: var(--dm-text-secondary);
+}
+
+body.dark-mode .stepper-step.active {
+  color: var(--dm-primary);
+}
+
+body.dark-mode .stepper-step.completed {
+  color: var(--dm-success);
+}
+
+body.dark-mode .stepper-line {
+  background: var(--dm-border);
+}
+
+body.dark-mode .stepper-line.completed {
+  background: var(--dm-success);
+}
+
+/* Empty States */
+body.dark-mode .empty-state {
+  color: var(--dm-text-secondary);
+}
+
+body.dark-mode .empty-state h3 {
+  color: var(--dm-text-primary);
+}
+
+/* Success/Error Messages */
+body.dark-mode .message-success {
+  background: rgba(76, 175, 80, 0.15);
+  border-color: var(--dm-success);
+  color: var(--dm-success);
+}
+
+body.dark-mode .message-error {
+  background: rgba(239, 83, 80, 0.15);
+  border-color: var(--dm-danger);
+  color: var(--dm-danger);
+}
+
+body.dark-mode .message-warning {
+  background: rgba(255, 167, 38, 0.15);
+  border-color: var(--dm-warning);
+  color: var(--dm-warning);
+}
+
+body.dark-mode .message-info {
+  background: rgba(41, 182, 246, 0.15);
+  border-color: var(--dm-info);
+  color: var(--dm-info);
+}
+
+/* ============================================
+   MAIN.CSS DARK MODE OVERRIDES
+   ============================================ */
+
+/* Base Styles */
+body.dark-mode {
+  background: var(--dm-bg-primary);
+  color: var(--dm-text-primary);
+}
+
+/* Navigation */
+body.dark-mode .navbar {
+  background: rgba(34, 37, 43, 0.95) !important;
+  border-bottom-color: var(--dm-border);
+  box-shadow: 0 2px 8px var(--dm-shadow);
+}
+
+body.dark-mode .navbar-brand {
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode .navbar-nav .nav-link {
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .navbar-nav .nav-link:hover {
+  color: var(--dm-primary) !important;
+  background-color: rgba(107, 163, 255, 0.1);
+}
+
+body.dark-mode .navbar-nav .nav-link.active {
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode .navbar-nav .nav-link.active::after {
+  background-color: var(--dm-primary);
+}
+
+/* Search Input */
+body.dark-mode #global-search-input {
+  background: var(--dm-bg-tertiary);
+  border-color: var(--dm-border);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode #global-search-input:focus {
+  border-color: var(--dm-primary);
+  box-shadow: 0 0 0 3px rgba(107, 163, 255, 0.2);
+  background: var(--dm-bg-secondary);
+}
+
+body.dark-mode #global-search-input::placeholder {
+  color: var(--dm-text-muted);
+}
+
+/* Layout */
+body.dark-mode main {
+  background: transparent;
+}
+
+body.dark-mode footer {
+  background-color: var(--dm-bg-secondary);
+  border-top-color: var(--dm-border);
+  color: var(--dm-text-secondary);
+}
+
+/* Forms */
+body.dark-mode .form-label,
+body.dark-mode label {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode .form-check-input {
+  background: var(--dm-bg-tertiary);
+  border-color: var(--dm-border);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+  background: var(--dm-bg-secondary);
+  border-color: var(--dm-primary);
+  box-shadow: 0 0 0 3px rgba(107, 163, 255, 0.2);
+}
+
+body.dark-mode .form-control::placeholder {
+  color: var(--dm-text-muted);
+}
+
+/* Buttons */
+body.dark-mode .btn-primary {
+  background: var(--dm-primary);
+  color: #1a1d23;
+}
+
+body.dark-mode .btn-primary:hover {
+  background: #5a95ff;
+  color: #1a1d23;
+  box-shadow: 0 8px 20px rgba(107, 163, 255, 0.4);
+}
+
+body.dark-mode .btn-success {
+  background: var(--dm-success);
+  color: white;
+}
+
+body.dark-mode .btn-success:hover {
+  background: #66bb6a;
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+}
+
+body.dark-mode .btn-outline-primary {
+  border-color: var(--dm-primary);
+  color: var(--dm-primary);
+  background: transparent;
+}
+
+body.dark-mode .btn-outline-primary:hover {
+  background: var(--dm-primary);
+  color: #1a1d23;
+}
+
+/* Cards */
+body.dark-mode .card {
+  background: var(--dm-bg-card);
+  box-shadow: 0 2px 8px var(--dm-shadow);
+}
+
+body.dark-mode .card:hover {
+  box-shadow: 0 4px 12px var(--dm-shadow-strong);
+}
+
+body.dark-mode .card-header {
+  background-color: var(--dm-bg-tertiary);
+  border-bottom-color: var(--dm-border);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .card-body {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .card-footer {
+  background-color: var(--dm-bg-tertiary);
+  border-top-color: var(--dm-border);
+}
+
+/* Feature Tiles */
+body.dark-mode .feature-tile {
+  background: var(--dm-bg-card);
+  border-color: var(--dm-border);
+  box-shadow: 0 4px 12px var(--dm-shadow);
+}
+
+body.dark-mode .feature-tile:hover {
+  box-shadow: 0 10px 30px var(--dm-shadow-strong);
+  border-color: var(--dm-primary);
+}
+
+body.dark-mode .feature-tile h3 {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .feature-tile p {
+  color: var(--dm-text-secondary);
+}
+
+/* Hero Section */
+body.dark-mode .hero-section {
+  background: linear-gradient(135deg, #2d3748 0%, #4a1d5c 100%);
+}
+
+body.dark-mode .hero-section::before {
+  opacity: 0.2;
+}
+
+/* Profile Styles */
+body.dark-mode .profile-avatar-container {
+  border-color: var(--dm-bg-card);
+  box-shadow: 0 10px 25px var(--dm-shadow-strong);
+}
+
+body.dark-mode .stat-card {
+  background: var(--dm-bg-card);
+  border-left-color: var(--dm-primary);
+  box-shadow: 0 2px 8px var(--dm-shadow);
+}
+
+body.dark-mode .stat-card:hover {
+  box-shadow: 0 10px 25px var(--dm-shadow-strong);
+  border-left-color: #5a95ff;
+}
+
+body.dark-mode .stat-value {
+  color: var(--dm-primary);
+}
+
+body.dark-mode .stat-label {
+  color: var(--dm-text-secondary);
+}
+
+/* Badges & Achievements */
+body.dark-mode .badge-custom {
+  background: var(--dm-bg-hover);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .badge-tier-gold {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.3) 0%, rgba(255, 152, 0, 0.3) 100%);
+  color: #ffb74d;
+  border-color: #ff9800;
+  box-shadow: 0 0 20px rgba(255, 152, 0, 0.3);
+}
+
+body.dark-mode .badge-tier-silver {
+  background: linear-gradient(135deg, rgba(189, 189, 189, 0.2) 0%, rgba(158, 158, 158, 0.2) 100%);
+  color: #bdbdbd;
+  border-color: #9e9e9e;
+}
+
+body.dark-mode .badge-tier-bronze {
+  background: linear-gradient(135deg, rgba(255, 167, 38, 0.2) 0%, rgba(251, 140, 0, 0.2) 100%);
+  color: #ffb74d;
+  border-color: #fb8c00;
+}
+
+/* Tables */
+body.dark-mode .table {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .history-table th {
+  background: var(--dm-bg-tertiary);
+  border-bottom-color: var(--dm-border);
+  color: var(--dm-text-secondary);
+}
+
+body.dark-mode .history-table td {
+  border-bottom-color: var(--dm-border);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .history-table tr:hover {
+  background-color: var(--dm-bg-hover);
+}
+
+/* Alerts & Messages */
+body.dark-mode .alert-success {
+  background-color: rgba(76, 175, 80, 0.15);
+  border-left-color: var(--dm-success);
+  color: var(--dm-success);
+}
+
+body.dark-mode .alert-warning {
+  background-color: rgba(255, 167, 38, 0.15);
+  border-left-color: var(--dm-warning);
+  color: var(--dm-warning);
+}
+
+body.dark-mode .alert-error,
+body.dark-mode .alert-danger {
+  background-color: rgba(239, 83, 80, 0.15);
+  border-left-color: var(--dm-danger);
+  color: var(--dm-danger);
+}
+
+body.dark-mode .alert-info {
+  background-color: rgba(41, 182, 246, 0.15);
+  border-left-color: var(--dm-info);
+  color: var(--dm-info);
+}
+
+/* Loading & Skeleton */
+body.dark-mode .loading-spinner {
+  border-color: var(--dm-bg-hover);
+  border-top-color: var(--dm-primary);
+}
+
+body.dark-mode .skeleton-text {
+  background: var(--dm-bg-tertiary);
+}
+
+/* ============================================
+   ADDITIONAL UTILITY CLASSES
+   ============================================ */
+
+/* Text utilities */
+body.dark-mode .text-light {
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .text-dark {
+  color: var(--dm-text-secondary) !important;
+}
+
+body.dark-mode .text-white {
+  color: var(--dm-text-primary) !important;
+}
+
+/* Background utilities */
+body.dark-mode .bg-light {
+  background-color: var(--dm-bg-tertiary) !important;
+}
+
+body.dark-mode .bg-white {
+  background-color: var(--dm-bg-card) !important;
+}
+
+body.dark-mode .bg-dark {
+  background-color: var(--dm-bg-secondary) !important;
+}
+
+/* Border utilities */
+body.dark-mode .border {
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .border-top {
+  border-top-color: var(--dm-border) !important;
+}
+
+body.dark-mode .border-bottom {
+  border-bottom-color: var(--dm-border) !important;
+}
+
+body.dark-mode .border-left {
+  border-left-color: var(--dm-border) !important;
+}
+
+body.dark-mode .border-right {
+  border-right-color: var(--dm-border) !important;
+}
+
+/* ============================================
+   FINAL TOUCHES & POLISH
+   ============================================ */
+
+/* Ensure all headings are visible */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+  color: var(--dm-text-primary);
+}
+
+/* Ensure all paragraphs are readable */
+body.dark-mode p {
+  color: var(--dm-text-primary);
+}
+
+/* List items */
+body.dark-mode li {
+  color: var(--dm-text-primary);
+}
+
+/* Horizontal rules */
+body.dark-mode hr {
+  border-color: var(--dm-border);
+  opacity: 0.3;
+}
+
+/* Blockquotes */
+body.dark-mode blockquote {
+  border-left-color: var(--dm-primary);
+  color: var(--dm-text-secondary);
+}
+
+/* Selection highlight */
+body.dark-mode ::selection {
+  background: rgba(107, 163, 255, 0.3);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode ::-moz-selection {
+  background: rgba(107, 163, 255, 0.3);
+  color: var(--dm-text-primary);
+}
+
+/* Ensure icons remain visible */
+body.dark-mode .icon,
+body.dark-mode i {
+  color: inherit;
+}
+
+/* Print styles - disable dark mode for printing */
+@media print {
+  body.dark-mode {
+    background: white !important;
+    color: black !important;
+    filter: none !important;
+  }
+  
+  body.dark-mode * {
+    background: white !important;
+    color: black !important;
+    border-color: #ddd !important;
+  }
+}
+
+/* ============================================
+   RESULT PAGE (KET QUA) DARK MODE
+   ============================================ */
+
+/* Score display colors */
+body.dark-mode .display-1 {
+  color: var(--dm-text-primary) !important;
+}
+
+/* Override inline background colors for stats cards */
+body.dark-mode div[style*='background: var(--bg-secondary)'] {
+  background: var(--dm-bg-tertiary) !important;
+}
+
+body.dark-mode div[style*='background: var(--success-50)'] {
+  background: rgba(129, 201, 149, 0.15) !important;
+}
+
+body.dark-mode div[style*='background: var(--primary-50)'] {
+  background: rgba(138, 180, 248, 0.15) !important;
+}
+
+/* Text colors in stat cards */
+body.dark-mode div[style*='color: var(--success-700)'] {
+  color: var(--dm-success) !important;
+}
+
+body.dark-mode div[style*='color: var(--primary-700)'] {
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode div[style*='color: var(--primary-900)'] {
+  color: var(--dm-primary) !important;
+}
+
+/* Recommendation card */
+body.dark-mode div[style*='background: var(--primary-50)'][style*='border: 1px solid var(--primary-200)'] {
+  background: rgba(138, 180, 248, 0.1) !important;
+  border-color: rgba(138, 180, 248, 0.3) !important;
+}
+
+/* Score colors based on performance */
+body.dark-mode div[style*='color: var(--success-600)'] {
+  color: var(--dm-success) !important;
+}
+
+body.dark-mode div[style*='color: var(--primary-600)'] {
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode div[style*='color: var(--error-600)'] {
+  color: var(--dm-danger) !important;
+}
+
+body.dark-mode div[style*='color: var(--warning-600)'] {
+  color: var(--dm-warning) !important;
+}
+
+/* Disabled button state */
+body.dark-mode div[style*='background: var(--neutral-200)'][style*='color: var(--neutral-500)'] {
+  background: var(--dm-bg-tertiary) !important;
+  color: var(--dm-text-muted) !important;
+}
+
+/* Alert success for XP reward */
+body.dark-mode .alert-success {
+  background-color: rgba(129, 201, 149, 0.15) !important;
+  border-color: var(--dm-success) !important;
+  color: var(--dm-success) !important;
+}
+
+/* Progress bar gradients */
+body.dark-mode .progress-bar[style*='linear-gradient'] {
+  opacity: 0.9;
+}
+
+/* ============================================
+   FONT WEIGHT CLASSES WITH TEXT COLORS
+   ============================================ */
+
+/* Override text-dark with font-weight classes */
+body.dark-mode .fw-bold.text-dark,
+body.dark-mode .fw-semibold.text-dark,
+body.dark-mode .fw-medium.text-dark,
+body.dark-mode .text-dark.fw-bold,
+body.dark-mode .text-dark.fw-semibold,
+body.dark-mode .text-dark.fw-medium,
+body.dark-mode h1.fw-bold,
+body.dark-mode h2.fw-bold,
+body.dark-mode h3.fw-bold,
+body.dark-mode h4.fw-bold,
+body.dark-mode h5.fw-bold,
+body.dark-mode h6.fw-bold,
+body.dark-mode .fw-semibold.mb-3,
+body.dark-mode .fw-extrabold {
+  color: var(--dm-text-primary) !important;
+}
+
+/* Font weight 500 class */
+body.dark-mode .fw-500 {
+  color: var(--dm-text-primary);
+}
+
+/* Ensure fw classes don't override primary/success/warning colors */
+body.dark-mode .text-primary.fw-bold,
+body.dark-mode .fw-bold.text-primary {
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode .text-success.fw-bold,
+body.dark-mode .fw-bold.text-success {
+  color: var(--dm-success) !important;
+}
+
+body.dark-mode .text-warning.fw-bold,
+body.dark-mode .fw-bold.text-warning {
+  color: var(--dm-warning) !important;
+}
+
+body.dark-mode .text-danger.fw-bold,
+body.dark-mode .fw-bold.text-danger {
+  color: var(--dm-danger) !important;
+}
+
+/* Display classes with font-weight */
+body.dark-mode .display-1,
+body.dark-mode .display-2,
+body.dark-mode .display-3,
+body.dark-mode .display-4,
+body.dark-mode .display-5,
+body.dark-mode .display-6 {
+  color: var(--dm-text-primary) !important;
+}
+
+/* Specific overrides for common patterns */
+body.dark-mode .fw-semibold {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode a.fw-bold {
+  color: var(--dm-primary);
+}
+
+body.dark-mode a.fw-bold:hover {
+  color: #8bb9ff;
+}
+
+/* ============================================
+   LEADERBOARD PAGE DARK MODE
+   ============================================ */
+
+/* Hero Section */
+body.dark-mode .lb-hero {
+  background: linear-gradient(135deg, #1a1d2e 0%, #2d3561 50%, #3d2a5c 100%);
+}
+
+/* Podium Cards */
+body.dark-mode .podium-card {
+  background: var(--dm-bg-card);
+  box-shadow: 0 8px 30px var(--dm-shadow-strong);
+}
+
+body.dark-mode .podium-card.first {
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.15) 0%, var(--dm-bg-card) 40%);
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+body.dark-mode .podium-card.second {
+  background: linear-gradient(180deg, rgba(209, 213, 219, 0.1) 0%, var(--dm-bg-card) 40%);
+  border-color: rgba(209, 213, 219, 0.3);
+}
+
+body.dark-mode .podium-card.third {
+  background: linear-gradient(180deg, rgba(253, 186, 116, 0.15) 0%, var(--dm-bg-card) 40%);
+  border-color: rgba(253, 186, 116, 0.4);
+}
+
+body.dark-mode .podium-name {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .podium-exams {
+  color: var(--dm-text-muted);
+}
+
+body.dark-mode .podium-avatar {
+  border-color: var(--dm-border);
+}
+
+body.dark-mode .podium-card.first .podium-avatar {
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
+body.dark-mode .podium-card.second .podium-avatar {
+  border-color: rgba(209, 213, 219, 0.4);
+}
+
+body.dark-mode .podium-card.third .podium-avatar {
+  border-color: rgba(253, 186, 116, 0.5);
+}
+
+/* My Rank Banner */
+body.dark-mode .my-rank-banner {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%);
+  border-color: rgba(110, 231, 183, 0.3);
+}
+
+body.dark-mode .my-rank-number {
+  color: var(--dm-success);
+}
+
+body.dark-mode .my-rank-score {
+  color: var(--dm-success);
+}
+
+/* No rank banner */
+body.dark-mode .my-rank-banner[style*="fefce8"] {
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.1) 0%, rgba(254, 249, 195, 0.08) 100%) !important;
+  border-color: rgba(253, 224, 71, 0.3) !important;
+}
+
+body.dark-mode .my-rank-banner[style*="fefce8"] .my-rank-number {
+  color: var(--dm-warning) !important;
+}
+
+/* Table Wrapper */
+body.dark-mode .lb-table-wrapper {
+  background: var(--dm-bg-card);
+  box-shadow: 0 4px 20px var(--dm-shadow);
+}
+
+body.dark-mode .lb-table-header {
+  background: linear-gradient(135deg, var(--dm-bg-secondary), var(--dm-bg-tertiary));
+  border-bottom-color: var(--dm-border);
+}
+
+body.dark-mode .lb-table-header h5 {
+  color: var(--dm-text-primary);
+}
+
+/* Table */
+body.dark-mode .lb-table thead th {
+  background: var(--dm-bg-secondary);
+  color: var(--dm-text-muted);
+  border-bottom-color: var(--dm-border);
+}
+
+body.dark-mode .lb-table tbody tr:hover {
+  background: var(--dm-bg-hover);
+}
+
+body.dark-mode .lb-table tbody tr[style*="background:#eff6ff"] {
+  background: rgba(138, 180, 248, 0.1) !important;
+}
+
+body.dark-mode .lb-table tbody td {
+  border-bottom-color: var(--dm-border-subtle);
+}
+
+body.dark-mode .lb-rank {
+  color: var(--dm-text-secondary);
+}
+
+body.dark-mode .lb-user-name {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .lb-user-name:hover {
+  color: var(--dm-primary);
+}
+
+body.dark-mode .lb-score-bar {
+  background: var(--dm-bg-tertiary);
+}
+
+body.dark-mode .lb-score-text {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .lb-exams-badge {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--dm-primary);
+}
+
+/* Info Card */
+body.dark-mode .lb-info-card {
+  background: linear-gradient(135deg, rgba(138, 180, 248, 0.1) 0%, rgba(129, 140, 248, 0.08) 100%);
+  border-color: rgba(199, 210, 254, 0.2);
+}
+
+body.dark-mode .lb-info-card h6 {
+  color: var(--dm-primary);
+}
+
+body.dark-mode .lb-info-card li {
+  color: var(--dm-text-secondary);
+}
+
+body.dark-mode .lb-info-card li::before {
+  color: var(--dm-primary);
+}
+
+/* ============================================
+   ACHIEVEMENTS/BADGES ENHANCEMENTS
+   ============================================ */
+
+/* Locked/Unachieved badges */
+body.dark-mode .badge-custom.border[style*="background:#f8f9fa"] {
+  background: var(--dm-bg-tertiary) !important;
+  color: var(--dm-text-muted) !important;
+  border-color: var(--dm-border) !important;
+  opacity: 0.6;
+}
+
+/* Badge hover effects in dark mode */
+body.dark-mode .badge-custom:hover {
+  box-shadow: 0 4px 12px var(--dm-shadow);
+}
+
+body.dark-mode .badge-tier-gold:hover {
+  box-shadow: 0 0 25px rgba(255, 152, 0, 0.4);
+}
+
+body.dark-mode .badge-tier-silver:hover {
+  box-shadow: 0 4px 12px rgba(189, 189, 189, 0.3);
+}
+
+body.dark-mode .badge-tier-bronze:hover {
+  box-shadow: 0 4px 12px rgba(255, 167, 38, 0.3);
+}
+
+/* Achievement card background */
+body.dark-mode .card-body h5:contains("Thành tích") {
+  color: var(--dm-text-primary);
+}
+
+/* ============================================
+   ACHIEVEMENTS PAGE DARK MODE
+   ============================================ */
+
+/* Achievements Header */
+body.dark-mode .achievements-header {
+  background: linear-gradient(135deg, #7c2d8e 0%, #8b2d4d 100%);
+}
+
+/* Achievement Cards */
+body.dark-mode .achievement-card {
+  background: var(--dm-bg-card);
+  box-shadow: 0 4px 12px var(--dm-shadow);
+}
+
+body.dark-mode .achievement-card:hover {
+  box-shadow: 0 8px 24px var(--dm-shadow-strong);
+}
+
+body.dark-mode .achievement-card.locked {
+  opacity: 0.4;
+}
+
+body.dark-mode .achievement-title {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .achievement-description {
+  color: var(--dm-text-secondary);
+}
+
+body.dark-mode .achievement-meta {
+  border-top-color: var(--dm-border);
+  color: var(--dm-text-muted);
+}
+
+body.dark-mode .achievement-rank {
+  background: linear-gradient(135deg, var(--dm-primary) 0%, #5a4ba2 100%);
+}
+
+/* Ribbon */
+body.dark-mode .ribbon {
+  background: #d4af37;
+  color: #1a1d23;
+}
+
+/* Stats Summary */
+body.dark-mode .stat-box {
+  background: var(--dm-bg-card);
+  box-shadow: 0 2px 8px var(--dm-shadow);
+}
+
+body.dark-mode .stat-value {
+  color: var(--dm-primary);
+}
+
+body.dark-mode .stat-label {
+  color: var(--dm-text-secondary);
+}
+
+/* Empty State */
+body.dark-mode .empty-state {
+  color: var(--dm-text-muted);
+}
+
+body.dark-mode .empty-state h3 {
+  color: var(--dm-text-primary);
+}
+
+/* Buttons */
+body.dark-mode .achievements-container a[style*="background: #667eea"] {
+  background: var(--dm-primary) !important;
+}
+
+body.dark-mode .achievements-container a[style*="background: #f0f0f0"] {
+  background: var(--dm-bg-tertiary) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .achievements-container a:hover {
+  opacity: 0.9;
+}
+
+/* Remove box shadow from create dropdown in navbar */
+body.dark-mode .navbar .dropdown-menu.shadow {
+  box-shadow: 0 4px 12px var(--dm-shadow) !important;
+}
+
+body.dark-mode #createDropdown + .dropdown-menu {
+  box-shadow: none !important;
+  border: 1px solid var(--dm-border);
+}

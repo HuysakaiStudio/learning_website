@@ -11,6 +11,13 @@
   <!-- Design System - Psychology-Based UX -->
   <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <!-- Dark Mode -->
+  <link rel="stylesheet" href="{% static 'css/dark-mode.css' %}">
+  <link rel="stylesheet" href="{% static 'css/exam-dark-mode.css' %}">
+  <link rel="stylesheet" href="{% static 'css/profile-achievements-dark.css' %}">
+  <script src="{% static 'js/dark-mode.js' %}"></script>
+  <!-- Page-specific CSS -->
+  {% block extra_css %}{% endblock %}
   <!-- MathJax render công thức toán -->
   <script>
     MathJax = {
@@ -60,38 +67,33 @@
 
 <body>
   <div id="toast-container"></div>
-  <nav class="navbar navbar-expand-lg fixed-top shadow-sm">
-    <div class="container">
-      <a class="navbar-brand fw-bold text-primary" href="/">Ôn Thi THPTQG</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+  <nav class="navbar navbar-expand-lg fixed-top shadow-sm bg-white" style="backdrop-filter: blur(10px);">
+    <div class="container-fluid px-3">
+      <a class="navbar-brand fw-bold text-primary" href="/" style="font-size: 1.1rem;">Ôn Thi THPTQG</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
         aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="mainNavbar">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
-          <li class="nav-item"><a class="nav-link" href="/kien-thuc/">Kiến thức</a></li>
-          <li class="nav-item"><a class="nav-link" href="/de-thi/">Đề thi</a></li>
-          <li class="nav-item"><a class="nav-link" href="/kien-thuc/flashcard/">Flashcard</a></li>
-          <li class="nav-item"><a class="nav-link" href="/leaderboard/">Xếp hạng</a></li>
+          <li class="nav-item"><a class="nav-link px-2" href="/">Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link px-2" href="/kien-thuc/">Kiến thức</a></li>
+          <li class="nav-item"><a class="nav-link px-2" href="/de-thi/">Đề thi</a></li>
+          <li class="nav-item"><a class="nav-link px-2" href="/kien-thuc/flashcard/">Flashcard</a></li>
+          <li class="nav-item"><a class="nav-link px-2" href="/leaderboard/">Xếp hạng</a></li>
           {% if user.is_authenticated %}
-          <li class="nav-item"><a class="nav-link" href="/de-thi/phan-tich/">Phân tích</a></li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle text-primary fw-bold" href="#" id="createDropdown" role="button"
+            <a class="nav-link dropdown-toggle text-primary fw-bold px-2" href="#" id="createDropdown" role="button"
               data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-plus-circle-fill"></i> Tạo mới
             </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="createDropdown">
+            <ul class="dropdown-menu shadow border-0" aria-labelledby="createDropdown">
               <li><a class="dropdown-item" href="{% url 'kien_thuc:tao_bai_viet' %}">✍️ Bài viết mới</a></li>
               <li><a class="dropdown-item" href="{% url 'kien_thuc:tao_flashcard_set' %}">💡 Bộ Flashcard mới</a></li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-              <li><a class="dropdown-item fw-bold text-success" href="/studio/" style="margin-left: 4px;"><i style="margin-right: 8px;" class="bi bi-camera-video-fill"></i>Studio</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item fw-bold text-success" href="/studio/"><i class="bi bi-camera-video-fill me-2"></i>Studio</a></li>
               {% if user.is_staff %}
-              <li>
-                <hr class="dropdown-divider">
-              </li>
+              <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="/admin/de_thi/dethi/add/">⏱️ Đề thi mới (Admin)</a></li>
               {% endif %}
             </ul>
@@ -99,27 +101,31 @@
           {% endif %}
         </ul>
 
-        <!-- Search Form -->
-        <form class="d-flex position-relative mx-lg-3 my-2 my-lg-0 flex-grow-1" style="max-width: 400px;"
-          action="/search/" method="get">
-          <div id="search-suggestions" class="dropdown-menu shadow w-100 position-absolute"
-            style="top: 100%; display: none; max-height: 400px; overflow-y: auto; border-radius: 12px; margin-top: 8px; border: none;">
-            <!-- Results injected here -->
-          </div>
-        </form>
-
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-2">
+          <!-- Dark Mode Toggle -->
+          <li class="nav-item">
+            <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode" title="Chuyển sang chế độ tối"></button>
+          </li>
+          
           {% if user.is_authenticated %}
-          <li class="nav-item me-3">
+          <li class="nav-item">
             {% include 'notifications/widget.html' %}
           </li>
-          <li class="nav-item"><a class="nav-link me-3" href="/nguoi-dung/profile/">Chào, {{ user.username }}!</a></li>
-          <li class="nav-item"><a class="btn btn-outline-primary btn-sm" href="/nguoi-dung/dang-xuat/">Đăng xuất</a>
+          <li class="nav-item">
+            <a class="nav-link fw-medium text-truncate" style="max-width: 120px;" href="/nguoi-dung/profile/" title="{{ user.username }}">
+              <i class="bi bi-person-circle"></i> {{ user.username }}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-primary btn-sm" href="/nguoi-dung/dang-xuat/">Đăng xuất</a>
           </li>
           {% else %}
-          <li class="nav-item me-2"><a class="btn btn-outline-primary btn-sm" href="/nguoi-dung/dang-nhap/">Đăng
-              nhập</a></li>
-          <li class="nav-item"><a class="btn btn-primary btn-sm" href="/nguoi-dung/dang-ky/">Đăng ký</a></li>
+          <li class="nav-item">
+            <a class="btn btn-outline-primary btn-sm" href="/nguoi-dung/dang-nhap/">Đăng nhập</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-primary btn-sm" href="/nguoi-dung/dang-ky/">Đăng ký</a>
+          </li>
           {% endif %}
         </ul>
       </div>

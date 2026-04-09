@@ -1,12 +1,14 @@
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.urls import reverse
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Sum, Count
 from apps.kien_thuc.models import Mon
 from .models import (DeThi, CauHoi, KetQua, TraLoi, UserAnalytics, SubjectPerformance, QuestionDifficulty,
-                     ForumPost, ForumComment, ForumReply, PostVote)
+                     ForumPost, ForumComment, ForumReply, PostVote, PracticeSession)
 from .forms import DeThiForm, TracNghiemForm, DungSaiForm, DienSoForm, BulkAddQuestionsForm, ImportDeThiForm
 from django.core.paginator import Paginator
 import json
@@ -281,7 +283,30 @@ def lam_bai(request, de_id):
 @login_required
 def ket_qua(request, kq_id):
     kq = get_object_or_404(KetQua, id=kq_id, nguoi_dung=request.user)
-    return render(request, 'de_thi/ket_qua.html', {'kq': kq})
+    
+    # Get XP reward info
+    from apps.nguoi_dung.xp_utils import get_exam_xp_reward
+    from apps.nguoi_dung.models import UserGamification
+    
+    xp_reward = None
+    if kq.is_official and not kq.is_violated:
+        xp_amount, reason = get_exam_xp_reward(kq.diem)
+        
+        # Get current gamification data to check if leveled up
+        gamification = UserGamification.objects.filter(user=request.user).first()
+        if gamification:
+            xp_reward = {
+                'xp_gained': xp_amount,
+                'reason': reason,
+                'total_xp': gamification.xp,
+                'new_level': gamification.level,
+                'leveled_up': False  # We can't know for sure without storing it, but signal already handled it
+            }
+    
+    return render(request, 'de_thi/ket_qua.html', {
+        'kq': kq,
+        'xp_reward': xp_reward
+    })
 
 @login_required
 def xem_dap_an(request, kq_id):
@@ -1105,3 +1130,180 @@ def chon_cau_tra_loi_tot(request, comment_id):
     
     messages.success(request, 'Câu trả lời này đã được đánh dấu là tốt nhất!')
     return redirect('de_thi:chi_tiet_forum', post_id=post.id)
+
+
+# ============================================================================
+# PRACTICE MODE - WAYGROUND STYLE (Question by Question with Immediate Feedback)
+# ============================================================================
+
+@login_required
+def bat_dau_luyen_tung_cau(request, de_id):
+    """Start a new practice session (Wayground-style)"""
+    de = get_object_or_404(DeThi, id=de_id, an=False)
+    
+    # Create KetQua record
+    ket_qua = KetQua.objects.create(
+        nguoi_dung=request.user,
+        de_thi=de,
+        tong_cau=de.cau_hoi.count(),
+        che_do='luyen_tung_cau',
+        is_official=False  # Practice mode doesn't count for leaderboard
+    )
+    
+    # Create PracticeSession
+    session = PracticeSession.objects.create(
+        nguoi_dung=request.user,
+        de_thi=de,
+        ket_qua=ket_qua,
+        cau_hien_tai=0
+    )
+    
+    return redirect('de_thi:hien_thi_cau_hoi', session_id=session.id)
+
+
+@login_required
+def hien_thi_cau_hoi(request, session_id):
+    """Display current question in practice session"""
+    session = get_object_or_404(PracticeSession, id=session_id, nguoi_dung=request.user)
+    
+    if session.da_hoan_thanh:
+        return redirect('de_thi:ket_qua', kq_id=session.ket_qua.id)
+    
+    cau_hoi_list = list(session.de_thi.cau_hoi.all().order_by('thu_tu', 'id'))
+    
+    if session.cau_hien_tai >= len(cau_hoi_list):
+        # All questions answered, finalize
+        session.da_hoan_thanh = True
+        session.save()
+        
+        # Calculate final score
+        tong_diem = session.ket_qua.tra_loi.aggregate(Sum('diem_duoc'))['diem_duoc__sum'] or 0
+        session.ket_qua.diem = (tong_diem / len(cau_hoi_list)) * 10 if len(cau_hoi_list) > 0 else 0
+        session.ket_qua.save()
+        
+        return redirect('de_thi:ket_qua', kq_id=session.ket_qua.id)
+    
+    cau_hoi = cau_hoi_list[session.cau_hien_tai]
+    
+    # Prepare choices for TN questions
+    if cau_hoi.loai == 'tn':
+        cau_hoi.choices = [
+            ('A', cau_hoi.dap_an_a),
+            ('B', cau_hoi.dap_an_b),
+            ('C', cau_hoi.dap_an_c),
+            ('D', cau_hoi.dap_an_d)
+        ]
+    
+    context = {
+        'session': session,
+        'cau_hoi': cau_hoi,
+        'so_thu_tu': session.cau_hien_tai + 1,
+        'tong_cau': len(cau_hoi_list),
+        'tien_do': int((session.cau_hien_tai / len(cau_hoi_list)) * 100) if len(cau_hoi_list) > 0 else 0
+    }
+    
+    return render(request, 'de_thi/luyen_tung_cau.html', context)
+
+
+@login_required
+@require_POST
+def submit_cau_tra_loi(request, session_id):
+    """Submit answer and return immediate feedback (AJAX)"""
+    try:
+        session = get_object_or_404(PracticeSession, id=session_id, nguoi_dung=request.user)
+        
+        cau_hoi_list = list(session.de_thi.cau_hoi.all().order_by('thu_tu', 'id'))
+        
+        if session.cau_hien_tai >= len(cau_hoi_list):
+            return JsonResponse({'success': False, 'error': 'No more questions'}, status=400)
+        
+        cau_hoi = cau_hoi_list[session.cau_hien_tai]
+        
+        # Create TraLoi record
+        tra_loi = TraLoi(ket_qua=session.ket_qua, cau_hoi=cau_hoi)
+        dung = False
+        diem = 0
+        dap_an_dung = None
+        
+        # Process answer based on question type
+        if cau_hoi.loai == 'tn':
+            chon = request.POST.get('chon', '').strip().upper()
+            tra_loi.chon = chon
+            dung = (chon == cau_hoi.dap_an_dung.strip().upper())
+            diem = 1.0 if dung else 0.0
+            dap_an_dung = cau_hoi.dap_an_dung
+            
+        elif cau_hoi.loai == 'dien':
+            so_raw = request.POST.get('so_dien', '').strip()
+            tra_loi.so_dien = so_raw
+            try:
+                dung = abs(float(so_raw) - float(cau_hoi.dap_an_so)) < 0.001
+            except (ValueError, TypeError):
+                dung = False
+            diem = 1.0 if dung else 0.0
+            dap_an_dung = str(cau_hoi.dap_an_so)
+            
+        elif cau_hoi.loai == 'ds':
+            chon_a = request.POST.get('chon_a') == 'true'
+            chon_b = request.POST.get('chon_b') == 'true'
+            chon_c = request.POST.get('chon_c') == 'true'
+            chon_d = request.POST.get('chon_d') == 'true'
+            
+            tra_loi.chon_a = chon_a
+            tra_loi.chon_b = chon_b
+            tra_loi.chon_c = chon_c
+            tra_loi.chon_d = chon_d
+            
+            so_dung = sum([
+                chon_a == cau_hoi.dung_sai_a,
+                chon_b == cau_hoi.dung_sai_b,
+                chon_c == cau_hoi.dung_sai_c,
+                chon_d == cau_hoi.dung_sai_d,
+            ])
+            
+            diem_map = {0: 0.0, 1: 0.1, 2: 0.25, 3: 0.5, 4: 1.0}
+            diem = diem_map.get(so_dung, 0.0)
+            dung = (so_dung == 4)
+            
+            dap_an_dung = {
+                'a': cau_hoi.dung_sai_a,
+                'b': cau_hoi.dung_sai_b,
+                'c': cau_hoi.dung_sai_c,
+                'd': cau_hoi.dung_sai_d,
+            }
+        
+        tra_loi.dung = dung
+        tra_loi.diem_duoc = diem
+        tra_loi.save()
+        
+        # Move to next question
+        session.cau_hien_tai += 1
+        session.save()
+        
+        # Check if this was the last question
+        is_last = session.cau_hien_tai >= len(cau_hoi_list)
+        
+        if is_last:
+            # Finalize session
+            session.da_hoan_thanh = True
+            session.save()
+            
+            # Calculate final score
+            tong_diem = session.ket_qua.tra_loi.aggregate(Sum('diem_duoc'))['diem_duoc__sum'] or 0
+            session.ket_qua.diem = (tong_diem / len(cau_hoi_list)) * 10 if len(cau_hoi_list) > 0 else 0
+            session.ket_qua.save()
+        
+        # Return feedback
+        return JsonResponse({
+            'success': True,
+            'dung': dung,
+            'diem': diem,
+            'dap_an_dung': dap_an_dung,
+            'giai_thich': cau_hoi.giai_thich,
+            'is_last': is_last,
+            'next_url': reverse('de_thi:ket_qua', args=[session.ket_qua.id]) if is_last else None
+        })
+    
+    except Exception as e:
+        logger.error(f"Error in submit_cau_tra_loi: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)

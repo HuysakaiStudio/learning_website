@@ -91,8 +91,17 @@
 
     <div class="form-group">
       {{ form.csv_file.label_tag }}
-      {{ form.csv_file }}
+      <div id="drop-zone" style="border: 2px dashed #9c27b0; border-radius: 8px; padding: 40px; text-align: center; background: #fafafa; cursor: pointer; transition: all 0.3s;">
+        <i class="bi bi-cloud-upload" style="font-size: 48px; color: #9c27b0; display: block; margin-bottom: 12px;"></i>
+        <p style="margin: 0 0 8px; font-weight: 600; color: #333;">Kéo thả file CSV vào đây</p>
+        <p style="margin: 0 0 12px; font-size: 13px; color: #666;">hoặc click để chọn file</p>
+        {{ form.csv_file }}
+        <p id="file-name" style="margin-top: 12px; font-size: 13px; color: #9c27b0; font-weight: 600;"></p>
+      </div>
       <p style="font-size: 13px; color: #666; margin-top: 8px;">{{ form.csv_file.help_text }}</p>
+      <a href="#" onclick="downloadTemplate(); return false;" class="template-link">
+        <i class="bi bi-download"></i> Tải file CSV mẫu
+      </a>
       {% if form.csv_file.errors %}
         <div style="color: #d32f2f; margin-top: 8px;">{{ form.csv_file.errors }}</div>
       {% endif %}
@@ -119,6 +128,73 @@ tn,2 + 2 bằng mấy?,3,4,5,6,B,Phép cộng cơ bản</pre>
     // Tự động render MathJax trong ví dụ
     if (window.MathJax) {
       MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+    }
+
+    // Drag & Drop functionality
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.querySelector('input[type="file"]');
+    const fileName = document.getElementById('file-name');
+
+    // Hide default file input
+    if (fileInput) {
+      fileInput.style.display = 'none';
+    }
+
+    // Click to select file
+    dropZone.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    // File selected
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        fileName.textContent = '📄 ' + e.target.files[0].name;
+        dropZone.style.borderColor = '#4caf50';
+        dropZone.style.background = '#f1f8f4';
+      }
+    });
+
+    // Drag over
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#4caf50';
+      dropZone.style.background = '#f1f8f4';
+    });
+
+    // Drag leave
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.borderColor = '#9c27b0';
+      dropZone.style.background = '#fafafa';
+    });
+
+    // Drop file
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#4caf50';
+      dropZone.style.background = '#f1f8f4';
+      
+      if (e.dataTransfer.files.length > 0) {
+        fileInput.files = e.dataTransfer.files;
+        fileName.textContent = '📄 ' + e.dataTransfer.files[0].name;
+      }
+    });
+
+    // Download CSV template
+    function downloadTemplate() {
+      const csvContent = `loai,noi_dung,A/Y_A,B/Y_B,C/Y_C,D/Y_D,dap_an,giai_thich
+tn,Thủ đô của Việt Nam là gì?,Hà Nội,TP.HCM,Đà Nẵng,Huế,A,Là thủ đô chính trị
+ds,Hà Nội,Là thủ đô VN,Ở miền Bắc,Có 7 triệu dân,Lớn nhất VN,D;D;S;S,Thông tin chính xác về HN
+dien,Tính 2^3 = ?,8,,,,8,2 nhân 2 nhân 2
+tn,Ai là tác giả Truyện Kiều?,Nguyễn Du,Trần Hưng Đạo,Bà Triệu,Trương Vương,A,Tác phẩm của Nguyễn Du
+ds,Python,Là ngôn ngữ lập trình,Được tạo 1991,Chỉ dùng web,Mã nguồn mở,D;D;S;D,Python là ngôn ngữ đa năng
+dien,Giải phương trình $x^2 = 16$?,4,,,,4,Căn bậc 2 của 16
+tn,2 + 2 bằng mấy?,3,4,5,6,B,Phép cộng cơ bản`;
+
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'template_de_thi.csv';
+      link.click();
     }
   </script>
 </div>

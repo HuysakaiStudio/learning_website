@@ -1,0 +1,224 @@
+/* ============================================
+   PROFILE ACHIEVEMENTS & BADGES DARK MODE
+   ============================================ */
+
+/* Gamification Stats Card */
+.gamification-stats-card {
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--accent-500) 100%);
+}
+
+body.dark-mode .gamification-stats-card {
+  background: linear-gradient(135deg, #4338ca 0%, #7c3aed 100%) !important;
+}
+
+/* Achievement Cards */
+.achievement-card {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+}
+
+body.dark-mode .achievement-card {
+  background: linear-gradient(135deg, #92400e 0%, #78350f 100%) !important;
+  color: white;
+}
+
+body.dark-mode .achievement-card .rounded-3 {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(10px);
+}
+
+/* Badge Tiers - Dark Mode */
+body.dark-mode .badge-tier-gold {
+  background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+body.dark-mode .badge-tier-silver {
+  background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+  color: #d1d5db;
+  border: 1px solid rgba(209, 213, 219, 0.3);
+}
+
+body.dark-mode .badge-tier-bronze {
+  background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+  color: #fdba74;
+  border: 1px solid rgba(253, 186, 116, 0.3);
+}
+
+/* Locked badges */
+body.dark-mode .badge-custom.border[style*="background:#f8f9fa"] {
+  background: var(--dm-bg-tertiary) !important;
+  color: var(--dm-text-muted) !important;
+  border-color: var(--dm-border) !important;
+}
+
+/* Home Page Stats Cards */
+body.dark-mode .hero-section .card {
+  background: rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .hero-section .stat-value {
+  color: white !important;
+}
+
+body.dark-mode .hero-section .stat-label {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Profile stat cards */
+body.dark-mode .stat-card {
+  background: var(--dm-bg-card) !important;
+  border: 1px solid var(--dm-border) !important;
+}
+
+body.dark-mode .stat-card .stat-icon {
+  opacity: 0.9;
+}
+
+body.dark-mode .stat-card .display-6 {
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .stat-card .text-muted {
+  color: var(--dm-text-secondary) !important;
+}
+
+/* History table on profile */
+body.dark-mode .history-table {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .history-table thead {
+  background: var(--dm-bg-tertiary);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .history-table tbody tr {
+  border-bottom-color: var(--dm-border);
+}
+
+body.dark-mode .history-table tbody tr:hover {
+  background: var(--dm-bg-hover);
+}
+
+body.dark-mode .history-table .fw-medium {
+  color: var(--dm-text-primary) !important;
+}
+
+/* Badge pills in history */
+body.dark-mode .badge.bg-success-subtle {
+  background: rgba(129, 201, 149, 0.2) !important;
+  color: var(--dm-success) !important;
+}
+
+body.dark-mode .badge.bg-primary-subtle {
+  background: rgba(138, 180, 248, 0.2) !important;
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode .badge.bg-danger-subtle {
+  background: rgba(242, 139, 130, 0.2) !important;
+  color: var(--dm-danger) !important;
+}
+
+/* Flashcard progress cards */
+body.dark-mode .border.rounded-3 {
+  background: var(--dm-bg-card);
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .progress {
+  background: var(--dm-bg-tertiary);
+}
+
+body.dark-mode .progress-bar.bg-success {
+  background: var(--dm-success) !important;
+}
+
+body.dark-mode .progress-bar.bg-primary {
+  background: var(--dm-primary) !important;
+}
+
+/* XP Progress bar on profile */
+body.dark-mode #xp-progress-bar {
+  background: linear-gradient(90deg, rgba(138, 180, 248, 0.8), rgba(138, 180, 248, 1)) !important;
+}
+
+/* Achievement icons and text */
+body.dark-mode .achievement-card .fw-bold {
+  color: white !important;
+}
+
+body.dark-mode .achievement-card .small {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+body.dark-mode .achievement-card .btn-light {
+  background: rgba(255, 255, 255, 0.9);
+  color: #78350f;
+  border: none;
+}
+
+body.dark-mode .achievement-card .btn-light:hover {
+  background: white;
+}
+
+/* Profile avatar container */
+body.dark-mode .profile-avatar-container {
+  border-color: var(--dm-border);
+}
+
+body.dark-mode .profile-avatar-container img {
+  border-color: var(--dm-border);
+}
+
+/* Alert boxes on profile */
+body.dark-mode .alert-light {
+  background: var(--dm-bg-tertiary) !important;
+  border-color: var(--dm-border) !important;
+  color: var(--dm-text-primary) !important;
+}
+
+/* Sticky profile card */
+body.dark-mode .sticky-top.card {
+  background: var(--dm-bg-card);
+  border-color: var(--dm-border);
+}
+
+/* Form elements on profile */
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode textarea {
+  background: var(--dm-bg-tertiary);
+  border-color: var(--dm-border);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus,
+body.dark-mode textarea:focus {
+  background: var(--dm-bg-secondary);
+  border-color: var(--dm-primary);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .form-label {
+  color: var(--dm-text-primary);
+}
+
+/* Profile page specific cards */
+body.dark-mode .card.shadow-sm {
+  box-shadow: 0 2px 8px var(--dm-shadow) !important;
+}
+
+/* Tooltips */
+body.dark-mode .tooltip-inner {
+  background: var(--dm-bg-tertiary);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .tooltip .tooltip-arrow::before {
+  border-top-color: var(--dm-bg-tertiary);
+}

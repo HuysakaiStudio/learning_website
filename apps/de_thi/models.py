@@ -310,3 +310,27 @@ class PostVote(models.Model):
     def __str__(self):
         vote_str = 'Upvote' if self.loai_bau == 1 else 'Downvote'
         return f'{self.nguoi_dung.username} - {vote_str}'
+
+
+class PracticeSession(models.Model):
+    """Tracks question-by-question practice sessions (Wayground-style)"""
+    nguoi_dung = models.ForeignKey(User, on_delete=models.CASCADE, related_name='practice_sessions')
+    de_thi = models.ForeignKey(DeThi, on_delete=models.CASCADE, related_name='practice_sessions')
+    ket_qua = models.OneToOneField(KetQua, on_delete=models.CASCADE, null=True, blank=True, related_name='practice_session')
+    
+    # Session tracking
+    cau_hien_tai = models.IntegerField(default=0)  # Index of current question (0-based)
+    da_hoan_thanh = models.BooleanField(default=False)
+    
+    # Timestamps
+    ngay_bat_dau = models.DateTimeField(auto_now_add=True)
+    ngay_cap_nhat = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-ngay_bat_dau']
+        verbose_name = 'Phiên luyện tập'
+        verbose_name_plural = 'Phiên luyện tập'
+    
+    def __str__(self):
+        status = 'Hoàn thành' if self.da_hoan_thanh else f'Câu {self.cau_hien_tai + 1}'
+        return f'{self.nguoi_dung.username} - {self.de_thi.ten} ({status})'

@@ -1,0 +1,207 @@
+/* ============================================
+   EXAM HISTORY PAGE - Past Exam Records
+   File: exam-history.css
+   ============================================ */
+
+/* Container */
+.exam-history-container {
+  max-width: 960px;
+  margin: 40px auto;
+  padding: 24px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Header */
+.exam-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.exam-history-title-section h2 {
+  margin: 0 0 8px;
+  color: #1a73e8;
+}
+
+.exam-history-title-section p {
+  margin: 0;
+  color: #555;
+}
+
+.exam-history-back-btn {
+  padding: 10px 20px;
+  background: #1a73e8;
+  color: white;
+  text-decoration: none;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.exam-history-back-btn:hover {
+  background: #1557b0;
+  color: white;
+}
+
+/* Filter Form */
+.exam-history-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+
+.filter-group {
+  min-width: 220px;
+}
+
+.filter-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #555;
+  font-weight: 600;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+.filter-submit-btn {
+  padding: 12px 24px;
+  border: none;
+  background: #1a73e8;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.filter-submit-btn:hover {
+  background: #1557b0;
+}
+
+/* History Table */
+.exam-history-table-wrapper {
+  overflow-x: auto;
+}
+
+.exam-history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.exam-history-table thead tr {
+  background: #f8f9fa;
+}
+
+.exam-history-table th {
+  text-align: left;
+  padding: 14px;
+  border-bottom: 2px solid #f0f0f0;
+  color: #444;
+  font-weight: 600;
+}
+
+.exam-history-table td {
+  padding: 14px;
+  border-bottom: 1px solid #f3f3f3;
+  color: #333;
+}
+
+.exam-history-table tbody tr {
+  background: #fff;
+  transition: background 0.2s;
+}
+
+.exam-history-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.exam-score {
+  font-weight: 600;
+  color: #1a73e8;
+}
+
+.exam-result-link {
+  text-decoration: none;
+  color: #1a73e8;
+  transition: color 0.2s;
+}
+
+.exam-result-link:hover {
+  color: #1557b0;
+  text-decoration: underline;
+}
+
+/* Empty State */
+.exam-history-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #555;
+}
+
+.exam-history-empty p {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+
+.exam-history-start-btn {
+  padding: 10px 20px;
+  background: #1a73e8;
+  color: white;
+  text-decoration: none;
+  border-radius: 10px;
+  display: inline-block;
+  transition: background 0.2s;
+}
+
+.exam-history-start-btn:hover {
+  background: #1557b0;
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .exam-history-container {
+    margin: 20px;
+    padding: 16px;
+  }
+
+  .exam-history-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .exam-history-filter {
+    flex-direction: column;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-submit-btn {
+    width: 100%;
+  }
+
+  .exam-history-table {
+    font-size: 13px;
+  }
+
+  .exam-history-table th,
+  .exam-history-table td {
+    padding: 10px 8px;
+  }
+}

@@ -175,15 +175,32 @@
 
         </div>
 
-        <!-- Ghi chú cú pháp -->
+        <!-- Ghi chú cú pháp và hướng dẫn -->
         <div class="tex2jax_ignore" style="margin-top:10px;padding:12px 16px;background:#f8f8f8;
                     border-radius:8px;font-size:12px;color:#666;line-height:2">
-          <strong>Cú pháp:</strong>
-          Inline: <code>$công thức$</code> &nbsp;|&nbsp;
-          Block: <code>$$công thức$$</code> &nbsp;|&nbsp;
-          In đậm: <code>**chữ**</code> &nbsp;|&nbsp;
-          In nghiêng: <code>*chữ*</code> &nbsp;|&nbsp;
-          Tiêu đề: <code># Tiêu đề</code>
+          <strong>📖 Cú pháp MathJax & Markdown:</strong><br>
+          • Công thức inline: <code>$x^2 + y^2 = z^2$</code> → $x^2 + y^2 = z^2$<br>
+          • Công thức block: <code>$$\int_a^b f(x)dx$$</code> (hiển thị riêng 1 dòng)<br>
+          • In đậm: <code>**chữ đậm**</code> &nbsp;|&nbsp; In nghiêng: <code>*chữ nghiêng*</code><br>
+          • Tiêu đề: <code># Tiêu đề lớn</code> hoặc <code>## Tiêu đề nhỏ</code><br>
+          • Phân cách: <code>──────────</code> (dấu gạch ngang)
+        </div>
+
+        <!-- Nguyên tắc tạo bài viết -->
+        <div style="margin-top:12px;padding:14px 18px;background:#fff8e1;
+                    border-left:4px solid #ffc107;border-radius:8px;font-size:13px;color:#555;line-height:1.8">
+          <strong style="color:#f57c00">⚠️ Nguyên tắc tạo bài viết nghiêm túc:</strong><br>
+          <div style="margin-top:8px">
+            ✅ <strong>Nội dung chính xác:</strong> Đảm bảo kiến thức đúng, có nguồn gốc rõ ràng<br>
+            ✅ <strong>Trình bày rõ ràng:</strong> Sử dụng công thức MathJax đúng cú pháp, dễ đọc<br>
+            ✅ <strong>Có ví dụ minh họa:</strong> Giúp người học hiểu sâu hơn<br>
+            ✅ <strong>Ngôn ngữ chuẩn mực:</strong> Tránh viết tắt, lỗi chính tả<br>
+            ❌ <strong>Không spam:</strong> Không đăng nội dung trùng lặp, vô nghĩa<br>
+            ❌ <strong>Không vi phạm:</strong> Không chép nguyên văn từ nguồn khác mà không trích dẫn
+          </div>
+          <div style="margin-top:10px;padding:8px 12px;background:white;border-radius:6px;font-size:12px">
+            💡 <strong>Mẹo:</strong> Bài viết chất lượng cao sẽ được ưu tiên hiển thị và nhận được nhiều lượt xem hơn!
+          </div>
         </div>
       </div>
     
@@ -201,7 +218,7 @@
                        box-shadow:0 4px 12px rgba(26,115,232,0.2); transition:all 0.2s"
                 onmouseover="this.style.background='#1557b0';this.style.transform='translateY(-1px)'"
                 onmouseout="this.style.background='#1a73e8';this.style.transform='translateY(0)'">
-          🚀 Xuất bản bài viết
+          🚀 {% if user.is_staff %}Xuất bản ngay{% else %}Gửi kiểm duyệt{% endif %}
         </button>
       </div>
 

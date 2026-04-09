@@ -10,7 +10,7 @@ from .models import KetQua, TraLoi, QuestionDifficulty, UserAnalytics, SubjectPe
 @receiver(post_save, sender=KetQua)
 def update_analytics_on_exam_submit(sender, instance, created, **kwargs):
     """
-    When an exam result is saved, update all related analytics.
+    When an exam result is saved, update all related analytics and award XP.
     Skip initial creation (diem=0), only update after score is set
     """
     # Skip if it's the very first save with diem=0
@@ -29,6 +29,9 @@ def update_analytics_on_exam_submit(sender, instance, created, **kwargs):
     
     # 3. Update SubjectPerformance
     update_subject_performance(instance.nguoi_dung, instance.de_thi.mon)
+    
+    # 4. Award XP for completing exam
+    award_exam_xp(instance)
 
 
 def update_question_difficulty(ket_qua):
@@ -72,3 +75,24 @@ def update_subject_performance(user, mon):
         mon=mon
     )
     perf.cap_nhat_hieu_suat()
+
+
+def award_exam_xp(ket_qua):
+    """
+    Award XP based on exam score
+    """
+    from apps.nguoi_dung.xp_utils import award_xp, get_exam_xp_reward
+    
+    # Only award XP for official exams (not violated)
+    if not ket_qua.is_official or ket_qua.is_violated:
+        return
+    
+    # Get XP reward based on score
+    xp_amount, reason = get_exam_xp_reward(ket_qua.diem)
+    
+    # Award XP
+    result = award_xp(ket_qua.nguoi_dung, xp_amount, reason)
+    
+    if result and result.get('leveled_up'):
+        # User leveled up! Could send notification here
+        pass

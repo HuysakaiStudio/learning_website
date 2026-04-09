@@ -19,6 +19,11 @@ urlpatterns = [
     path('ket-qua/<int:kq_id>/', views.ket_qua, name='ket_qua'),
     path('ket-qua/<int:kq_id>/dap-an/', views.xem_dap_an, name='xem_dap_an'),
     
+    # Practice Mode URLs (Wayground-style)
+    path('<int:de_id>/luyen-tung-cau/', views.bat_dau_luyen_tung_cau, name='bat_dau_luyen_tung_cau'),
+    path('luyen-tung-cau/<int:session_id>/', views.hien_thi_cau_hoi, name='hien_thi_cau_hoi'),
+    path('luyen-tung-cau/<int:session_id>/submit/', views.submit_cau_tra_loi, name='submit_cau_tra_loi'),
+    
     # Analytics URLs
     path('phan-tich/', views.phan_tich_hoc_tap, name='phan_tich_hoc_tap'),
     path('api/analytics/', views.api_analytics_data, name='api_analytics_data'),

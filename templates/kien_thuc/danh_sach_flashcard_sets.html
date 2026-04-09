@@ -199,11 +199,11 @@
 <div class="flashcard-container">
   <div class="header-section">
     <h2>💡 Flashcards</h2>
-    <div class="header-buttons">
+    <div class="header-buttons" style="display: flex; gap: 12px;">
       {% if user.is_staff %}
-      <a href="{% url 'kien_thuc:tao_flashcard_set' %}" class="create-btn">+ Tạo bộ mới</a>
+      <a href="{% url 'kien_thuc:tao_flashcard_set' %}" class="btn btn-primary">+ Tạo bộ mới</a>
       {% endif %}
-      <a href="{% url 'kien_thuc:flashcard_dashboard' %}" class="create-btn">Xem thống kê học tập</a>
+      <a href="{% url 'kien_thuc:flashcard_dashboard' %}" class="btn btn-primary">Xem thống kê học tập</a>
     </div>
   </div>
 
@@ -226,7 +226,7 @@
         </select>
       </div>
       <div class="col-auto">
-        <button type="submit" class="btn btn-primary">🔍 Lọc</button>
+        <button type="submit" class="btn btn-primary" style="margin-bottom: 10px;">🔍 Lọc</button>
       </div>
     </form>
   </div>

@@ -1,53 +1,61 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Lịch sử làm bài{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/exam-history.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width:960px;margin:40px auto;padding:24px;background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.08);">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px;flex-wrap:wrap;">
-    <div>
-      <h2 style="margin:0 0 8px;color:#1a73e8;">📜 Lịch sử làm bài</h2>
-      <p style="margin:0;color:#555;">Xem lại các kỳ thi bạn đã hoàn thành.</p>
+<div class="exam-history-container">
+  <div class="exam-history-header">
+    <div class="exam-history-title-section">
+      <h2>📜 Lịch sử làm bài</h2>
+      <p>Xem lại các kỳ thi bạn đã hoàn thành.</p>
     </div>
-    <a href="{% url 'de_thi:danh_sach_de' %}" style="padding:10px 20px;background:#1a73e8;color:white;text-decoration:none;border-radius:10px;">Quay lại đề thi</a>
+    <a href="{% url 'de_thi:danh_sach_de' %}" class="exam-history-back-btn">Quay lại đề thi</a>
   </div>
-  <form method="get" style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:24px;">
-    <div style="min-width:220px;">
-      <label style="display:block;margin-bottom:6px;color:#555;font-weight:600;">Lọc theo môn</label>
-      <select name="mon" onchange="this.form.submit()" style="width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;">
+  
+  <form method="get" class="exam-history-filter">
+    <div class="filter-group">
+      <label class="filter-label">Lọc theo môn</label>
+      <select name="mon" onchange="this.form.submit()" class="filter-select">
         <option value="">Tất cả môn</option>
         {% for mon in mon_list %}
         <option value="{{ mon.id }}" {% if selected_mon == mon.id %}selected{% endif %}>{{ mon.ten }}</option>
         {% endfor %}
       </select>
     </div>
-    <button type="submit" style="padding:12px 24px;border:none;background:#1a73e8;color:white;border-radius:10px;cursor:pointer;">Áp dụng</button>
+    <button type="submit" class="filter-submit-btn">Áp dụng</button>
   </form>
+  
   {% if page_obj %}
-  <div style="overflow-x:auto;">
-    <table style="width:100%;border-collapse:collapse;">
+  <div class="exam-history-table-wrapper">
+    <table class="exam-history-table">
       <thead>
         <tr>
-          <th style="text-align:left;padding:14px;border-bottom:2px solid #f0f0f0;color:#444;">Ngày làm</th>
-          <th style="text-align:left;padding:14px;border-bottom:2px solid #f0f0f0;color:#444;">Đề thi</th>
-          <th style="text-align:left;padding:14px;border-bottom:2px solid #f0f0f0;color:#444;">Môn</th>
-          <th style="text-align:left;padding:14px;border-bottom:2px solid #f0f0f0;color:#444;">Thời gian</th>
-          <th style="text-align:left;padding:14px;border-bottom:2px solid #f0f0f0;color:#444;">Điểm</th>
-          <th style="text-align:left;padding:14px;border-bottom:2px solid #f0f0f0;color:#444;">Chế độ</th>
-          <th style="text-align:left;padding:14px;border-bottom:2px solid #f0f0f0;color:#444;">Trạng thái</th>
-          <th style="text-align:left;padding:14px;border-bottom:2px solid #f0f0f0;color:#444;">Thao tác</th>
+          <th>Ngày làm</th>
+          <th>Đề thi</th>
+          <th>Môn</th>
+          <th>Thời gian</th>
+          <th>Điểm</th>
+          <th>Chế độ</th>
+          <th>Trạng thái</th>
+          <th>Thao tác</th>
         </tr>
       </thead>
       <tbody>
         {% for kq in page_obj %}
-        <tr style="background:#fff;">
-          <td style="padding:14px;border-bottom:1px solid #f3f3f3;color:#333;">{{ kq.ngay_lam|date:'d/m/Y H:i' }}</td>
-          <td style="padding:14px;border-bottom:1px solid #f3f3f3;color:#333;">{{ kq.de_thi.ten }}</td>
-          <td style="padding:14px;border-bottom:1px solid #f3f3f3;color:#333;">{{ kq.de_thi.mon }}</td>
-          <td style="padding:14px;border-bottom:1px solid #f3f3f3;color:#333;">{{ kq.thoi_gian_lam }} giây</td>
-          <td style="padding:14px;border-bottom:1px solid #f3f3f3;color:#333;font-weight:600;">{{ kq.diem|floatformat:1 }}/10</td>
-          <td style="padding:14px;border-bottom:1px solid #f3f3f3;color:#333;">{% if kq.che_do == 'thi_that' %}Thi thật{% else %}Luyện tập{% endif %}</td>
-          <td style="padding:14px;border-bottom:1px solid #f3f3f3;color:#333;">{% if kq.da_xem_dap_an %}Đã xem đáp án{% else %}Chưa xem{% endif %}</td>
-          <td style="padding:14px;border-bottom:1px solid #f3f3f3;color:#1a73e8;">
-            <a href="{% url 'de_thi:ket_qua' kq.id %}" style="text-decoration:none;color:#1a73e8;">Xem kết quả</a>
+        <tr>
+          <td>{{ kq.ngay_lam|date:'d/m/Y H:i' }}</td>
+          <td>{{ kq.de_thi.ten }}</td>
+          <td>{{ kq.de_thi.mon }}</td>
+          <td>{{ kq.thoi_gian_lam }} giây</td>
+          <td class="exam-score">{{ kq.diem|floatformat:1 }}/10</td>
+          <td>{% if kq.che_do == 'thi_that' %}Thi thật{% else %}Luyện tập{% endif %}</td>
+          <td>{% if kq.da_xem_dap_an %}Đã xem đáp án{% else %}Chưa xem{% endif %}</td>
+          <td>
+            <a href="{% url 'de_thi:ket_qua' kq.id %}" class="exam-result-link">Xem kết quả</a>
           </td>
         </tr>
         {% endfor %}
@@ -56,9 +64,9 @@
   </div>
   {% include 'includes/pagination.html' %}
   {% else %}
-  <div style="text-align:center;padding:40px 20px;color:#555;">
-    <p style="margin:0 0 12px;font-size:16px;">Bạn chưa có lịch sử làm bài nào.</p>
-    <a href="{% url 'de_thi:danh_sach_de' %}" style="padding:10px 20px;background:#1a73e8;color:white;text-decoration:none;border-radius:10px;">Bắt đầu làm bài ngay</a>
+  <div class="exam-history-empty">
+    <p>Bạn chưa có lịch sử làm bài nào.</p>
+    <a href="{% url 'de_thi:danh_sach_de' %}" class="exam-history-start-btn">Bắt đầu làm bài ngay</a>
   </div>
   {% endif %}
 </div>

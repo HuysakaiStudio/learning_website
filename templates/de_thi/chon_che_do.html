@@ -1,47 +1,112 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Chọn chế độ — {{ de.ten }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/mode-selection.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width:560px;margin:0 auto">
-  <a href="/de-thi/" style="color:#1a73e8;text-decoration:none">← Danh sách đề thi</a>
+<div class="mode-selection-container">
+  <a href="/de-thi/" class="mode-back-link">
+    <span>←</span>
+    <span>Danh sách đề thi</span>
+  </a>
 
-  <div style="background:white;border-radius:12px;padding:32px;
-              box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-top:16px">
-    <h2 style="margin-bottom:6px">{{ de.ten }}</h2>
-    <p style="color:#888;font-size:14px;margin-bottom:28px">
-      {{ de.mon }} &nbsp;•&nbsp; {{ de.tong_cau }} câu &nbsp;•&nbsp; {{ de.thoi_gian_phut }} phút &nbsp;•&nbsp; Đăng bởi {{ de.creator.username|default:"Admin" }}
-    </p>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-      <!-- Luyện tập -->
-      <a href="/de-thi/{{ de.id }}/lam/?che_do=luyen_tap"
-         style="border:2px solid #e8e8e8;border-radius:12px;padding:24px;
-                text-decoration:none;color:#333;text-align:center;
-                transition:all 0.2s;display:block"
-         onmouseover="this.style.borderColor='#34a853';this.style.background='#f0faf3'"
-         onmouseout="this.style.borderColor='#e8e8e8';this.style.background='white'">
-        <div style="font-size:40px;margin-bottom:12px">🧘</div>
-        <h3 style="font-size:16px;margin-bottom:8px;color:#34a853">Luyện tập</h3>
-        <p style="font-size:13px;color:#666;line-height:1.6">
-          Không giới hạn thời gian<br>
-          Làm từng bước, không áp lực
-        </p>
-      </a>
-
-      <!-- Thi thật -->
-      <a href="/de-thi/{{ de.id }}/lam/?che_do=thi_that"
-         style="border:2px solid #e8e8e8;border-radius:12px;padding:24px;
-                text-decoration:none;color:#333;text-align:center;
-                transition:all 0.2s;display:block"
-         onmouseover="this.style.borderColor='#ea4335';this.style.background='#fff0f0'"
-         onmouseout="this.style.borderColor='#e8e8e8';this.style.background='white'">
-        <div style="font-size:40px;margin-bottom:12px">⏱️</div>
-        <h3 style="font-size:16px;margin-bottom:8px;color:#ea4335">Thi thật</h3>
-        <p style="font-size:13px;color:#666;line-height:1.6">
-          Đếm ngược {{ de.thoi_gian_phut }} phút<br>
-          Mô phỏng đúng áp lực phòng thi
-        </p>
-      </a>
+  <div class="mode-header-section">
+    <h1 class="mode-header-title">{{ de.ten }}</h1>
+    <div class="mode-header-meta">
+      <div class="mode-header-meta-item">
+        <span>📚</span>
+        <span>{{ de.mon }}</span>
+      </div>
+      <div class="mode-header-meta-item">
+        <span>📝</span>
+        <span>{{ de.tong_cau }} câu hỏi</span>
+      </div>
+      <div class="mode-header-meta-item">
+        <span>⏱️</span>
+        <span>{{ de.thoi_gian_phut }} phút</span>
+      </div>
+      <div class="mode-header-meta-item">
+        <span>👤</span>
+        <span>{{ de.creator.username|default:"Admin" }}</span>
+      </div>
     </div>
+  </div>
+
+  <h2 class="mode-section-title">
+    Chọn chế độ làm bài
+  </h2>
+
+  <div class="modes-grid">
+    <!-- Luyện tập -->
+    <a href="/de-thi/{{ de.id }}/lam/?che_do=luyen_tap" class="mode-card practice" style="animation-delay: 0.1s">
+      <div class="mode-icon">🧘</div>
+      <h3 class="mode-title">Luyện tập</h3>
+      <p class="mode-description">
+        Không giới hạn thời gian, làm từng bước một cách thoải mái và không áp lực
+      </p>
+      <span class="mode-badge badge-success">
+        📚 Học tập tự do
+      </span>
+    </a>
+
+    <!-- Luyện từng câu (Wayground-style) -->
+    <a href="{% url 'de_thi:bat_dau_luyen_tung_cau' de.id %}" class="mode-card wayground" style="animation-delay: 0.2s">
+      <div class="mode-icon">🎯</div>
+      <h3 class="mode-title">Luyện từng câu</h3>
+      <p class="mode-description">
+        Làm từng câu một và biết ngay đáp án đúng/sai kèm giải thích chi tiết
+      </p>
+      <span class="mode-badge badge-info">
+        💡 Phản hồi tức thì
+      </span>
+    </a>
+
+    <!-- Thi thật -->
+    <a href="/de-thi/{{ de.id }}/lam/?che_do=thi_that" class="mode-card exam" style="animation-delay: 0.3s">
+      <div class="mode-icon">⏱️</div>
+      <h3 class="mode-title">Thi thật</h3>
+      <p class="mode-description">
+        Đếm ngược {{ de.thoi_gian_phut }} phút, mô phỏng đúng áp lực phòng thi thực tế
+      </p>
+      <span class="mode-badge badge-warning">
+        🏆 Tính vào bảng xếp hạng
+      </span>
+    </a>
+  </div>
+
+  <!-- Tips section -->
+  <div class="mode-tips-section">
+    <h3 class="mode-tips-title">
+      <span>💭</span>
+      <span>Gợi ý chọn chế độ</span>
+    </h3>
+    <div class="mode-tips-grid">
+      <div>
+        <strong class="practice-tip">🧘 Luyện tập:</strong> Phù hợp khi bạn mới bắt đầu học hoặc muốn ôn lại kiến thức
+      </div>
+      <div>
+        <strong class="wayground-tip">🎯 Luyện từng câu:</strong> Tốt nhất để học sâu, hiểu rõ từng câu hỏi và ghi nhớ lâu
+      </div>
+      <div>
+        <strong class="exam-tip">⏱️ Thi thật:</strong> Dùng khi đã tự tin, muốn kiểm tra năng lực và lên bảng xếp hạng
+      </div>
+    </div>
+  </div>
+
+  <!-- Thông báo quan trọng về bảng xếp hạng -->
+  <div class="mode-leaderboard-notice">
+    <h3 class="mode-leaderboard-notice-title">
+      <span>🏆</span>
+      <span>Lưu ý về Bảng Xếp Hạng</span>
+    </h3>
+    <p class="mode-leaderboard-notice-text">
+      <strong>Chỉ những bài thi ở chế độ "Thi thật"</strong> mới được tính vào hệ thống bảng xếp hạng.
+      Các chế độ "Luyện tập" và "Luyện từng câu" giúp bạn học tập hiệu quả nhưng không ảnh hưởng đến thứ hạng.
+      Hãy luyện tập kỹ trước khi thi thật để đạt kết quả tốt nhất! 💪
+    </p>
   </div>
 </div>
 {% endblock %}

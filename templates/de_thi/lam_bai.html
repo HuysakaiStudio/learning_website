@@ -1,129 +1,108 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}{{ de.ten }}{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/exam-taking.css' %}">
+{% endblock %}
+
 {% block content %}
-<style>
-  @keyframes slideIn {
-    from { transform: translateX(400px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-  @keyframes slideOut {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(400px); opacity: 0; }
-  }
-</style>
 <!-- Thanh trên cùng cố định -->
-<div style="position:sticky;top:0;background:white;z-index:100;
-            border-bottom:1px solid #eee;padding:12px 0;margin-bottom:24px">
-  <div style="max-width:960px;margin:0 auto;padding:0 16px;
-              display:flex;justify-content:space-between;align-items:center">
+<div class="exam-header">
+  <div class="exam-header-content">
     <div>
-      <strong style="font-size:15px">{{ de.ten }}</strong>
-      <span style="color:#888;font-size:13px;margin-left:12px">{{ de.tong_cau }} câu</span>
+      <strong class="exam-title">{{ de.ten }}</strong>
+      <span class="exam-question-count">{{ de.tong_cau }} câu</span>
     </div>
-    <div style="display:flex;align-items:center;gap:16px">
+    <div class="exam-controls">
       {% if che_do == 'thi_that' %}
-      <div style="font-size:20px;font-weight:500;color:#ea4335" id="dong-ho">
+      <div class="exam-timer" id="dong-ho">
         {{ de.thoi_gian_phut }}:00
       </div>
       {% else %}
-      <span style="background:#e8f5e9;color:#34a853;padding:4px 12px;
-                   border-radius:20px;font-size:13px">🧘 Luyện tập</span>
+      <span class="exam-mode-badge">🧘 Luyện tập</span>
       {% endif %}
-      <button onclick="nopBai()"
-              style="padding:9px 22px;background:#1a73e8;color:white;
-                     border:none;border-radius:8px;font-size:14px;
-                     font-weight:500;cursor:pointer">
+      <button onclick="nopBai()" class="exam-submit-btn">
         Nộp bài
       </button>
     </div>
   </div>
-  <div style="max-width:960px;margin: 16px auto 0; padding: 0 16px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px;">
-        <div style="font-size:13px;color:#555">Tiến độ làm bài</div>
-        <div id="autosave-status" style="font-size:13px;color:#666">Tự động lưu mỗi 30 giây</div>
+  <div class="exam-progress-section">
+      <div class="progress-header">
+        <div class="progress-label">Tiến độ làm bài</div>
+        <div id="autosave-status" class="autosave-status">Tự động lưu mỗi 30 giây</div>
       </div>
-      <div style="background:#e8f0fe;border-radius:999px;overflow:hidden;height:12px">
-        <div id="progress-bar" style="width:0%;height:100%;background:#1a73e8;transition:width 0.3s;"></div>
+      <div class="progress-bar-container">
+        <div id="progress-bar" class="progress-bar-fill"></div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:13px;color:#555">
+      <div class="progress-footer">
         <div id="progress-text">0% hoàn thành</div>
-        <div id="draft-message" style="display:none;color:#34a853;">Bản nháp đã khôi phục</div>
+        <div id="draft-message" class="draft-message">Bản nháp đã khôi phục</div>
       </div>
     </div>
 </div>
 
-<div style="max-width:760px;margin:0 auto">
+<div class="exam-container">
   <form id="form-lam-bai" method="post">
     {% csrf_token %}
     <input type="hidden" name="thoi_gian_lam" id="thoi_gian_lam" value="0">
     <input type="hidden" name="strict_violation" id="strict_violation" value="false">
 
     {% for cau in cau_hoi_list %}
-    <div style="background:white;border-radius:12px;padding:28px;
-                margin-bottom:16px;box-shadow:0 2px 6px rgba(0,0,0,0.06)"
-         id="cau-{{ forloop.counter }}">
+    <div class="question-card" id="cau-{{ forloop.counter }}">
 
       <!-- Nhãn loại câu -->
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-        <span style="background:#f0f0f0;color:#555;padding:3px 10px;
-                     border-radius:20px;font-size:12px;font-weight:500">
+      <div class="question-header">
+        <span class="question-number-badge">
           Câu {{ forloop.counter }}
         </span>
         {% if cau.loai == 'tn' %}
-        <span style="background:#e8f0fe;color:#1a73e8;padding:3px 10px;
-                     border-radius:20px;font-size:12px">Trắc nghiệm</span>
+        <span class="question-type-label multiple-choice">Trắc nghiệm</span>
         {% elif cau.loai == 'ds' %}
-        <span style="background:#fce8e8;color:#ea4335;padding:3px 10px;
-                     border-radius:20px;font-size:12px">Đúng/Sai</span>
+        <span class="question-type-label true-false">Đúng/Sai</span>
         {% elif cau.loai == 'dien' %}
-        <span style="background:#e6f4ea;color:#34a853;padding:3px 10px;
-                     border-radius:20px;font-size:12px">Điền số</span>
+        <span class="question-type-label fill-blank">Điền số</span>
         {% endif %}
       </div>
 
       <!-- Nội dung câu hỏi -->
-      <div style="font-size:16px;line-height:1.7;margin-bottom:20px">
+      <div class="question-text">
         {{ cau.noi_dung|linebreaks }}
       </div>
 
       <!-- Trắc nghiệm ABCD -->
       {% if cau.loai == 'tn' %}
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="choice-grid">
         {% for label, text in cau.choices %}
-          <label style="border:2px solid #e8e8e8;border-radius:10px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all 0.15s" class="lua-chon">
-            <input type="radio" name="cau_{{ cau.id }}" value="{{ label }}" style="display:none" class="radio-tn">
-            <span style="width:28px;height:28px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:13px;flex-shrink:0" class="nhan-letter">{{ label }}</span>
-            <span style="font-size:15px">{{ text }}</span>
+          <label class="choice-option lua-chon">
+            <input type="radio" name="cau_{{ cau.id }}" value="{{ label }}" class="choice-radio radio-tn">
+            <span class="choice-letter nhan-letter">{{ label }}</span>
+            <span class="choice-text">{{ text }}</span>
           </label>
         {% endfor %}
       </div>
 
   <!-- Đúng/Sai -->
       {% elif cau.loai == 'ds' %}
-      <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="true-false-container">
         {% for item in 'abcd'|make_list %}
-        <div style="border:1px solid #e8e8e8;border-radius:10px;padding:14px 16px">
-          <div style="font-size:15px;margin-bottom:10px">
+        <div class="true-false-item">
+          <div class="true-false-statement">
             <strong>{{ item|upper }})</strong>
             {% if item == 'a' %}{{ cau.y_a }}
             {% elif item == 'b' %}{{ cau.y_b }}
             {% elif item == 'c' %}{{ cau.y_c }}
             {% elif item == 'd' %}{{ cau.y_d }}{% endif %}
           </div>
-          <div style="display:flex;gap:12px">
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;
-                          padding:6px 16px;border:2px solid #e8e8e8;border-radius:8px;
-                          font-size:14px;transition:all 0.15s" class="ds-label">
+          <div class="true-false-options">
+            <label class="true-false-label ds-label">
               <input type="radio" name="cau_{{ cau.id }}_{{ item }}"
-                     value="true" style="display:none" class="radio-ds">
+                     value="true" class="true-false-radio radio-ds">
               ✅ Đúng
             </label>
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;
-                          padding:6px 16px;border:2px solid #e8e8e8;border-radius:8px;
-                          font-size:14px;transition:all 0.15s" class="ds-label">
+            <label class="true-false-label ds-label">
               <input type="radio" name="cau_{{ cau.id }}_{{ item }}"
-                     value="false" style="display:none" class="radio-ds">
+                     value="false" class="true-false-radio radio-ds">
               ❌ Sai
             </label>
           </div>
@@ -133,14 +112,11 @@
 
       <!-- Điền số -->
       {% elif cau.loai == 'dien' %}
-      <div style="display:flex;align-items:center;gap:12px">
-        <span style="font-size:15px;color:#555">Đáp án:</span>
+      <div class="fill-blank-container">
+        <span class="fill-blank-label">Đáp án:</span>
         <input type="number" step="any" name="cau_{{ cau.id }}"
                placeholder="Nhập số..."
-               style="padding:10px 16px;border:2px solid #e8e8e8;border-radius:8px;
-                      font-size:16px;width:200px;outline:none;transition:border-color 0.2s"
-               onfocus="this.style.borderColor='#1a73e8'"
-               onblur="this.style.borderColor='#e8e8e8'">
+               class="fill-blank-input">
       </div>
       {% endif %}
 
@@ -148,11 +124,8 @@
     {% endfor %}
 
     <!-- Nút nộp bài cuối trang -->
-    <div style="text-align:center;margin:32px 0">
-      <button type="button" onclick="nopBai()"
-              style="padding:14px 48px;background:#1a73e8;color:white;
-                     border:none;border-radius:10px;font-size:16px;
-                     font-weight:500;cursor:pointer">
+    <div class="exam-submit-section">
+      <button type="button" onclick="nopBai()" class="exam-submit-btn-large">
         📤 Nộp bài
       </button>
     </div>
@@ -176,19 +149,7 @@ const questionMeta = [
 // ── Toast Notification ──────────────────────────────
 function showToast(message, type = 'success') {
   const toast = document.createElement('div');
-  toast.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 16px 24px;
-    background: ${type === 'error' ? '#f44336' : '#4caf50'};
-    color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    font-size: 15px;
-    z-index: 1000;
-    animation: slideIn 0.3s ease-out;
-  `;
+  toast.className = 'toast-notification' + (type === 'error' ? ' error' : '');
   toast.textContent = message;
   document.body.appendChild(toast);
   
@@ -203,21 +164,9 @@ function refreshSelectionStyles() {
     const input = label.querySelector('input[type="radio"]');
     if (!input) return;
     if (input.checked) {
-      label.style.borderColor = '#1a73e8';
-      label.style.background = '#f0f6ff';
-      const dot = label.querySelector('.nhan-letter');
-      if (dot) {
-        dot.style.borderColor = '#1a73e8';
-        dot.style.color = '#1a73e8';
-      }
+      label.classList.add('selected');
     } else {
-      label.style.borderColor = '#e8e8e8';
-      label.style.background = 'white';
-      const dot = label.querySelector('.nhan-letter');
-      if (dot) {
-        dot.style.borderColor = '#ddd';
-        dot.style.color = '#555';
-      }
+      label.classList.remove('selected');
     }
   });
 
@@ -225,11 +174,9 @@ function refreshSelectionStyles() {
     const input = label.querySelector('input[type="radio"]');
     if (!input) return;
     if (input.checked) {
-      label.style.borderColor = '#1a73e8';
-      label.style.background = '#f0f6ff';
+      label.classList.add('selected');
     } else {
-      label.style.borderColor = '#e8e8e8';
-      label.style.background = 'white';
+      label.classList.remove('selected');
     }
   });
 }
@@ -336,16 +283,9 @@ document.querySelectorAll('.lua-chon').forEach(label => {
   label.addEventListener('click', function() {
     const name = this.querySelector('input').name;
     document.querySelectorAll(`input[name="${name}"]`).forEach(inp => {
-      const lbl = inp.closest('.lua-chon');
-      lbl.style.borderColor = '#e8e8e8';
-      lbl.style.background = 'white';
-      lbl.querySelector('.nhan-letter').style.borderColor = '#ddd';
-      lbl.querySelector('.nhan-letter').style.color = '#555';
+      inp.closest('.lua-chon').classList.remove('selected');
     });
-    this.style.borderColor = '#1a73e8';
-    this.style.background = '#f0f6ff';
-    this.querySelector('.nhan-letter').style.borderColor = '#1a73e8';
-    this.querySelector('.nhan-letter').style.color = '#1a73e8';
+    this.classList.add('selected');
     updateProgress();
     saveDraft(false);
   });
@@ -356,11 +296,9 @@ document.querySelectorAll('.ds-label').forEach(label => {
   label.addEventListener('click', function() {
     const name = this.querySelector('input').name;
     document.querySelectorAll(`input[name="${name}"]`).forEach(inp => {
-      inp.closest('.ds-label').style.borderColor = '#e8e8e8';
-      inp.closest('.ds-label').style.background = 'white';
+      inp.closest('.ds-label').classList.remove('selected');
     });
-    this.style.borderColor = '#1a73e8';
-    this.style.background = '#f0f6ff';
+    this.classList.add('selected');
     updateProgress();
     saveDraft(false);
   });
@@ -399,7 +337,7 @@ const interval = setInterval(() => {
   const giay = tongGiay % 60;
   dongHo.textContent = `${String(phut).padStart(2,'0')}:${String(giay).padStart(2,'0')}`;
 
-  if (tongGiay <= 300) dongHo.style.color = '#ea4335';
+  if (tongGiay <= 300) dongHo.classList.add('time-warning');
   if (tongGiay <= 0) {
     clearInterval(interval);
     alert('⏰ Hết giờ! Bài thi sẽ được nộp tự động.');

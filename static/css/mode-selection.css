@@ -1,0 +1,336 @@
+/* ============================================
+   MODE SELECTION PAGE - Choose Exam Mode
+   File: mode-selection.css
+   ============================================ */
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Container */
+.mode-selection-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Back Link */
+.mode-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #1a73e8;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  margin-bottom: 24px;
+}
+
+.mode-back-link:hover {
+  background: #f0f6ff;
+  transform: translateX(-4px);
+  color: #1a73e8;
+}
+
+/* Header Section */
+.mode-header-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 32px;
+  color: white;
+  margin-bottom: 32px;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.mode-header-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mode-header-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 15px;
+  opacity: 0.95;
+}
+
+.mode-header-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Section Title */
+.mode-section-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 32px;
+  color: #333;
+}
+
+/* Modes Grid */
+.modes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+/* Mode Card */
+.mode-card {
+  position: relative;
+  border: 2px solid #e8e8e8;
+  border-radius: 16px;
+  padding: 28px 24px;
+  text-decoration: none;
+  color: #333;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
+  background: white;
+  overflow: hidden;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.mode-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 0;
+}
+
+.mode-card:hover::before {
+  opacity: 1;
+}
+
+.mode-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.mode-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  color: #333;
+}
+
+.mode-card.practice:hover {
+  border-color: #34a853;
+  background: linear-gradient(135deg, #f0faf3 0%, #ffffff 100%);
+}
+
+.mode-card.exam:hover {
+  border-color: #ea4335;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+}
+
+.mode-card.wayground:hover {
+  border-color: #1a73e8;
+  background: linear-gradient(135deg, #f0f6ff 0%, #ffffff 100%);
+}
+
+/* Mode Icon */
+.mode-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
+  display: inline-block;
+  transition: transform 0.3s;
+}
+
+.mode-card:hover .mode-icon {
+  animation: pulse 0.6s ease-in-out;
+}
+
+/* Mode Title */
+.mode-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  transition: color 0.3s;
+  color: #333;
+}
+
+.mode-card.practice:hover .mode-title {
+  color: #34a853;
+}
+
+.mode-card.exam:hover .mode-title {
+  color: #ea4335;
+}
+
+.mode-card.wayground:hover .mode-title {
+  color: #1a73e8;
+}
+
+/* Mode Description */
+.mode-description {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  min-height: 48px;
+}
+
+/* Mode Badge */
+.mode-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.mode-badge.badge-warning {
+  background: #fff9e6;
+  color: #f59e0b;
+}
+
+.mode-badge.badge-success {
+  background: #f0faf3;
+  color: #34a853;
+}
+
+.mode-badge.badge-info {
+  background: #f0f6ff;
+  color: #1a73e8;
+}
+
+.mode-card:hover .mode-badge.badge-warning {
+  background: #f59e0b;
+  color: white;
+}
+
+.mode-card:hover .mode-badge.badge-success {
+  background: #34a853;
+  color: white;
+}
+
+.mode-card:hover .mode-badge.badge-info {
+  background: #1a73e8;
+  color: white;
+}
+
+/* Tips Section */
+.mode-tips-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.mode-tips-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mode-tips-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  font-size: 14px;
+  color: #555;
+}
+
+.mode-tips-grid strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.mode-tips-grid strong.practice-tip {
+  color: #34a853;
+}
+
+.mode-tips-grid strong.wayground-tip {
+  color: #1a73e8;
+}
+
+.mode-tips-grid strong.exam-tip {
+  color: #ea4335;
+}
+
+/* Leaderboard Notice */
+.mode-leaderboard-notice {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 32px;
+  animation: fadeInUp 0.7s ease-out;
+}
+
+.mode-leaderboard-notice-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #856404;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mode-leaderboard-notice-text {
+  font-size: 14px;
+  color: #856404;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modes-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .mode-tips-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mode-header-section {
+    padding: 24px;
+  }
+
+  .mode-header-title {
+    font-size: 22px;
+  }
+
+  .mode-section-title {
+    font-size: 20px;
+  }
+}

@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Bảng Xếp Hạng{% endblock %}
 
-{% block content %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/leaderboard.css' %}">
 <style>
   .leaderboard-container {
     max-width: 1200px;
@@ -232,11 +234,20 @@
     }
   }
 </style>
+{% endblock %}
 
+{% block content %}
 <div class="leaderboard-container">
   <div class="leaderboard-header">
     <h1>🏆 Bảng Xếp Hạng</h1>
     <p>Cạnh tranh với bạn bè và leo lên top!</p>
+    
+    <!-- Thông báo quan trọng về bảng xếp hạng -->
+    <div style="margin-top: 16px; padding: 12px 16px; background: rgba(255,255,255,0.15);
+                border-radius: 8px; font-size: 13px; line-height: 1.6; backdrop-filter: blur(10px);">
+      <strong>⚠️ Lưu ý quan trọng:</strong> Chỉ những bài thi ở chế độ <strong>"Thi thật"</strong> mới được tính vào bảng xếp hạng.
+      Các bài luyện tập không ảnh hưởng đến thứ hạng của bạn.
+    </div>
 
     <div class="filters">
       <!-- Period Filter -->

@@ -16,14 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import TemplateView
 from django.http import HttpResponseNotFound
 from apps.kien_thuc import views_search as kien_thuc_search
+from apps.home_views import home_view
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', TemplateView.as_view(template_name='home.html'), name='home'),
+    path('', home_view, name='home'),
     path('nguoi-dung/', include('apps.nguoi_dung.urls')),
     path('kien-thuc/', include('apps.kien_thuc.urls')),
     path('de-thi/', include('apps.de_thi.urls')),

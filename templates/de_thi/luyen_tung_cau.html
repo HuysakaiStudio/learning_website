@@ -1,0 +1,388 @@
+{% extends 'base.html' %}
+{% block title %}{{ cau_hoi.de_thi.ten }} - Câu {{ so_thu_tu }}{% endblock %}
+
+{% block content %}
+<style>
+  @keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  
+  .feedback-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .feedback-overlay.show {
+    display: flex;
+  }
+  
+  .feedback-card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: scaleIn 0.3s ease-out;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+  
+  .result-icon {
+    font-size: 64px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  
+  .result-text {
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  
+  .result-correct {
+    color: #34a853;
+  }
+  
+  .result-incorrect {
+    color: #ea4335;
+  }
+  
+  .answer-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .explanation-section {
+    background: #f0f6ff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+</style>
+
+<!-- Header cố định với thanh tiến độ -->
+<div style="position:sticky;top:0;background:white;z-index:100;
+            border-bottom:1px solid #eee;padding:12px 0;margin-bottom:24px">
+  <div style="max-width:960px;margin:0 auto;padding:0 16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <strong style="font-size:15px">{{ session.de_thi.ten }}</strong>
+        <span style="color:#888;font-size:13px;margin-left:12px">
+          Câu {{ so_thu_tu }} / {{ tong_cau }}
+        </span>
+      </div>
+      <span style="background:#e8f5e9;color:#34a853;padding:4px 12px;
+                   border-radius:20px;font-size:13px">🎯 Luyện từng câu</span>
+    </div>
+    
+    <!-- Progress bar -->
+    <div style="background:#e8f0fe;border-radius:999px;overflow:hidden;height:8px">
+      <div style="width:{{ tien_do }}%;height:100%;background:#1a73e8;transition:width 0.3s;"></div>
+    </div>
+    <div style="text-align:right;margin-top:4px;font-size:12px;color:#666">
+      {{ tien_do }}% hoàn thành
+    </div>
+  </div>
+</div>
+
+<!-- Câu hỏi -->
+<div style="max-width:760px;margin:0 auto;animation:slideIn 0.5s ease-out">
+  <div style="background:white;border-radius:12px;padding:32px;
+              box-shadow:0 2px 8px rgba(0,0,0,0.08)">
+    
+    <!-- Nhãn loại câu -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <span style="background:#f0f0f0;color:#555;padding:4px 12px;
+                   border-radius:20px;font-size:13px;font-weight:500">
+        Câu {{ so_thu_tu }}
+      </span>
+      {% if cau_hoi.loai == 'tn' %}
+      <span style="background:#e8f0fe;color:#1a73e8;padding:4px 12px;
+                   border-radius:20px;font-size:13px">📝 Trắc nghiệm</span>
+      {% elif cau_hoi.loai == 'ds' %}
+      <span style="background:#fce8e8;color:#ea4335;padding:4px 12px;
+                   border-radius:20px;font-size:13px">✅ Đúng/Sai</span>
+      {% elif cau_hoi.loai == 'dien' %}
+      <span style="background:#e6f4ea;color:#34a853;padding:4px 12px;
+                   border-radius:20px;font-size:13px">🔢 Điền số</span>
+      {% endif %}
+    </div>
+    
+    <!-- Nội dung câu hỏi -->
+    <div style="font-size:18px;line-height:1.8;margin-bottom:28px;color:#333">
+      {{ cau_hoi.noi_dung|linebreaks }}
+    </div>
+    
+    <!-- Form trả lời -->
+    <form id="answer-form">
+      {% csrf_token %}
+      
+      <!-- Trắc nghiệm ABCD -->
+      {% if cau_hoi.loai == 'tn' %}
+      <div style="display:grid;grid-template-columns:1fr;gap:12px">
+        {% for label, text in cau_hoi.choices %}
+          <label style="border:2px solid #e8e8e8;border-radius:12px;padding:16px 20px;
+                        cursor:pointer;display:flex;align-items:center;gap:14px;
+                        transition:all 0.2s" class="choice-option">
+            <input type="radio" name="chon" value="{{ label }}" 
+                   style="display:none" class="radio-choice">
+            <span style="width:32px;height:32px;border-radius:50%;border:2px solid #ddd;
+                         display:flex;align-items:center;justify-content:center;
+                         font-weight:600;font-size:14px;flex-shrink:0" 
+                  class="choice-letter">{{ label }}</span>
+            <span style="font-size:16px;flex:1">{{ text }}</span>
+          </label>
+        {% endfor %}
+      </div>
+      
+      <!-- Đúng/Sai -->
+      {% elif cau_hoi.loai == 'ds' %}
+      <div style="display:flex;flex-direction:column;gap:12px">
+        {% for item in 'abcd'|make_list %}
+        <div style="border:2px solid #e8e8e8;border-radius:12px;padding:16px 20px">
+          <div style="font-size:16px;margin-bottom:12px;font-weight:500">
+            <strong>{{ item|upper }})</strong>
+            {% if item == 'a' %}{{ cau_hoi.y_a }}
+            {% elif item == 'b' %}{{ cau_hoi.y_b }}
+            {% elif item == 'c' %}{{ cau_hoi.y_c }}
+            {% elif item == 'd' %}{{ cau_hoi.y_d }}{% endif %}
+          </div>
+          <div style="display:flex;gap:12px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;
+                          padding:8px 20px;border:2px solid #e8e8e8;border-radius:10px;
+                          font-size:15px;transition:all 0.2s;flex:1;justify-content:center" 
+                   class="ds-option">
+              <input type="radio" name="chon_{{ item }}" value="true" 
+                     style="display:none" class="radio-ds">
+              ✅ Đúng
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;
+                          padding:8px 20px;border:2px solid #e8e8e8;border-radius:10px;
+                          font-size:15px;transition:all 0.2s;flex:1;justify-content:center" 
+                   class="ds-option">
+              <input type="radio" name="chon_{{ item }}" value="false" 
+                     style="display:none" class="radio-ds">
+              ❌ Sai
+            </label>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      
+      <!-- Điền số -->
+      {% elif cau_hoi.loai == 'dien' %}
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <label style="font-size:15px;color:#555;font-weight:500">Nhập đáp án của bạn:</label>
+        <input type="number" step="any" name="so_dien" id="so_dien"
+               placeholder="Nhập số..."
+               style="padding:14px 20px;border:2px solid #e8e8e8;border-radius:10px;
+                      font-size:18px;width:100%;outline:none;transition:border-color 0.2s"
+               onfocus="this.style.borderColor='#1a73e8'"
+               onblur="this.style.borderColor='#e8e8e8'">
+      </div>
+      {% endif %}
+      
+      <!-- Nút kiểm tra -->
+      <div style="margin-top:32px">
+        <button type="submit" id="submit-btn"
+                style="width:100%;padding:16px;background:#1a73e8;color:white;
+                       border:none;border-radius:10px;font-size:17px;
+                       font-weight:600;cursor:pointer;transition:background 0.2s">
+          ✓ Kiểm tra đáp án
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Feedback Overlay -->
+<div id="feedback-overlay" class="feedback-overlay">
+  <div class="feedback-card">
+    <div class="result-icon" id="result-icon">✅</div>
+    <div class="result-text" id="result-text">Chính xác!</div>
+    
+    <div class="answer-section">
+      <div style="font-weight:600;margin-bottom:8px;color:#555">Đáp án đúng:</div>
+      <div id="correct-answer" style="font-size:16px;color:#333"></div>
+    </div>
+    
+    <div class="explanation-section" id="explanation-section">
+      <div style="font-weight:600;margin-bottom:8px;color:#1a73e8">💡 Giải thích:</div>
+      <div id="explanation-text" style="font-size:15px;line-height:1.7;color:#333"></div>
+    </div>
+    
+    <button id="next-btn"
+            style="width:100%;padding:16px;background:#34a853;color:white;
+                   border:none;border-radius:10px;font-size:17px;
+                   font-weight:600;cursor:pointer;transition:background 0.2s">
+      → Câu tiếp theo
+    </button>
+  </div>
+</div>
+
+<script>
+const form = document.getElementById('answer-form');
+const submitBtn = document.getElementById('submit-btn');
+const feedbackOverlay = document.getElementById('feedback-overlay');
+const resultIcon = document.getElementById('result-icon');
+const resultText = document.getElementById('result-text');
+const correctAnswerDiv = document.getElementById('correct-answer');
+const explanationSection = document.getElementById('explanation-section');
+const explanationText = document.getElementById('explanation-text');
+const nextBtn = document.getElementById('next-btn');
+
+// Highlight selected choice (Trắc nghiệm)
+document.querySelectorAll('.choice-option').forEach(label => {
+  label.addEventListener('click', function() {
+    const name = this.querySelector('input').name;
+    document.querySelectorAll(`input[name="${name}"]`).forEach(inp => {
+      inp.closest('.choice-option').classList.remove('selected');
+    });
+    this.classList.add('selected');
+  });
+});
+
+// Highlight selected option (Đúng/Sai)
+document.querySelectorAll('.ds-option').forEach(label => {
+  label.addEventListener('click', function() {
+    const name = this.querySelector('input').name;
+    document.querySelectorAll(`input[name="${name}"]`).forEach(inp => {
+      inp.closest('.ds-option').classList.remove('selected');
+    });
+    this.classList.add('selected');
+  });
+});
+
+// Submit form
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  // Validate answer
+  const loaiCau = '{{ cau_hoi.loai }}';
+  let isValid = false;
+  
+  if (loaiCau === 'tn') {
+    isValid = form.querySelector('input[name="chon"]:checked') !== null;
+  } else if (loaiCau === 'dien') {
+    isValid = form.querySelector('input[name="so_dien"]').value.trim() !== '';
+  } else if (loaiCau === 'ds') {
+    isValid = ['a', 'b', 'c', 'd'].every(item => 
+      form.querySelector(`input[name="chon_${item}"]:checked`) !== null
+    );
+  }
+  
+  if (!isValid) {
+    alert('Vui lòng trả lời câu hỏi trước khi kiểm tra!');
+    return;
+  }
+  
+  // Disable form
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Đang kiểm tra...';
+  submitBtn.style.background = '#999';
+  
+  // Gather form data
+  const formData = new FormData(form);
+  
+  try {
+    // Submit via AJAX
+    const response = await fetch('{% url "de_thi:submit_cau_tra_loi" session.id %}', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      }
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      showFeedback(data);
+    } else {
+      alert('Có lỗi xảy ra: ' + (data.error || 'Unknown error'));
+      submitBtn.disabled = false;
+      submitBtn.textContent = '✓ Kiểm tra đáp án';
+      submitBtn.style.background = '#1a73e8';
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Có lỗi xảy ra khi gửi câu trả lời!');
+    submitBtn.disabled = false;
+    submitBtn.textContent = '✓ Kiểm tra đáp án';
+    submitBtn.style.background = '#1a73e8';
+  }
+});
+
+function showFeedback(data) {
+  // Update icon and text
+  if (data.dung) {
+    resultIcon.textContent = '✅';
+    resultText.textContent = 'Chính xác!';
+    resultText.className = 'result-text result-correct';
+  } else {
+    resultIcon.textContent = '❌';
+    resultText.textContent = 'Chưa đúng';
+    resultText.className = 'result-text result-incorrect';
+  }
+  
+  // Update correct answer
+  const loaiCau = '{{ cau_hoi.loai }}';
+  if (loaiCau === 'tn') {
+    correctAnswerDiv.textContent = data.dap_an_dung;
+  } else if (loaiCau === 'dien') {
+    correctAnswerDiv.textContent = data.dap_an_dung;
+  } else if (loaiCau === 'ds') {
+    let html = '<table style="width:100%;border-collapse:collapse">';
+    html += '<tr style="background:#f8f8f8"><th style="padding:8px;text-align:left">Ý</th><th style="padding:8px">Đáp án</th></tr>';
+    ['a', 'b', 'c', 'd'].forEach(item => {
+      const isCorrect = data.dap_an_dung[item];
+      html += `<tr><td style="padding:8px">${item.toUpperCase()}</td><td style="padding:8px;text-align:center">${isCorrect ? '✅ Đúng' : '❌ Sai'}</td></tr>`;
+    });
+    html += '</table>';
+    correctAnswerDiv.innerHTML = html;
+  }
+  
+  // Update explanation
+  if (data.giai_thich && data.giai_thich.trim()) {
+    explanationText.textContent = data.giai_thich;
+    explanationSection.style.display = 'block';
+  } else {
+    explanationSection.style.display = 'none';
+  }
+  
+  // Update next button
+  if (data.is_last) {
+    nextBtn.textContent = '🎉 Xem kết quả';
+    nextBtn.onclick = () => window.location.href = data.next_url;
+  } else {
+    nextBtn.textContent = '→ Câu tiếp theo';
+    nextBtn.onclick = () => window.location.reload();
+  }
+  
+  // Show overlay
+  feedbackOverlay.classList.add('show');
+}
+</script>
+{% endblock %}
