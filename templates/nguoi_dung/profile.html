@@ -53,6 +53,44 @@
 
     <!-- Cột bên phải: Dashboard & Hoạt động -->
     <div class="col-lg-8">
+        <!-- Gamification Stats -->
+        {% if is_own_profile %}
+        <div class="card-psychology mb-4" style="background: linear-gradient(135deg, var(--primary-600) 0%, var(--accent-500) 100%); padding: var(--space-6); color: white; border: none;">
+            <div class="row g-4 align-items-center">
+                <div class="col-md-3 text-center">
+                    <div class="mb-2" style="font-size: var(--text-5xl);">🏆</div>
+                    <div class="fw-bold mb-1" style="font-size: var(--text-3xl);" id="user-level-display">Level 0</div>
+                    <div style="font-size: var(--text-sm); opacity: 0.9;">Cấp độ hiện tại</div>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="mb-2" style="font-size: var(--text-5xl);">⭐</div>
+                    <div class="fw-bold mb-1" style="font-size: var(--text-3xl);" id="user-xp-display">0 XP</div>
+                    <div style="font-size: var(--text-sm); opacity: 0.9;">Kinh nghiệm</div>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="mb-2" style="font-size: var(--text-5xl);">🔥</div>
+                    <div class="fw-bold mb-1" style="font-size: var(--text-3xl);" id="user-streak-display">0</div>
+                    <div style="font-size: var(--text-sm); opacity: 0.9;">Ngày liên tiếp</div>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="mb-2" style="font-size: var(--text-5xl);">🎯</div>
+                    <div class="fw-bold mb-1" style="font-size: var(--text-3xl);">{{ analytics.tong_bai_lam|default:0 }}</div>
+                    <div style="font-size: var(--text-sm); opacity: 0.9;">Bài thi hoàn thành</div>
+                </div>
+            </div>
+            <!-- XP Progress Bar -->
+            <div class="mt-4">
+                <div class="d-flex justify-content-between mb-2" style="font-size: var(--text-sm);">
+                    <span>Tiến độ lên cấp</span>
+                    <span id="xp-progress-text">0 / 100 XP</span>
+                </div>
+                <div class="progress-psychology">
+                    <div id="xp-progress-bar" class="progress-psychology-fill" style="width: 0%; background: linear-gradient(90deg, rgba(255,255,255,0.8), rgba(255,255,255,1));"></div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
         <!-- Dashboard Thống kê -->
         <h4 class="fw-bold mb-4">Tổng quan học tập {% if not is_own_profile %}của {{ target_user.username }}{% endif %}</h4>
         <div class="row g-3 mb-4">
@@ -186,10 +224,46 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
+    
+    // Update gamification stats from localStorage
+    if (window.gamification) {
+        const xp = window.gamification.xp;
+        const level = window.gamification.level;
+        const streak = window.gamification.streak;
+        
+        // Update displays
+        const levelDisplay = document.getElementById('user-level-display');
+        const xpDisplay = document.getElementById('user-xp-display');
+        const streakDisplay = document.getElementById('user-streak-display');
+        
+        if (levelDisplay) levelDisplay.textContent = `Level ${level}`;
+        if (xpDisplay) xpDisplay.textContent = `${xp} XP`;
+        if (streakDisplay) streakDisplay.textContent = streak;
+        
+        // Calculate XP progress to next level
+        const currentLevelXP = Math.pow(level * 100, 1.5);
+        const nextLevelXP = Math.pow((level + 1) * 100, 1.5);
+        const xpInCurrentLevel = xp - currentLevelXP;
+        const xpNeededForNextLevel = nextLevelXP - currentLevelXP;
+        const progressPercent = Math.min(100, (xpInCurrentLevel / xpNeededForNextLevel) * 100);
+        
+        // Update progress bar
+        const progressBar = document.getElementById('xp-progress-bar');
+        const progressText = document.getElementById('xp-progress-text');
+        
+        if (progressBar) {
+            progressBar.style.width = progressPercent + '%';
+        }
+        
+        if (progressText) {
+            progressText.textContent = `${Math.floor(xpInCurrentLevel)} / ${Math.floor(xpNeededForNextLevel)} XP`;
+        }
+    }
 });
 </script>
 {% endblock %}

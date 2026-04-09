@@ -1,72 +1,194 @@
 {% extends 'base.html' %}
-{% block title %}Kết quả{% endblock %}
+{% block title %}Kết quả - {{ kq.de_thi.ten_de }}{% endblock %}
 {% block content %}
-<div style="max-width:520px;margin:0 auto;text-align:center">
 
-  <div style="background:white;border-radius:16px;padding:40px 32px;
-              box-shadow:0 4px 16px rgba(0,0,0,0.1)">
-
+<div style="max-width: 600px; margin: 0 auto;">
+  <!-- Result Card with Animation -->
+  <div class="card-psychology achievement-unlock" style="padding: var(--space-8); text-align: center; background: var(--bg-primary);">
+    
+    <!-- Achievement Icon & Message -->
     {% if kq.diem >= 8 %}
-      <div style="font-size:64px;margin-bottom:8px">🏆</div>
-      <p style="color:#34a853;font-weight:500;margin-bottom:16px">Xuất sắc!</p>
+      <div class="level-up-animation mb-3">
+        <i class="bi bi-trophy-fill" style="font-size: var(--text-5xl); color: var(--warning-500);"></i>
+      </div>
+      <h2 class="fw-bold mb-3" style="font-size: var(--text-3xl); color: var(--success-600);">
+        Xuất sắc! 🎉
+      </h2>
+      <p class="text-secondary mb-4">Bạn đã làm bài xuất sắc!</p>
     {% elif kq.diem >= 6.5 %}
-      <div style="font-size:64px;margin-bottom:8px">👍</div>
-      <p style="color:#1a73e8;font-weight:500;margin-bottom:16px">Khá tốt!</p>
+      <div class="mb-3" style="font-size: var(--text-5xl);">👍</div>
+      <h2 class="fw-bold mb-3" style="font-size: var(--text-3xl); color: var(--primary-600);">
+        Khá tốt!
+      </h2>
+      <p class="text-secondary mb-4">Kết quả tốt, tiếp tục phát huy!</p>
     {% elif kq.diem >= 5 %}
-      <div style="font-size:64px;margin-bottom:8px">📚</div>
-      <p style="color:#f9ab00;font-weight:500;margin-bottom:16px">Cần ôn thêm!</p>
+      <div class="mb-3" style="font-size: var(--text-5xl);">📚</div>
+      <h2 class="fw-bold mb-3" style="font-size: var(--text-3xl); color: var(--warning-600);">
+        Cần ôn thêm!
+      </h2>
+      <p class="text-secondary mb-4">Hãy xem lại các phần chưa vững!</p>
     {% else %}
-      <div style="font-size:64px;margin-bottom:8px">💪</div>
-      <p style="color:#ea4335;font-weight:500;margin-bottom:16px">Cố gắng hơn nhé!</p>
+      <div class="mb-3" style="font-size: var(--text-5xl);">💪</div>
+      <h2 class="fw-bold mb-3" style="font-size: var(--text-3xl); color: var(--error-600);">
+        Cố gắng hơn nhé!
+      </h2>
+      <p class="text-secondary mb-4">Đừng nản lòng, hãy luyện tập thêm!</p>
     {% endif %}
 
-    <div style="font-size:72px;font-weight:500;
-                color:{% if kq.diem >= 8 %}#34a853{% elif kq.diem >= 5 %}#1a73e8{% else %}#ea4335{% endif %}">
-      {{ kq.diem }}
+    <!-- Score Display -->
+    <div class="mb-4">
+      <div class="display-1 fw-bold mb-2" style="
+        font-size: 5rem;
+        color: {% if kq.diem >= 8 %}var(--success-600){% elif kq.diem >= 5 %}var(--primary-600){% else %}var(--error-600){% endif %};
+      ">
+        {{ kq.diem }}
+      </div>
+      <div class="text-secondary" style="font-size: var(--text-lg);">/ 10 điểm</div>
     </div>
-    <div style="color:#888;font-size:16px;margin-bottom:28px">/ 10 điểm</div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:32px">
-      <div style="background:#f8f8f8;border-radius:10px;padding:16px">
-        <div style="font-size:20px;font-weight:500;color:#333">{{ kq.tong_cau }}</div>
-        <div style="font-size:12px;color:#888;margin-top:4px">Tổng câu</div>
-      </div>
-      <div style="background:#f8f8f8;border-radius:10px;padding:16px">
-        <div style="font-size:20px;font-weight:500;color:#333">
-          {% widthratio kq.diem 10 kq.tong_cau %}
-        </div>
-        <div style="font-size:12px;color:#888;margin-top:4px">Câu đúng</div>
-      </div>
-      <div style="background:#f8f8f8;border-radius:10px;padding:16px">
-        <div style="font-size:20px;font-weight:500;color:#333">
-          {% if kq.thoi_gian_lam >= 60 %}
-            {{ kq.thoi_gian_lam|divisibleby:60 }}p
-          {% else %}
-            {{ kq.thoi_gian_lam }}s
-          {% endif %}
-        </div>
-        <div style="font-size:12px;color:#888;margin-top:4px">Thời gian</div>
+    <!-- Progress Bar -->
+    <div class="progress-psychology mb-5">
+      <div class="progress-psychology-fill" 
+           style="width: {{ kq.diem|floatformat:0 }}0%; 
+                  background: {% if kq.diem >= 8 %}linear-gradient(90deg, var(--success-500), var(--success-600)){% elif kq.diem >= 5 %}linear-gradient(90deg, var(--primary-500), var(--primary-600)){% else %}linear-gradient(90deg, var(--error-500), var(--error-600)){% endif %};">
       </div>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <a href="{% if kq.diem > 6 %}/de-thi/ket-qua/{{ kq.id }}/dap-an/{% else %}#{% endif %}"
-         style="padding:12px;background:#f0f6ff;color:#1a73e8;
-                border-radius:8px;text-decoration:none;font-weight:500;
-                {% if kq.diem <= 6 %}opacity:0.5;cursor:not-allowed;pointer-events:none{% endif %}">
-        📋 {% if kq.diem > 6 %}Xem đáp án chi tiết{% else %}Cần > 6 điểm để xem đáp án{% endif %}
+    <!-- Stats Grid -->
+    <div class="row g-3 mb-5">
+      <div class="col-4">
+        <div class="card-psychology" style="padding: var(--space-3); background: var(--bg-secondary);">
+          <div class="fw-bold mb-1" style="font-size: var(--text-2xl); color: var(--text-primary);">
+            {{ kq.tong_cau }}
+          </div>
+          <div class="text-secondary" style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: var(--tracking-wide);">
+            Tổng câu
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card-psychology" style="padding: var(--space-3); background: var(--success-50);">
+          <div class="fw-bold mb-1" style="font-size: var(--text-2xl); color: var(--success-700);">
+            {% widthratio kq.diem 10 kq.tong_cau %}
+          </div>
+          <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--success-700);">
+            Câu đúng
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card-psychology" style="padding: var(--space-3); background: var(--primary-50);">
+          <div class="fw-bold mb-1" style="font-size: var(--text-2xl); color: var(--primary-700);">
+            {% if kq.thoi_gian_lam >= 60 %}
+              {{ kq.thoi_gian_lam|divisibleby:60 }}p
+            {% else %}
+              {{ kq.thoi_gian_lam }}s
+            {% endif %}
+          </div>
+          <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--primary-700);">
+            Thời gian
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- XP Reward Display -->
+    <div class="alert alert-success d-flex align-items-center justify-content-center gap-2 mb-4" style="border-radius: var(--radius-lg);">
+      <i class="bi bi-star-fill" style="font-size: var(--text-xl);"></i>
+      <span class="fw-semibold">Bạn nhận được <span id="exam-xp">20</span> XP!</span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="d-flex flex-column gap-3">
+      {% if kq.diem > 6 %}
+        <a href="/de-thi/ket-qua/{{ kq.id }}/dap-an/" 
+           class="btn-psychology btn-psychology-primary" 
+           style="padding: var(--space-3) var(--space-4); font-size: var(--text-base);">
+          <i class="bi bi-file-text-fill"></i>
+          Xem đáp án chi tiết
+        </a>
+      {% else %}
+        <div class="btn-psychology" 
+             style="padding: var(--space-3) var(--space-4); font-size: var(--text-base); background: var(--neutral-200); color: var(--neutral-500); cursor: not-allowed;">
+          <i class="bi bi-lock-fill"></i>
+          Cần > 6 điểm để xem đáp án
+        </div>
+      {% endif %}
+      
+      <a href="/de-thi/{{ kq.de_thi.id }}/" 
+         class="btn btn-outline-primary" 
+         style="padding: var(--space-3) var(--space-4); font-size: var(--text-base); border-radius: var(--radius-lg);">
+        <i class="bi bi-arrow-clockwise"></i>
+        Làm lại đề này
       </a>
-      <a href="/de-thi/{{ kq.de_thi.id }}/"
-         style="padding:12px;background:#f8f8f8;color:#555;
-                border-radius:8px;text-decoration:none">
-        🔄 Làm lại đề này
-      </a>
-      <a href="/de-thi/"
-         style="padding:12px;background:#f8f8f8;color:#555;
-                border-radius:8px;text-decoration:none">
-        📝 Chọn đề khác
+      
+      <a href="/de-thi/" 
+         class="btn btn-outline-secondary" 
+         style="padding: var(--space-3) var(--space-4); font-size: var(--text-base); border-radius: var(--radius-lg);">
+        <i class="bi bi-list-ul"></i>
+        Chọn đề khác
       </a>
     </div>
   </div>
+
+  <!-- Recommendations -->
+  <div class="mt-4">
+    <div class="card-psychology" style="padding: var(--space-4); background: var(--primary-50); border: 1px solid var(--primary-200);">
+      <h3 class="fw-semibold mb-3" style="font-size: var(--text-lg); color: var(--primary-900);">
+        <i class="bi bi-lightbulb-fill"></i>
+        Gợi ý tiếp theo
+      </h3>
+      <ul class="list-unstyled mb-0" style="font-size: var(--text-sm);">
+        {% if kq.diem >= 8 %}
+          <li class="mb-2">✅ Thử đề khó hơn để thử thách bản thân</li>
+          <li class="mb-2">✅ Chia sẻ kinh nghiệm với bạn bè</li>
+          <li>✅ Xem bảng xếp hạng để so sánh</li>
+        {% elif kq.diem >= 5 %}
+          <li class="mb-2">📚 Ôn lại các phần còn yếu</li>
+          <li class="mb-2">🎴 Sử dụng Flashcard để ghi nhớ</li>
+          <li>💪 Làm thêm đề tương tự</li>
+        {% else %}
+          <li class="mb-2">📖 Xem lại lý thuyết cơ bản</li>
+          <li class="mb-2">🎴 Học Flashcard từ đầu</li>
+          <li>👥 Tham gia diễn đàn để hỏi đáp</li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Calculate XP based on score
+  const score = {{ kq.diem }};
+  let xp = 20; // Base XP
+  
+  if (score >= 10) {
+    xp = 50; // Perfect score
+  } else if (score >= 8) {
+    xp = 40; // Excellent
+  } else if (score >= 6.5) {
+    xp = 30; // Good
+  }
+  
+  // Update XP display
+  document.getElementById('exam-xp').textContent = xp;
+  
+  // Award XP through gamification system
+  if (window.gamification) {
+    setTimeout(() => {
+      window.gamification.addXP(xp, 'Hoàn thành bài thi');
+    }, 500);
+  }
+  
+  // Show level up if applicable
+  if (score >= 8) {
+    setTimeout(() => {
+      // Trigger confetti or celebration animation
+      console.log('🎉 Excellent score!');
+    }, 1000);
+  }
+});
+</script>
+
 {% endblock %}

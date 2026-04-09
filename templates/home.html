@@ -2,49 +2,297 @@
 {% block title %}Trang chủ — Ôn Thi THPTQG{% endblock %}
 {% block content %}
 
-<div class="hero-section py-5 mb-5 text-center">
+<!-- Hero Section with Enhanced Design -->
+<div class="hero-section text-center">
   <div class="container">
-    <h1 class="display-3 fw-bold mb-3">Ôn Thi THPTQG</h1>
-    <p class="lead mb-4 text-white-50">Nền tảng học tập toàn diện, thông minh cho kỳ thi quan trọng nhất của bạn.</p>
+    <h1 class="display-3 fw-extrabold mb-4" style="font-size: var(--text-5xl);">
+      Ôn Thi THPTQG
+    </h1>
+    <p class="lead mb-5" style="font-size: var(--text-xl); opacity: 0.95;">
+      Nền tảng học tập toàn diện, thông minh cho kỳ thi quan trọng nhất của bạn.
+    </p>
     {% if not user.is_authenticated %}
-      <a href="/nguoi-dung/dang-ky/" class="btn btn-light btn-lg px-4 me-2">Bắt đầu ngay</a>
-      <a href="/nguoi-dung/dang-nhap/" class="btn btn-outline-light btn-lg px-4">Đăng nhập</a>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="/nguoi-dung/dang-ky/" class="btn-psychology btn-psychology-primary" style="padding: var(--space-3) var(--space-6); font-size: var(--text-lg);">
+          <i class="bi bi-rocket-takeoff-fill"></i>
+          Bắt đầu ngay
+        </a>
+        <a href="/nguoi-dung/dang-nhap/" class="btn btn-outline-light btn-lg px-5">
+          Đăng nhập
+        </a>
+      </div>
     {% else %}
-      <a href="/de-thi/" class="btn btn-light btn-lg px-4">Luyện đề ngay</a>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="/de-thi/" class="btn-psychology btn-psychology-primary" style="padding: var(--space-3) var(--space-6); font-size: var(--text-lg);">
+          <i class="bi bi-pencil-square"></i>
+          Luyện đề ngay
+        </a>
+        <a href="/kien-thuc/flashcard/" class="btn btn-outline-light btn-lg px-5">
+          <i class="bi bi-lightning-fill"></i>
+          Flashcard
+        </a>
+      </div>
+      
+      <!-- User Stats Dashboard -->
+      <div class="row mt-5 g-4">
+        <div class="col-md-3 col-6">
+          <div class="card-psychology" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);">
+            <div class="text-center p-3">
+              <div class="stat-icon" style="font-size: var(--text-4xl);">🔥</div>
+              <div id="study-streak" class="stat-value" style="color: white; font-size: var(--text-2xl);">0 ngày</div>
+              <div class="stat-label" style="color: rgba(255, 255, 255, 0.8);">Chuỗi học tập</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="card-psychology" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);">
+            <div class="text-center p-3">
+              <div class="stat-icon" style="font-size: var(--text-4xl);">⭐</div>
+              <div id="user-xp" class="stat-value" style="color: white; font-size: var(--text-2xl);">0 XP</div>
+              <div class="stat-label" style="color: rgba(255, 255, 255, 0.8);">Kinh nghiệm</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="card-psychology" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);">
+            <div class="text-center p-3">
+              <div class="stat-icon" style="font-size: var(--text-4xl);">🏆</div>
+              <div id="user-level" class="stat-value" style="color: white; font-size: var(--text-2xl);">Level 0</div>
+              <div class="stat-label" style="color: rgba(255, 255, 255, 0.8);">Cấp độ</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="card-psychology" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);">
+            <div class="text-center p-3">
+              <div class="stat-icon" style="font-size: var(--text-4xl);">📊</div>
+              <div class="stat-value" style="color: white; font-size: var(--text-2xl);">{{ user.ketqua_set.count }}</div>
+              <div class="stat-label" style="color: rgba(255, 255, 255, 0.8);">Bài thi</div>
+            </div>
+          </div>
+        </div>
+      </div>
     {% endif %}
   </div>
 </div>
 
-<div class="container">
-  <section class="mb-5">
-    <h2 class="h3 fw-bold mb-4">Các tính năng chính</h2>
+<div class="container" style="margin-top: var(--space-12);">
+  <!-- Features Section -->
+  <section style="margin-bottom: var(--space-12);">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold" style="font-size: var(--text-4xl); color: var(--text-primary);">
+        Các tính năng chính
+      </h2>
+      <p class="text-secondary" style="font-size: var(--text-lg); max-width: 600px; margin: var(--space-3) auto 0;">
+        Hệ thống học tập toàn diện với công nghệ hiện đại
+      </p>
+    </div>
+    
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <!-- Feature 1: Kiến thức -->
       <div class="col">
-        <div class="feature-tile bg-white">
-          <h3 class="h5">📚 Kiến thức</h3>
-          <p class="text-muted">Hệ thống bài giảng và lý thuyết chi tiết theo từng môn học.</p>
+        <a href="/kien-thuc/" class="text-decoration-none">
+          <div class="card-psychology card-psychology-interactive" style="height: 100%; padding: var(--space-6);">
+            <div class="text-center">
+              <div class="icon mb-4" style="font-size: var(--text-5xl);">📚</div>
+              <h3 class="fw-bold mb-3" style="font-size: var(--text-xl); color: var(--text-primary);">
+                Kiến thức
+              </h3>
+              <p class="text-secondary" style="font-size: var(--text-base);">
+                Hệ thống bài giảng và lý thuyết chi tiết theo từng môn học.
+              </p>
+              <div class="mt-4">
+                <span class="badge-psychology badge-rare">
+                  <i class="bi bi-book-fill"></i>
+                  Học ngay
+                </span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Feature 2: Đề thi -->
+      <div class="col">
+        <a href="/de-thi/" class="text-decoration-none">
+          <div class="card-psychology card-psychology-interactive" style="height: 100%; padding: var(--space-6);">
+            <div class="text-center">
+              <div class="icon mb-4" style="font-size: var(--text-5xl);">📝</div>
+              <h3 class="fw-bold mb-3" style="font-size: var(--text-xl); color: var(--text-primary);">
+                Đề thi
+              </h3>
+              <p class="text-secondary" style="font-size: var(--text-base);">
+                Ngân hàng đề thi phong phú, chấm điểm tự động và giải chi tiết.
+              </p>
+              <div class="mt-4">
+                <span class="badge-psychology badge-epic">
+                  <i class="bi bi-pencil-fill"></i>
+                  Luyện tập
+                </span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Feature 3: Flashcard -->
+      <div class="col">
+        <a href="/kien-thuc/flashcard/" class="text-decoration-none">
+          <div class="card-psychology card-psychology-interactive" style="height: 100%; padding: var(--space-6);">
+            <div class="text-center">
+              <div class="icon mb-4" style="font-size: var(--text-5xl);">🎴</div>
+              <h3 class="fw-bold mb-3" style="font-size: var(--text-xl); color: var(--text-primary);">
+                Flashcard
+              </h3>
+              <p class="text-secondary" style="font-size: var(--text-base);">
+                Ghi nhớ kiến thức nhanh chóng với phương pháp Spaced Repetition.
+              </p>
+              <div class="mt-4">
+                <span class="badge-psychology badge-legendary">
+                  <i class="bi bi-lightning-fill"></i>
+                  Học thông minh
+                </span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Feature 4: Xếp hạng -->
+      <div class="col">
+        <a href="/leaderboard/" class="text-decoration-none">
+          <div class="card-psychology card-psychology-interactive" style="height: 100%; padding: var(--space-6);">
+            <div class="text-center">
+              <div class="icon mb-4" style="font-size: var(--text-5xl);">🏆</div>
+              <h3 class="fw-bold mb-3" style="font-size: var(--text-xl); color: var(--text-primary);">
+                Xếp hạng
+              </h3>
+              <p class="text-secondary" style="font-size: var(--text-base);">
+                Cạnh tranh lành mạnh với bạn bè và học sinh toàn quốc.
+              </p>
+              <div class="mt-4">
+                <span class="badge-psychology badge-rare">
+                  <i class="bi bi-trophy-fill"></i>
+                  Xem bảng xếp hạng
+                </span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Feature 5: Phân tích -->
+      <div class="col">
+        <a href="/de-thi/phan-tich/" class="text-decoration-none">
+          <div class="card-psychology card-psychology-interactive" style="height: 100%; padding: var(--space-6);">
+            <div class="text-center">
+              <div class="icon mb-4" style="font-size: var(--text-5xl);">📊</div>
+              <h3 class="fw-bold mb-3" style="font-size: var(--text-xl); color: var(--text-primary);">
+                Phân tích
+              </h3>
+              <p class="text-secondary" style="font-size: var(--text-base);">
+                Theo dõi tiến độ học tập và phân tích điểm mạnh, điểm yếu.
+              </p>
+              <div class="mt-4">
+                <span class="badge-psychology badge-epic">
+                  <i class="bi bi-graph-up-arrow"></i>
+                  Xem thống kê
+                </span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Feature 6: Cộng đồng -->
+      <div class="col">
+        <a href="/de-thi/forum/" class="text-decoration-none">
+          <div class="card-psychology card-psychology-interactive" style="height: 100%; padding: var(--space-6);">
+            <div class="text-center">
+              <div class="icon mb-4" style="font-size: var(--text-5xl);">💬</div>
+              <h3 class="fw-bold mb-3" style="font-size: var(--text-xl); color: var(--text-primary);">
+                Cộng đồng
+              </h3>
+              <p class="text-secondary" style="font-size: var(--text-base);">
+                Thảo luận, chia sẻ kinh nghiệm và giải đáp thắc mắc.
+              </p>
+              <div class="mt-4">
+                <span class="badge-psychology badge-rare">
+                  <i class="bi bi-chat-dots-fill"></i>
+                  Tham gia
+                </span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section for Non-authenticated Users -->
+  {% if not user.is_authenticated %}
+  <section class="mb-5">
+    <div class="card-psychology" style="background: linear-gradient(135deg, var(--primary-600) 0%, var(--accent-500) 100%); padding: var(--space-12); text-align: center; color: white; border: none;">
+      <h2 class="fw-bold mb-4" style="font-size: var(--text-4xl);">
+        Sẵn sàng vượt qua kỳ thi?
+      </h2>
+      <p class="lead mb-5" style="font-size: var(--text-xl); opacity: 0.95; max-width: 600px; margin-left: auto; margin-right: auto;">
+        Đăng ký ngay hôm nay để bắt đầu lộ trình ôn luyện hiệu quả của riêng bạn.
+      </p>
+      <a href="/nguoi-dung/dang-ky/" class="btn btn-light btn-lg" style="padding: var(--space-3) var(--space-6); font-size: var(--text-lg); font-weight: var(--font-semibold);">
+        <i class="bi bi-person-plus-fill"></i>
+        Tạo tài khoản miễn phí
+      </a>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Statistics Section -->
+  <section style="margin-bottom: var(--space-12);">
+    <div class="row g-4 text-center">
+      <div class="col-md-3 col-6">
+        <div class="card-psychology" style="padding: var(--space-4);">
+          <div class="stat-icon" style="color: var(--primary-600);">📚</div>
+          <div class="stat-value" style="color: var(--primary-600);">1000+</div>
+          <div class="stat-label">Bài giảng</div>
         </div>
       </div>
-      <div class="col">
-        <div class="feature-tile bg-white">
-          <h3 class="h5">📝 Đề thi</h3>
-          <p class="text-muted">Ngân hàng đề thi phong phú, chấm điểm tự động và giải chi tiết.</p>
+      <div class="col-md-3 col-6">
+        <div class="card-psychology" style="padding: var(--space-4);">
+          <div class="stat-icon" style="color: var(--success-600);">📝</div>
+          <div class="stat-value" style="color: var(--success-600);">500+</div>
+          <div class="stat-label">Đề thi</div>
         </div>
       </div>
-      <div class="col">
-        <div class="feature-tile bg-white">
-          <h3 class="h5">🎴 Flashcard</h3>
-          <p class="text-muted">Ghi nhớ kiến thức nhanh chóng với phương pháp Spaced Repetition.</p>
+      <div class="col-md-3 col-6">
+        <div class="card-psychology" style="padding: var(--space-4);">
+          <div class="stat-icon" style="color: var(--accent-600);">👥</div>
+          <div class="stat-value" style="color: var(--accent-600);">10K+</div>
+          <div class="stat-label">Học sinh</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="card-psychology" style="padding: var(--space-4);">
+          <div class="stat-icon" style="color: var(--warning-600);">⭐</div>
+          <div class="stat-value" style="color: var(--warning-600);">4.8/5</div>
+          <div class="stat-label">Đánh giá</div>
         </div>
       </div>
     </div>
   </section>
-  {% if not user.is_authenticated %}
-    <section class="bg-primary rounded-4 text-white p-5 text-center shadow-lg mb-5">
-      <h2 class="h3 fw-bold mb-3">Sẵn sàng vượt qua kỳ thi?</h2>
-      <p class="lead mb-4">Đăng ký ngay hôm nay để bắt đầu lộ trình ôn luyện hiệu quả của riêng bạn.</p>
-      <a href="/nguoi-dung/dang-ky/" class="btn btn-light btn-lg">Tạo tài khoản miễn phí</a>
-    </section>
-  {% endif %}
 </div>
+
+<script>
+// Award XP for visiting home page (first time today)
+document.addEventListener('DOMContentLoaded', () => {
+  const lastVisit = localStorage.getItem('lastHomeVisit');
+  const today = new Date().toDateString();
+  
+  if (lastVisit !== today && window.gamification) {
+    localStorage.setItem('lastHomeVisit', today);
+    window.gamification.addXP(5, 'Đăng nhập hàng ngày');
+  }
+});
+</script>
+
 {% endblock %}
