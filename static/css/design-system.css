@@ -634,22 +634,104 @@
    RESPONSIVE UTILITIES
    ============================================ */
 
+/* Mobile First Approach */
 @media (max-width: 640px) {
   :root {
     --text-3xl: 1.5rem;
     --text-4xl: 1.875rem;
     --text-5xl: 2.25rem;
+    --space-6: 2rem;
+    --space-8: 3rem;
   }
   
   .hide-mobile { display: none !important; }
+  
+  /* Prevent text overflow */
+  h1, h2, h3, h4, h5, h6 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Stack buttons vertically on mobile */
+  .btn-psychology,
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* Adjust card padding */
+  .card-psychology {
+    padding: var(--space-3) !important;
+  }
+  
+  /* Fix stat cards */
+  .stat-card {
+    min-height: auto;
+  }
+  
+  /* Ensure proper spacing */
+  .row {
+    margin-left: calc(var(--space-2) * -1);
+    margin-right: calc(var(--space-2) * -1);
+  }
+  
+  .row > * {
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
+  }
 }
 
 @media (min-width: 641px) and (max-width: 768px) {
   .hide-tablet { display: none !important; }
+  
+  /* Tablet adjustments */
+  .btn-psychology,
+  .btn {
+    min-width: 150px;
+  }
 }
 
 @media (min-width: 769px) {
   .hide-desktop { display: none !important; }
+}
+
+/* Flexbox utilities for better alignment */
+.d-flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.d-flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.d-flex-wrap {
+  flex-wrap: wrap;
+}
+
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+
+/* Prevent layout shift */
+.no-wrap {
+  white-space: nowrap;
+}
+
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Ensure consistent button sizing */
+.btn-group-equal > * {
+  flex: 1;
+  min-width: 0;
 }
 
 /* ============================================

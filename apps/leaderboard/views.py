@@ -120,8 +120,9 @@ def update_leaderboard(leaderboard):
     leaderboard.rankings = rankings[:100]  # Store top 100
     leaderboard.save()
     
-    # Award achievements for top performers
-    award_achievements(leaderboard, entries[:10])
+    # Note: Achievements and notifications are now sent via management command
+    # Run: python manage.py send_leaderboard_notifications --period=daily/weekly/monthly
+    # This prevents sending notifications on every page view
 
 
 def calculate_overall_scores(start_date=None):
