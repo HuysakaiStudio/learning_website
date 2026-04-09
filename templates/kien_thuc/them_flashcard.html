@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+{% block title %}Thêm Flashcard - {{ flashcard_set.tieu_de }}{% endblock %}
+
+{% block content %}
+<style>
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .header {
+    margin-bottom: 32px;
+  }
+
+  .header h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    color: #999;
+    font-size: 14px;
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  @media (max-width: 768px) {
+    .content-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .form-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .form-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #333;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #555;
+    font-size: 13px;
+  }
+
+  input[type="text"],
+  textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  input[type="text"]:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+  }
+
+  .form-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-submit {
+    background: #34a853;
+    color: white;
+  }
+
+  .btn-submit:hover {
+    background: #1e8e3e;
+  }
+
+  .btn-clear {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  .btn-clear:hover {
+    background: #e0e0e0;
+  }
+
+  .cards-list {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .cards-count {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .card-item {
+    background: #f9f9f9;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    border-left: 3px solid #1a73e8;
+  }
+
+  .card-item-title {
+    font-weight: 600;
+    color: #333;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .card-item-content {
+    font-size: 12px;
+    color: #666;
+    background: white;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    max-height: 60px;
+    overflow: hidden;
+    line-height: 1.4;
+  }
+
+  .card-item-desc {
+    font-size: 11px;
+    color: #999;
+  }
+
+  .empty-list {
+    text-align: center;
+    padding: 32px 16px;
+    color: #999;
+  }
+
+  .back-btn {
+    display: inline-block;
+    margin-bottom: 24px;
+    color: #1a73e8;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .back-btn:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="container">
+  <a href="{% url 'kien_thuc:danh_sach_flashcard_sets' %}" class="back-btn">← Quay lại danh sách</a>
+
+  <div class="header">
+    <h2>📚 {{ flashcard_set.tieu_de }}</h2>
+    <p>{{ flashcard_set.mon.ten }}</p>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}" style="margin-bottom: 20px;">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="content-grid">
+    <!-- Form to add new flashcard -->
+    <div class="form-card">
+      <div class="form-title">➕ Thêm Thẻ Mới</div>
+      
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label>Mặt Trước (Câu hỏi/Khái niệm) *</label>
+          <textarea name="mat_truoc" placeholder="Nhập câu hỏi hoặc khái niệm..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Mặt Sau (Câu trả lời/Giải thích) *</label>
+          <textarea name="mat_sau" placeholder="Nhập câu trả lời hoặc giải thích..." required></textarea>
+        </div>
+
+        <div class="form-buttons">
+          <button type="submit" class="btn btn-submit">✅ Thêm</button>
+          <button type="reset" class="btn btn-clear">🔄 Xóa</button>
+        </div>
+      </form>
+
+      <div class="form-title" style="margin-top: 32px;">📥 Nhập Hàng Loạt (Import)</div>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="import">
+        <div class="form-group">
+          <label>Nhập nội dung (Định dạng: Mặt trước | Mặt sau, mỗi thẻ 1 dòng)</label>
+          <textarea name="bulk_data" placeholder="Câu hỏi 1 | Trả lời 1&#10;Câu hỏi 2 | Trả lời 2"></textarea>
+        </div>
+        <button type="submit" class="btn btn-submit" style="background: #673ab7;">📥 Nhập ngay</button>
+      </form>
+
+      <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e8e8e8; font-size: 12px; color: #999;">
+        💡 Tip: Bạn có thể sử dụng Markdown và MathJax ($...$) để định dạng nội dung.
+      </div>
+    </div>
+
+    <!-- List of flashcards -->
+    <div class="cards-list">
+      <div class="cards-count">📋 Tổng số thẻ: {{ flashcards|length }}</div>
+      
+      {% if flashcards %}
+      <div style="max-height: 600px; overflow-y: auto;">
+        {% for card in flashcards %}
+        <div class="card-item">
+          <div class="card-item-title">Thẻ #{{ forloop.counter }}</div>
+          <div class="card-item-content">
+            <strong>Q:</strong> {{ card.mat_truoc|truncatewords:10 }}
+          </div>
+          <div class="card-item-content">
+            <strong>A:</strong> {{ card.mat_sau|truncatewords:10 }}
+          </div>
+          <form method="post" onsubmit="return confirm('Bạn chắc chắn muốn xóa thẻ này?');">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="card_id" value="{{ card.id }}">
+            <button type="submit" style="color: #d93025; background: none; border: none; cursor: pointer; font-size: 11px;">🗑️ Xóa</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-list">
+        <div style="font-size: 24px; margin-bottom: 8px;">📭</div>
+        <p>Chưa có thẻ nào. Hãy thêm thẻ mới bằng biểu mẫu bên trái.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div style="margin-top: 24px; text-align: center;">
+    {% if flashcards %}
+    <a href="{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}" style="display: inline-block; padding: 12px 24px; background: #1a73e8; color: white; text-decoration: none; border-radius: 8px; font-weight: 500;">
+      🎓 Bắt đầu học
+    </a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

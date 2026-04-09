@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% block title %}Hồ sơ của {{ target_user.username }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Cột bên trái: Thông tin cá nhân & Cập nhật -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 sticky-top" style="top: 100px;">
+            <div class="card-body text-center p-4">
+                <div class="profile-avatar-container mx-auto">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="Avatar">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ target_user.username }}&background=4f46e5&color=fff&size=128" alt="Default Avatar">
+                    {% endif %}
+                </div>
+                <h3 class="fw-bold mb-1">{{ target_user.username }}</h3>
+                <p class="text-muted small mb-4">Thành viên từ {{ target_user.date_joined|date:"d/m/Y" }}</p>
+                
+                {% if profile.bio %}
+                    <div class="alert alert-light border-0 py-2 small mb-4 text-start">
+                        <i class="bi bi-quote small text-primary me-1"></i>
+                        {{ profile.bio }}
+                    </div>
+                {% endif %}
+
+                {% if is_own_profile %}
+                <hr class="my-4 opacity-25">
+
+                <h5 class="text-start mb-3 fw-bold">Cập nhật thông tin</h5>
+                <form method="post" enctype="multipart/form-data" class="text-start">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ form.avatar.id_for_label }}" class="form-label small">Ảnh đại diện mới</label>
+                        {{ form.avatar }}
+                        {% if form.avatar.errors %}
+                            <div class="text-danger small">{{ form.avatar.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.bio.id_for_label }}" class="form-label small">Giới thiệu bản thân</label>
+                        <textarea name="{{ form.bio.name }}" id="{{ form.bio.id_for_label }}" class="form-control" rows="3">{{ form.bio.value|default_if_none:"" }}</textarea>
+                        {% if form.bio.errors %}
+                            <div class="text-danger small">{{ form.bio.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-2">Lưu thay đổi</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Cột bên phải: Dashboard & Hoạt động -->
+    <div class="col-lg-8">
+        <!-- Dashboard Thống kê -->
+        <h4 class="fw-bold mb-4">Tổng quan học tập {% if not is_own_profile %}của {{ target_user.username }}{% endif %}</h4>
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card stat-card border-0 h-100">
+                    <div class="card-body p-4 text-center">
+                        <div class="stat-icon text-primary">📝</div>
+                        <div class="display-6 fw-bold text-dark">{{ analytics.tong_bai_lam|default:0 }}</div>
+                        <div class="text-muted small text-uppercase fw-bold">Đề thi đã làm</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card border-0 h-100" style="border-left-color: #10b981;">
+                    <div class="card-body p-4 text-center">
+                        <div class="stat-icon text-success">🎯</div>
+                        <div class="display-6 fw-bold text-dark">{{ analytics.diem_trung_binh|default:0|floatformat:2 }}</div>
+                        <div class="text-muted small text-uppercase fw-bold">Điểm trung bình</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card border-0 h-100" style="border-left-color: #f59e0b;">
+                    <div class="card-body p-4 text-center">
+                        <div class="stat-icon text-warning">⏱️</div>
+                        <div class="display-6 fw-bold text-dark">{{ analytics.tong_gio_lam|default:0|floatformat:1 }}</div>
+                        <div class="text-muted small text-uppercase fw-bold">Giờ học tập (phút)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Huy hiệu -->
+        <div class="card border-0 mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">Thành tích & Huy hiệu</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for item in display_badges %}
+                        {% if item.achieved %}
+                            <div class="badge-custom badge-tier-{{ item.badge.tier }}" title="{{ item.badge.description }}" data-bs-toggle="tooltip">
+                                <span>🏅</span> <strong>{{ item.badge.name }}</strong>
+                            </div>
+                        {% else %}
+                            <div class="badge-custom border" style="background:#f8f9fa; color:#adb5bd; opacity:0.7; cursor:help;" title="Chưa đạt: {{ item.badge.description }}" data-bs-toggle="tooltip">
+                                <span>🔒</span> {{ item.badge.name }}
+                            </div>
+                        {% endif %}
+                    {% empty %}
+                        <p class="text-muted small mb-0">Hệ thống chưa có huy hiệu nào.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Lịch sử hoạt động -->
+        <div class="card border-0 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">Lịch sử bài làm gần đây</h5>
+                    {% if is_own_profile %}
+                    <a href="/de-thi/phan-tich/" class="btn btn-sm btn-outline-primary">Phân tích chi tiết</a>
+                    {% endif %}
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 history-table">
+                        <thead>
+                            <tr>
+                                <th>Đề thi</th>
+                                <th class="text-center">Điểm số</th>
+                                <th class="text-end">Ngày hoàn thành</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in page_obj %}
+                            <tr>
+                                <td class="fw-medium text-dark">{{ result.de_thi.ten }}</td>
+                                <td class="text-center">
+                                    <span class="badge {% if result.diem >= 8 %}bg-success-subtle text-success{% elif result.diem >= 5 %}bg-primary-subtle text-primary{% else %}bg-danger-subtle text-danger{% endif %} rounded-pill px-3">
+                                        {{ result.diem|floatformat:1 }} / 10
+                                    </span>
+                                </td>
+                                <td class="text-end text-muted small">{{ result.ngay_lam|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-muted">Chưa có dữ liệu bài làm.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% include 'includes/pagination.html' %}
+            </div>
+        </div>
+
+        <!-- Tiến độ Flashcard -->
+        <div class="card border-0">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">Tiến trình Ghi nhớ theo Bộ thẻ</h5>
+                <div class="row g-4">
+                    {% for set in flashcard_sets %}
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded-3 h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-truncate" title="{{ set.tieu_de }}">{{ set.tieu_de }}</span>
+                                <span class="small text-muted">{{ set.learned_count }}/{{ set.total_count }} thẻ</span>
+                            </div>
+                            {% with percent=set.learned_count|stringformat:"d" %}
+                            {% widthratio set.learned_count set.total_count 100 as progress_percent %}
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar {% if progress_percent == '100' %}bg-success{% else %}bg-primary{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ progress_percent }}%" 
+                                     aria-valuenow="{{ progress_percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="text-end mt-1">
+                                <small class="fw-bold text-primary">{{ progress_percent }}%</small>
+                            </div>
+                            {% endwith %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 py-3 text-muted text-center">Chưa bắt đầu học bộ Flashcard nào.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+});
+</script>
+{% endblock %}

@@ -1,6 +1,9 @@
 from django.urls import path
+from . import views
 
 app_name = 'leaderboard'
 
 urlpatterns = [
+    path('', views.leaderboard_view, name='index'),
+    path('achievements/', views.user_achievements, name='achievements'),
 ]

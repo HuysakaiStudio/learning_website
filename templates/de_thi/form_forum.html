@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Tạo bài thảo luận mới{% endblock %}
+
+{% block content %}
+<div class="forum-create container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card create-card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
+                        <div>
+                            <h2 class="mb-1">📝 Tạo bài thảo luận mới</h2>
+                            <p class="text-muted">Chia sẻ thắc mắc của bạn và nhận hỗ trợ từ cộng đồng.</p>
+                        </div>
+                    </div>
+
+                    <div class="question-preview mb-4">
+                        <div class="preview-label">Câu hỏi liên quan</div>
+                        <div class="preview-card p-4">
+                            <p class="mb-2"><strong>Đề thi:</strong> {{ cau_hoi.de_thi.ten }}</p>
+                            <p class="mb-0 text-secondary">{{ cau_hoi.noi_dung|safe|truncatewords:40 }}</p>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group mb-4">
+                            <label for="id_tieu_de" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="id_tieu_de" name="tieu_de" placeholder="Ví dụ: Cách giải câu này như thế nào?" required maxlength="300">
+                            <small class="form-text text-muted">Tiêu đề ngắn gọn, rõ ràng và chứa chủ đề chính.</small>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="id_noi_dung" class="form-label">Nội dung <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="id_noi_dung" name="noi_dung" rows="10" placeholder="Mô tả chi tiết vấn đề của bạn..." required></textarea>
+                            <small class="form-text text-muted">Hỗ trợ Markdown và công thức LaTeX.</small>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label">Xem trước</label>
+                            <div class="preview-panel" id="preview">
+                                <p class="text-muted text-center mb-0">Nội dung sẽ hiển thị ở đây...</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">✑️ Đăng bài thảo luận</button>
+                            <a href="{% url 'de_thi:danh_sach_forum' cau_hoi.id %}" class="btn btn-outline-secondary btn-lg">Quay lại</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card markdown-card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5>📚 Markdown & Công thức</h5>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="guide-item mb-3">
+                                <code>**bold**</code> → <strong>bold</strong>
+                            </div>
+                            <div class="guide-item mb-3">
+                                <code>*italic*</code> → <em>italic</em>
+                            </div>
+                            <div class="guide-item mb-3">
+                                <code>`code`</code> → <code>code</code>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="guide-item mb-3">
+                                <code>$$x = \frac{-b \pm \sqrt{b^2-4ac}}{2a}$$</code>
+                                <p class="text-muted mb-0">Công thức toán đẹp với MathJax.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card tips-card sticky-top shadow-sm">
+                <div class="card-body">
+                    <h5>💡 Mẹo viết bài hay</h5>
+                    <ul class="tips-list mt-3">
+                        <li>Ghi rõ câu hỏi và nội dung bạn đã làm.</li>
+                        <li>Đính kèm bước giải hoặc công thức liên quan.</li>
+                        <li>Viết ngắn gọn, tránh phát biểu mơ hồ.</li>
+                        <li>Không spam nhiều bài cho cùng một vấn đề.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const textInput = document.getElementById('id_noi_dung');
+if (textInput) {
+    textInput.addEventListener('input', function() {
+        let text = this.value;
+        let html = text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`(.*?)`/g, '<code>$1</code>')
+            .replace(/\n/g, '<br>')
+            .substring(0, 400);
+        const preview = document.getElementById('preview');
+        if (html) {
+            preview.innerHTML = '<div class="preview-panel-body">' + html + (text.length > 400 ? '<br><small class="text-muted">...</small>' : '') + '</div>';
+        } else {
+            preview.innerHTML = '<p class="text-muted text-center mb-0">Nội dung sẽ hiển thị ở đây...</p>';
+        }
+    });
+}
+</script>
+
+{% endblock %}

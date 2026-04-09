@@ -1,0 +1,45 @@
+{% if is_paginated or page_obj.has_other_pages %}
+<nav aria-label="Page navigation" class="my-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if request.GET.mon %}&mon={{ request.GET.mon }}{% endif %}" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.mon %}&mon={{ request.GET.mon }}{% endif %}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo; Trở lại</span>
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&laquo; Trở lại</span>
+            </li>
+        {% endif %}
+
+        <li class="page-item active">
+            <span class="page-link">
+                Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </span>
+        </li>
+
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.mon %}&mon={{ request.GET.mon }}{% endif %}" aria-label="Next">
+                    <span aria-hidden="true">Tiếp theo &raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.mon %}&mon={{ request.GET.mon }}{% endif %}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Tiếp theo &raquo;</span>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}

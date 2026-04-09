@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% block title %}Thành Tựu Của Bạn{% endblock %}
+
+{% block content %}
+<style>
+  .achievements-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .achievements-header {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 32px;
+    border-radius: 16px;
+    margin-bottom: 32px;
+    text-align: center;
+  }
+
+  .achievements-header h1 {
+    margin: 0 0 8px 0;
+    font-size: 32px;
+    font-weight: 700;
+  }
+
+  .achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  .achievement-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .achievement-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+
+  .achievement-card.locked {
+    opacity: 0.5;
+    filter: grayscale(100%);
+  }
+
+  .achievement-icon {
+    font-size: 64px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .achievement-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .achievement-description {
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .achievement-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+    font-size: 12px;
+    color: #999;
+  }
+
+  .achievement-rank {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+
+  .achievement-date {
+    font-size: 11px;
+  }
+
+  .ribbon {
+    position: absolute;
+    top: 16px;
+    right: -32px;
+    background: #ffd700;
+    color: #333;
+    padding: 4px 40px;
+    transform: rotate(45deg);
+    font-size: 11px;
+    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 64px 24px;
+    color: #999;
+  }
+
+  .empty-state-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+
+  .stats-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-box {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 14px;
+    color: #666;
+  }
+</style>
+
+<div class="achievements-container">
+  <div class="achievements-header">
+    <h1>🏅 Thành Tựu Của Bạn</h1>
+    <p>Khám phá và mở khóa các thành tựu đặc biệt!</p>
+  </div>
+
+  <!-- Stats Summary -->
+  <div class="stats-summary">
+    <div class="stat-box">
+      <div class="stat-value">{{ achievements.count }}</div>
+      <div class="stat-label">Thành tựu đạt được</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value">{{ user.leaderboard_entries.count }}</div>
+      <div class="stat-label">Lần lên bảng xếp hạng</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value">
+        {% if achievements %}
+          {{ achievements.first.rank_achieved|default:"-" }}
+        {% else %}
+          -
+        {% endif %}
+      </div>
+      <div class="stat-label">Hạng cao nhất</div>
+    </div>
+  </div>
+
+  <!-- Achievements Grid -->
+  {% if achievements %}
+  <div class="achievements-grid">
+    {% for achievement in achievements %}
+    <div class="achievement-card">
+      {% if achievement.rank_achieved <= 3 %}
+      <div class="ribbon">NEW</div>
+      {% endif %}
+      
+      <div class="achievement-icon">
+        {% if achievement.achievement_type == 'top_10_daily' %}
+          🌟
+        {% elif achievement.achievement_type == 'top_10_weekly' %}
+          ⭐
+        {% elif achievement.achievement_type == 'top_10_monthly' %}
+          💫
+        {% elif achievement.achievement_type == 'top_100_all_time' %}
+          🏆
+        {% elif achievement.achievement_type == 'subject_master' %}
+          🎓
+        {% elif achievement.achievement_type == 'flashcard_king' %}
+          👑
+        {% elif achievement.achievement_type == 'exam_champion' %}
+          🥇
+        {% else %}
+          🏅
+        {% endif %}
+      </div>
+      
+      <div class="achievement-title">{{ achievement.get_achievement_type_display }}</div>
+      
+      <div class="achievement-description">
+        {% if achievement.mon %}
+          Môn {{ achievement.mon.ten }}
+        {% endif %}
+        {% if achievement.rank_achieved %}
+          Đạt hạng #{{ achievement.rank_achieved }}
+        {% endif %}
+      </div>
+      
+      <div class="achievement-meta">
+        {% if achievement.rank_achieved %}
+        <div class="achievement-rank">#{{ achievement.rank_achieved }}</div>
+        {% endif %}
+        <div class="achievement-date">{{ achievement.earned_at|date:"d/m/Y" }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">🏅</div>
+    <h3>Chưa có thành tựu nào</h3>
+    <p>Hãy tham gia học tập và làm bài để mở khóa thành tựu đầu tiên!</p>
+    <a href="{% url 'leaderboard:index' %}" style="display: inline-block; margin-top: 16px; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+      Xem Bảng Xếp Hạng
+    </a>
+  </div>
+  {% endif %}
+
+  <div style="text-align: center; margin-top: 32px;">
+    <a href="{% url 'leaderboard:index' %}" style="display: inline-block; padding: 12px 24px; background: #f0f0f0; color: #333; text-decoration: none; border-radius: 8px; font-weight: 600;">
+      ← Quay lại Bảng Xếp Hạng
+    </a>
+  </div>
+</div>
+{% endblock %}

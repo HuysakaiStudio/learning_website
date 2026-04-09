@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ target_user.username }} — Bảng Xếp Hạng{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- User Header -->
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-start">
+                        <div>
+                            <h2 class="mb-1">👤 {{ target_user.username }}</h2>
+                            {% if target_user.first_name %}
+                                <p class="text-muted mb-0">
+                                    {{ target_user.first_name }} {{ target_user.last_name }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <div class="ml-auto text-right">
+                            {% if user.is_authenticated and user == target_user %}
+                                <span class="badge badge-success" style="font-size: 14px;">Bạn</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <h3 class="text-primary mb-2">{{ ranking }}</h3>
+                            <p class="text-muted mb-0">🏆 Xếp hạng</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <h3 class="text-success mb-2">{{ diem_trung_binh|floatformat:1 }}/10</h3>
+                            <p class="text-muted mb-0">📊 Điểm trung bình</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Details -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">📈 Thống kê chi tiết</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="font-weight-bold">Số bài thi đã làm:</label>
+                                <p class="h5">{{ tong_bai_lam }}<span class="text-muted"> bài</span></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="font-weight-bold">Điểm cao nhất:</label>
+                                <p class="h5">
+                                    {% if recent_exams %}
+                                        {% for exam in recent_exams %}
+                                            {% if forloop.first %}
+                                                {{ exam.diem|floatformat:1 }}/10
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="font-weight-bold">Tỷ lệ hoàn thành:</label>
+                                <p class="h5">
+                                    {% if tong_bai_lam > 0 %}
+                                        {{ tong_bai_lam }} / 50 bài
+                                    {% else %}
+                                        0 / 50 bài
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="font-weight-bold">Trạng thái:</label>
+                                <p>
+                                    {% if tong_bai_lam >= 50 %}
+                                        <span class="badge badge-success" style="font-size: 12px;">⭐ Xuất sắc</span>
+                                    {% elif tong_bai_lam >= 30 %}
+                                        <span class="badge badge-info" style="font-size: 12px;">✅ Tích cực</span>
+                                    {% elif tong_bai_lam >= 10 %}
+                                        <span class="badge badge-warning" style="font-size: 12px;">🔄 Đang học</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary" style="font-size: 12px;">🆕 Mới bắt đầu</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Exams -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">📝 10 Bài thi gần đây</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Đề thi</th>
+                                <th style="width: 80px;">Điểm</th>
+                                <th style="width: 120px;">Chế độ</th>
+                                <th style="width: 140px;">Ngày làm</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for exam in recent_exams %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ exam.de_thi.ten }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ exam.de_thi.mon.ten }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if exam.diem >= 8 %}badge-success{% elif exam.diem >= 6 %}badge-info{% else %}badge-warning{% endif %}">
+                                            {{ exam.diem|floatformat:1 }}/10
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if exam.che_do == 'luyen_tap' %}
+                                            <span class="badge badge-light">🎓 Luyện tập</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">🎯 Thi thật</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small>{{ exam.ngay_lam|date:"d/m/Y H:i" }}</small>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3">
+                                        Chưa có bài thi nào
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Back Link -->
+            <div class="mt-4">
+                <a href="{% url 'leaderboard:danh_sach_xep_hang' %}" class="btn btn-outline-secondary">
+                    ← Quay lại Bảng Xếp Hạng
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        transition: box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    @media (max-width: 768px) {
+        .d-flex {
+            flex-direction: column;
+        }
+
+        .ml-auto {
+            margin-left: 0 !important;
+            margin-top: 1rem;
+        }
+    }
+</style>
+{% endblock %}

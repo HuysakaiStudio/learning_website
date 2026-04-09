@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Count, Avg, Sum
 from django.contrib.auth.models import User
 from apps.kien_thuc.models import Mon
 
@@ -65,7 +66,7 @@ class CauHoi(models.Model):
 
 
 class KetQua(models.Model):
-    nguoi_dung = models.ForeignKey(User, on_delete=models.CASCADE)
+    nguoi_dung = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ket_qua')
     de_thi = models.ForeignKey(DeThi, on_delete=models.CASCADE)
     diem = models.FloatField(default=0)
     tong_cau = models.IntegerField(default=0)
@@ -73,6 +74,8 @@ class KetQua(models.Model):
     che_do = models.CharField(max_length=20, default='luyen_tap')  # luyen_tap / thi_that
     ngay_lam = models.DateTimeField(auto_now_add=True)
     da_xem_dap_an = models.BooleanField(default=False)
+    is_official = models.BooleanField(default=False)  # Chỉ những bài official mới được tính vào leaderboard
+    is_violated = models.BooleanField(default=False)  # Đánh dấu bài thi có hành vi gian lận (ra khỏi tab, ẩn trang)
 
     class Meta:
         ordering = ['-ngay_lam']
@@ -99,3 +102,211 @@ class TraLoi(models.Model):
 
     dung = models.BooleanField(default=False)
     diem_duoc = models.FloatField(default=0)
+
+
+class QuestionDifficulty(models.Model):
+    """Tracks difficulty of each question based on class-wide performance"""
+    cau_hoi = models.OneToOneField(CauHoi, on_delete=models.CASCADE, related_name='difficulty')
+    tong_lan_hoi = models.IntegerField(default=0)  # Total times answered
+    so_lan_dung = models.IntegerField(default=0)   # Times answered correctly
+    do_kho = models.FloatField(default=0.5)  # Difficulty (0=easy, 1=hard), calculated as 1 - (correct_rate)
+    ngay_cap_nhat = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Độ khó câu hỏi'
+        verbose_name_plural = 'Độ khó câu hỏi'
+
+    def __str__(self):
+        return f'{self.cau_hoi.de_thi.ten} - Độ khó: {self.do_kho:.2f}'
+
+    def tinh_do_kho(self):
+        """Recalculate difficulty based on correct rate"""
+        if self.tong_lan_hoi == 0:
+            self.do_kho = 0.5
+        else:
+            correct_rate = self.so_lan_dung / self.tong_lan_hoi
+            self.do_kho = 1 - correct_rate
+        self.save()
+
+
+class UserAnalytics(models.Model):
+    """Tracks user's performance metrics across all exams"""
+    nguoi_dung = models.OneToOneField(User, on_delete=models.CASCADE, related_name='analytics')
+    tong_bai_lam = models.IntegerField(default=0)  # Total exams taken
+    diem_trung_binh = models.FloatField(default=0)  # Average score across all exams
+    tong_gio_lam = models.IntegerField(default=0)  # Total minutes spent
+    dem_tien_tro = models.IntegerField(default=0)  # Streak count
+    ngay_cap_nhat = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Phân tích người dùng'
+        verbose_name_plural = 'Phân tích người dùng'
+
+    def __str__(self):
+        return f'{self.nguoi_dung.username} - Trung bình: {self.diem_trung_binh:.2f}'
+
+    def cap_nhat_thong_ke(self):
+        """Update user statistics from KetQua records"""
+        from django.db.models import Avg, Sum, Count, Q
+        # Chỉ tính những kết quả có ít nhất một câu trả lời (valid) và là official (thi thật không vi phạm)
+        stats = KetQua.objects.filter(
+            nguoi_dung=self.nguoi_dung,
+            tra_loi__isnull=False,
+            is_official=True
+        ).distinct().aggregate(
+            total=Count('id'),
+            avg_score=Avg('diem'),
+            total_time=Sum('thoi_gian_lam')
+        )
+        self.tong_bai_lam = stats['total'] or 0
+        self.diem_trung_binh = stats['avg_score'] or 0
+        self.tong_gio_lam = int((stats['total_time'] or 0) / 60)  # Convert seconds to minutes
+        self.save()
+
+
+class SubjectPerformance(models.Model):
+    """Tracks user's performance for each subject/Mon"""
+    nguoi_dung = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subject_performance')
+    mon = models.ForeignKey(Mon, on_delete=models.CASCADE)
+    tong_bai_lam = models.IntegerField(default=0)
+    diem_trung_binh = models.FloatField(default=0)
+    so_dan_dung = models.IntegerField(default=0)  # Questions answered correctly
+    tong_dan_tra_loi = models.IntegerField(default=0)  # Total questions attempted
+    ngay_cap_nhat = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('nguoi_dung', 'mon')
+        verbose_name = 'Hiệu suất theo môn'
+        verbose_name_plural = 'Hiệu suất theo môn'
+
+    def __str__(self):
+        return f'{self.nguoi_dung.username} - {self.mon.ten}: {self.diem_trung_binh:.2f}'
+
+    def cap_nhat_hieu_suat(self):
+        """Update subject performance from exam results"""
+        # Chỉ tính những kết quả official
+        exams = KetQua.objects.filter(
+            nguoi_dung=self.nguoi_dung,
+            de_thi__mon=self.mon,
+            tra_loi__isnull=False,
+            is_official=True
+        ).distinct()
+        
+        stats = exams.aggregate(
+            total=Count('id'),
+            avg_score=Avg('diem')
+        )
+        
+        self.tong_bai_lam = stats['total'] or 0
+        self.diem_trung_binh = stats['avg_score'] or 0
+        
+        # Count total correct/total answers
+        tra_loi_stats = TraLoi.objects.filter(
+            ket_qua__in=exams
+        ).aggregate(
+            total_correct=Sum(models.Case(
+                models.When(dung=True, then=1),
+                default=0,
+                output_field=models.IntegerField()
+            )),
+            total_attempts=Count('id')
+        )
+        
+        self.so_dan_dung = tra_loi_stats['total_correct'] or 0
+        self.tong_dan_tra_loi = tra_loi_stats['total_attempts'] or 0
+        self.save()
+
+
+class ForumPost(models.Model):
+    """Discussion threads linked to specific exam questions"""
+    cau_hoi = models.ForeignKey(CauHoi, on_delete=models.CASCADE, related_name='forum_posts')
+    tac_gia = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='forum_posts')
+    tieu_de = models.CharField(max_length=300)
+    noi_dung = models.TextField()  # Markdown format
+    is_solved = models.BooleanField(default=False)  # Mark as solved
+    best_answer_comment = models.ForeignKey('ForumComment', on_delete=models.SET_NULL, null=True, blank=True, related_name='best_answer_for_post')
+    vote_count = models.IntegerField(default=0)  # Total votes (upvote - downvote)
+    so_binh_luan = models.IntegerField(default=0)  # Comment count
+    ngay_tao = models.DateTimeField(auto_now_add=True)
+    ngay_cap_nhat = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-ngay_tao']
+        verbose_name = 'Bài diễn đàn'
+        verbose_name_plural = 'Bài diễn đàn'
+    
+    def __str__(self):
+        return f'[{self.cau_hoi.de_thi.ten}] {self.tieu_de}'
+
+
+class ForumComment(models.Model):
+    """Top-level replies to forum posts"""
+    bai_dang = models.ForeignKey(ForumPost, on_delete=models.CASCADE, related_name='comments')
+    tac_gia = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='forum_comments')
+    noi_dung = models.TextField()  # Markdown format
+    vote_count = models.IntegerField(default=0)
+    ngay_tao = models.DateTimeField(auto_now_add=True)
+    ngay_cap_nhat = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-vote_count', 'ngay_tao']
+        verbose_name = 'Bình luận diễn đàn'
+        verbose_name_plural = 'Bình luận diễn đàn'
+    
+    def __str__(self):
+        return f'Re: {self.bai_dang.tieu_de} - {self.tac_gia.username}'
+
+
+class ForumReply(models.Model):
+    """Nested replies to comments (threading)"""
+    binh_luan = models.ForeignKey(ForumComment, on_delete=models.CASCADE, related_name='replies')
+    tac_gia = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='forum_replies')
+    noi_dung = models.TextField()  # Markdown format
+    vote_count = models.IntegerField(default=0)
+    ngay_tao = models.DateTimeField(auto_now_add=True)
+    ngay_cap_nhat = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['ngay_tao']
+        verbose_name = 'Trả lời bình luận'
+        verbose_name_plural = 'Trả lời bình luận'
+    
+    def __str__(self):
+        return f'Reply by {self.tac_gia.username}'
+
+
+class PostVote(models.Model):
+    """Track upvotes/downvotes on posts and comments"""
+    VOTE_CHOICES = [
+        (1, 'Upvote'),
+        (-1, 'Downvote'),
+    ]
+    
+    nguoi_dung = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    # Post voting
+    bai_dang = models.ForeignKey(ForumPost, on_delete=models.CASCADE, null=True, blank=True, related_name='votes')
+    
+    # Comment voting
+    binh_luan = models.ForeignKey(ForumComment, on_delete=models.CASCADE, null=True, blank=True, related_name='votes')
+    
+    # Reply voting
+    tra_loi = models.ForeignKey(ForumReply, on_delete=models.CASCADE, null=True, blank=True, related_name='votes')
+    
+    # Vote value
+    loai_bau = models.IntegerField(choices=VOTE_CHOICES)  # 1 or -1
+    ngay_tao = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Bầu chọn'
+        verbose_name_plural = 'Bầu chọn'
+        # Prevent duplicate votes from same user
+        unique_together = [
+            ('nguoi_dung', 'bai_dang'),
+            ('nguoi_dung', 'binh_luan'),
+            ('nguoi_dung', 'tra_loi'),
+        ]
+    
+    def __str__(self):
+        vote_str = 'Upvote' if self.loai_bau == 1 else 'Downvote'
+        return f'{self.nguoi_dung.username} - {vote_str}'

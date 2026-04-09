@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 from django.http import HttpResponseNotFound
+from apps.kien_thuc import views_search as kien_thuc_search
 
 
 urlpatterns = [
@@ -27,5 +28,11 @@ urlpatterns = [
     path('kien-thuc/', include('apps.kien_thuc.urls')),
     path('de-thi/', include('apps.de_thi.urls')),
     path('leaderboard/', include('apps.leaderboard.urls')),
+    path('notifications/', include('apps.notifications.urls')),
+    path('search/', include([
+        path('', kien_thuc_search.global_search_results, name='global_search'),
+        path('api/suggestions/', kien_thuc_search.api_search_suggestions, name='api_search_suggestions'),
+    ])),
+    path('studio/', include('apps.studio.urls', namespace='studio')),
     path('.well-known/appspecific/com.chrome.devtools.json', lambda r: HttpResponseNotFound()),
 ]

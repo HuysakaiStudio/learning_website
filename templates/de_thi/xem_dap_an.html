@@ -10,12 +10,26 @@
   {% for tl in tra_loi_list %}
   <div style="background:white;border-radius:12px;padding:24px;margin-bottom:12px;
               box-shadow:0 2px 6px rgba(0,0,0,0.06);
-              border-left:4px solid {% if tl.dung %}#34a853{% else %}#ea4335{% endif %}">
+              border-left:4px solid {% if tl.dung %}#34a853{% elif tl.diem_duoc > 0 %}#f57f17{% else %}#ea4335{% endif %}">
 
     <div style="display:flex;justify-content:space-between;margin-bottom:12px">
-      <span style="font-weight:500;color:#333">Câu {{ forloop.counter }}</span>
-      <span style="font-weight:500;color:{% if tl.dung %}#34a853{% else %}#ea4335{% endif %}">
-        {% if tl.dung %}✅ Đúng (+{{ tl.diem_duoc }}){% else %}❌ Sai{% endif %}
+      <span style="font-weight:500;color:#333">Câu {{ forloop.counter }}
+        {% if tl.cau_hoi.loai == 'tn' %}
+        <span style="background:#e8f0fe;color:#1a73e8;padding:2px 8px;border-radius:12px;font-size:11px;margin-left:6px">Trắc nghiệm</span>
+        {% elif tl.cau_hoi.loai == 'ds' %}
+        <span style="background:#fce8e8;color:#ea4335;padding:2px 8px;border-radius:12px;font-size:11px;margin-left:6px">Đúng/Sai</span>
+        {% elif tl.cau_hoi.loai == 'dien' %}
+        <span style="background:#e6f4ea;color:#34a853;padding:2px 8px;border-radius:12px;font-size:11px;margin-left:6px">Điền số</span>
+        {% endif %}
+      </span>
+      <span style="font-weight:600;font-size:15px;color:{% if tl.dung %}#34a853{% elif tl.diem_duoc > 0 %}#f57f17{% else %}#ea4335{% endif %}">
+        {% if tl.dung %}
+          ✅ Đúng (+{{ tl.diem_duoc }} điểm)
+        {% elif tl.diem_duoc > 0 %}
+          ⚠️ Đúng một phần (+{{ tl.diem_duoc }} điểm)
+        {% else %}
+          ❌ Sai (0 điểm)
+        {% endif %}
       </span>
     </div>
 
@@ -75,6 +89,20 @@
       💡 <strong>Giải thích:</strong> {{ tl.cau_hoi.giai_thich }}
     </div>
     {% endif %}
+
+    <!-- Forum Link -->
+    <div style="display:flex;gap:12px;margin-top:16px;justify-content:space-between;padding-top:16px;border-top:1px solid #e0e0e0">
+      <div>
+        <a href="{% url 'de_thi:danh_sach_forum' tl.cau_hoi.id %}" 
+           style="color:white;text-decoration:none;background:#1a73e8;padding:8px 16px;border-radius:8px;display:inline-block;font-size:14px">
+          💬 Xem thảo luận
+        </a>
+      </div>
+      <a href="{% url 'de_thi:tao_post_forum' tl.cau_hoi.id %}" 
+         style="color:#1a73e8;text-decoration:none;padding:8px 16px;font-size:14px">
+        ➕ Hỏi về câu này
+      </a>
+    </div>
 
   </div>
   {% endfor %}

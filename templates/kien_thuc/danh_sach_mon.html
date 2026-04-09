@@ -1,35 +1,36 @@
 {% extends 'base.html' %}
-{% block title %}Kiến thức nền tảng{% endblock %}
+{% block title %}Kiến thức nền tảng — Ôn Thi THPTQG{% endblock %}
 {% block content %}
-<h2>📚 Kiến thức nền tảng</h2>
-<p style="color:#666;margin:8px 0 24px">Chọn môn học để bắt đầu ôn tập</p>
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
-  <p style="color:#666">Chọn môn học để bắt đầu ôn tập</p>
-  {% if user.is_staff %}
-  <a href="/kien-thuc/tao-bai/"
-     style="padding:10px 20px;background:#1a73e8;color:white;
-            border-radius:8px;text-decoration:none;font-weight:500">
-    ✍️ Tạo bài viết
-  </a>
+<div class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+  <div>
+    <h1 class="h3 mb-1">📚 Kiến thức nền tảng</h1>
+    <p class="text-muted mb-0">Chọn môn học để bắt đầu ôn tập và đọc bài viết.</p>
+  </div>
+  {% if user.is_authenticated %}
+  <a href="/kien-thuc/tao-bai/" class="btn btn-primary">✍️ Tạo bài viết</a>
   {% endif %}
 </div>
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px">
+
+{% if mon_list %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
   {% for mon in mon_list %}
-  <a href="/kien-thuc/{{ mon.id }}/"
-     style="background:white;padding:24px;border-radius:12px;text-decoration:none;
-            color:#333;box-shadow:0 2px 8px rgba(0,0,0,0.08);
-            transition:transform 0.2s;display:block"
-     onmouseover="this.style.transform='translateY(-4px)'"
-     onmouseout="this.style.transform='translateY(0)'">
-    <div style="font-size:36px;margin-bottom:12px">{{ mon.icon }}</div>
-    <h3 style="font-size:18px;margin-bottom:8px">{{ mon.ten }}</h3>
-    <p style="color:#888;font-size:14px">{{ mon.mo_ta }}</p>
-    <p style="color:#1a73e8;font-size:13px;margin-top:12px">
-      {{ mon.bai_viet.count }} bài viết →
-    </p>
-  </a>
-  {% empty %}
-  <p style="color:#888">Chưa có môn học nào. Hãy thêm qua trang Admin!</p>
+  <div class="col">
+    <a href="/kien-thuc/{{ mon.id }}/" class="card h-100 text-reset text-decoration-none shadow-sm border-0">
+      <div class="card-body">
+        <div class="display-6 mb-3">{{ mon.icon }}</div>
+        <h3 class="h5">{{ mon.ten }}</h3>
+        <p class="text-muted mb-3">{{ mon.mo_ta }}</p>
+      </div>
+      <div class="card-footer bg-white border-0 pt-0">
+        <span class="text-primary fw-semibold">{{ mon.bai_viet.count }} bài viết →</span>
+      </div>
+    </a>
+  </div>
   {% endfor %}
 </div>
+{% else %}
+<div class="alert alert-secondary">
+  Chưa có môn học nào. Hãy thêm qua trang Admin!
+</div>
+{% endif %}
 {% endblock %}

@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+{% block title %}Sửa bài viết{% endblock %}
+
+{% block content %}
+<div style="max-width:780px;margin:0 auto">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+    <h2>✍️ Sửa bài viết</h2>
+    <a href="{% url 'studio:content_list' %}" style="color:#666;text-decoration:none;font-size:14px">← Quay lại Studio</a>
+  </div>
+
+  <form method="post" id="form-bai-viet">
+    {% csrf_token %}
+
+    <div style="background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);overflow:hidden">
+
+      <!-- Chọn môn -->
+      <div style="padding:24px;border-bottom:1px solid #f0f0f0">
+        <label style="display:block;font-weight:500;margin-bottom:12px;color:#333">
+          📚 Môn học
+        </label>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">
+          {% for mon in mon_list %}
+          <label style="cursor:pointer">
+            <input type="radio" name="mon" value="{{ mon.id }}"
+                   style="display:none" class="mon-radio"
+                   {% if mon.id == bai_viet.mon.id %}checked{% endif %}>
+            <div class="mon-card" data-id="{{ mon.id }}"
+                 style="border:2px solid #e8e8e8;border-radius:10px;padding:14px 12px;
+                        text-align:center;transition:all 0.2s;
+                        {% if mon.id == bai_viet.mon.id %}border-color:#1a73e8;background:#f0f6ff{% endif %}">
+              <div style="font-size:28px;margin-bottom:6px">{{ mon.icon }}</div>
+              <div style="font-size:14px;font-weight:500;color:#333">{{ mon.ten }}</div>
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Tiêu đề -->
+      <div style="padding:24px;border-bottom:1px solid #f0f0f0">
+        <label style="display:block;font-weight:500;margin-bottom:8px;color:#333">
+          📌 Tiêu đề bài viết
+        </label>
+        <input type="text" name="tieu_de" value="{{ bai_viet.tieu_de }}"
+               required
+               style="width:100%;padding:12px 16px;border:1px solid #ddd;border-radius:8px;
+                      font-size:16px;outline:none;transition:border-color 0.2s"
+               onfocus="this.style.borderColor='#1a73e8'"
+               onblur="this.style.borderColor='#ddd'">
+      </div>
+
+      <!-- Thứ tự -->
+      <div style="padding:24px;border-bottom:1px solid #f0f0f0">
+        <label style="display:block;font-weight:500;margin-bottom:8px;color:#333">
+          🔢 Thứ tự hiển thị
+          <span style="font-weight:400;color:#888;font-size:13px">(số nhỏ hiển thị trước)</span>
+        </label>
+        <input type="number" name="thu_tu" value="{{ bai_viet.thu_tu }}" min="0"
+               style="width:120px;padding:10px 14px;border:1px solid #ddd;border-radius:8px;
+                      font-size:15px;outline:none"
+               onfocus="this.style.borderColor='#1a73e8'"
+               onblur="this.style.borderColor='#ddd'">
+      </div>
+
+      <!-- Nội dung + toolbar -->
+      <div style="padding:24px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <label style="font-weight:500;color:#333">📝 Nội dung</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span style="font-size:12px;color:#888;margin-right:4px">Chèn mẫu:</span>
+            <button type="button" onclick="chenMau('dinh_nghia')"
+                    style="padding:5px 10px;border:1px solid #ddd;border-radius:6px;
+                           background:white;cursor:pointer;font-size:12px;color:#555">
+              📌 Định nghĩa
+            </button>
+            <button type="button" onclick="chenMau('cong_thuc')"
+                    style="padding:5px 10px;border:1px solid #ddd;border-radius:6px;
+                           background:white;cursor:pointer;font-size:12px;color:#555">
+              📐 Công thức
+            </button>
+            <button type="button" onclick="chenMau('vi_du')"
+                    style="padding:5px 10px;border:1px solid #ddd;border-radius:6px;
+                           background:white;cursor:pointer;font-size:12px;color:#555">
+              💡 Ví dụ
+            </button>
+            <button type="button" onclick="chenMau('chu_y')"
+                    style="padding:5px 10px;border:1px solid #ddd;border-radius:6px;
+                           background:white;cursor:pointer;font-size:12px;color:#555">
+              ⚠️ Chú ý
+            </button>
+            <button type="button" onclick="chenMau('buoc')"
+                    style="padding:5px 10px;border:1px solid #ddd;border-radius:6px;
+                           background:white;cursor:pointer;font-size:12px;color:#555">
+              🔢 Các bước
+            </button>
+          </div>
+        </div>
+
+        <!-- Công thức mẫu nhanh -->
+        <div style="margin-bottom:10px;padding:10px 14px;background:#f0f6ff;
+                    border-radius:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+          <span style="font-size:12px;color:#555;font-weight:500;margin-right:4px">Công thức nhanh:</span>
+          <button type="button" onclick="chenCongThuc('phuong_trinh_bac2')"
+                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
+                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+            Nghiệm bậc 2
+          </button>
+          <button type="button" onclick="chenCongThuc('gioi_han')"
+                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
+                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+            Giới hạn
+          </button>
+          <button type="button" onclick="chenCongThuc('tich_phan')"
+                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
+                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+            Tích phân
+          </button>
+          <button type="button" onclick="chenCongThuc('dao_ham')"
+                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
+                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+            Đạo hàm
+          </button>
+          <button type="button" onclick="chenCongThuc('sin_cos')"
+                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
+                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+            Sin/Cos
+          </button>
+          <button type="button" onclick="chenCongThuc('logarit')"
+                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
+                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+            Logarit
+          </button>
+          <button type="button" onclick="chenCongThuc('vector')"
+                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
+                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+            Vector
+          </button>
+          <button type="button" onclick="chenCongThuc('xac_suat')"
+                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
+                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+            Xác suất
+          </button>
+        </div>
+
+        <!-- Split view: textarea + preview -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+          <!-- Bên trái: textarea -->
+          <div>
+            <div style="font-size:12px;color:#888;margin-bottom:6px;text-align:center">
+              ✏️ Soạn thảo
+            </div>
+            <textarea name="noi_dung" id="noi_dung" rows="20" required
+                      placeholder="Nhập nội dung bài viết tại đây..."
+                      style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;
+                             font-size:14px;line-height:1.8;resize:none;font-family:monospace;
+                             outline:none;transition:border-color 0.2s;height:420px"
+                      onfocus="this.style.borderColor='#1a73e8'"
+                      onblur="this.style.borderColor='#ddd'">{{ bai_viet.noi_dung }}</textarea>
+          </div>
+
+          <!-- Bên phải: preview realtime -->
+          <div>
+            <div style="font-size:12px;color:#888;margin-bottom:6px;text-align:center">
+              👁️ Xem trước (realtime)
+            </div>
+            <div id="preview-realtime"
+                 style="height:420px;overflow-y:auto;padding:14px;
+                        border:1px solid #e8e8e8;border-radius:8px;background:#fafafa;
+                        font-size:14px;line-height:1.8;color:#333">
+              <span style="color:#bbb;font-style:italic">Bắt đầu nhập để xem trước...</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Ghi chú cú pháp -->
+        <div class="tex2jax_ignore" style="margin-top:10px;padding:12px 16px;background:#f8f8f8;
+                    border-radius:8px;font-size:12px;color:#666;line-height:2">
+          <strong>Cú pháp:</strong>
+          Inline: <code>$công thức$</code> &nbsp;|&nbsp;
+          Block: <code>$$công thức$$</code> &nbsp;|&nbsp;
+          In đậm: <code>**chữ**</code> &nbsp;|&nbsp;
+          In nghiêng: <code>*chữ*</code> &nbsp;|&nbsp;
+          Tiêu đề: <code># Tiêu đề</code>
+        </div>
+      </div>
+    
+      <!-- Footer Buttons -->
+      <div style="padding:24px; background:#fcfcfc; border-top:1px solid #f0f0f0; 
+                  display:flex; justify-content:flex-end; gap:12px">
+        <a href="{% url 'studio:content_list' %}" 
+           style="padding:12px 24px; border-radius:8px; border:1px solid #ddd; 
+                  color:#666; text-decoration:none; font-size:15px; font-weight:500">
+          Hủy bỏ
+        </a>
+        <button type="submit" 
+                style="padding:12px 32px; background:#1a73e8; color:white; border:none; 
+                       border-radius:8px; font-size:15px; font-weight:600; cursor:pointer;
+                       box-shadow:0 4px 12px rgba(26,115,232,0.2); transition:all 0.2s"
+                onmouseover="this.style.background='#1557b0';this.style.transform='translateY(-1px)'"
+                onmouseout="this.style.background='#1a73e8';this.style.transform='translateY(0)'">
+          💾 Lưu thay đổi
+        </button>
+      </div>
+
+    </div>
+  </form>
+
+      <script>
+      // ── Mẫu nội dung ──────────────────────────────────────────
+      const mau = {
+        dinh_nghia: `\n📌 ĐỊNH NGHĨA:\n──────────────\n[Nhập định nghĩa tại đây]\n`,
+        cong_thuc: `\n📐 CÔNG THỨC:\n──────────────\n$$[công thức]$$\n\nTrong đó:\n• $x$ = [ý nghĩa]\n• $y$ = [ý nghĩa]\n`,
+        vi_du: `\n💡 VÍ DỤ:\n──────────────\nĐề bài: [Nhập đề bài]\n\nGiải:\nBước 1: ...\nBước 2: ...\n\nKết quả: $x = ...$\n`,
+        chu_y: `\n⚠️ CHÚ Ý:\n──────────────\n[Nhập điểm cần chú ý]\n`,
+        buoc: `\nCác bước thực hiện:\n1. Bước 1: ...\n2. Bước 2: ...\n3. Bước 3: ...\n`,
+      };
+
+      // ── Công thức nhanh ───────────────────────────────────────
+      const congThuc = {
+        phuong_trinh_bac2: `$$x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$$`,
+        gioi_han:  `$$\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$$`,
+        tich_phan: `$$\\int_a^b f(x)\\,dx = F(b) - F(a)$$`,
+        dao_ham:   `$$f'(x) = \\lim_{\\Delta x \\to 0} \\frac{f(x + \\Delta x) - f(x)}{\\Delta x}$$`,
+        sin_cos:   `$$\\sin^2 x + \\cos^2 x = 1$$`,
+        logarit:   `$$\\log_a(mn) = \\log_a m + \\log_a n$$`,
+        vector:    `$$|\\vec{AB}| = \\sqrt{(x_B-x_A)^2 + (y_B-y_A)^2}$$`,
+        xac_suat:  `$$P(A) = \\frac{\\text{số kết quả thuận lợi}}{\\text{tổng số kết quả}}$$`,
+      };
+
+      function chenMau(loai) {
+        chenVaoTextarea(mau[loai]);
+      }
+
+      function chenCongThuc(loai) {
+        chenVaoTextarea('\n' + congThuc[loai] + '\n');
+      }
+
+      function chenVaoTextarea(text) {
+        const ta = document.getElementById('noi_dung');
+        const start = ta.selectionStart;
+        ta.value = ta.value.slice(0, start) + text + ta.value.slice(start);
+        ta.focus();
+        ta.selectionStart = ta.selectionEnd = start + text.length;
+        renderPreview();
+      }
+
+      // ── Render preview realtime ───────────────────────────────
+      function escapeHtml(text) {
+        return text
+          .replace(/&/g, '&')
+          .replace(/</g, '<')
+          .replace(/>/g, '>');
+      }
+
+      function renderMarkdown(text) {
+        // Tạm thời bảo vệ công thức khỏi bị xử lý
+        const formulas = [];
+        text = text.replace(/(\$\$[\s\S]+?\$\$|\$[^\$\n]+?\$)/g, match => {
+          formulas.push(match);
+          return `%%FORMULA_${formulas.length - 1}%%`;
+        });
+
+        // Xử lý markdown cơ bản
+        text = escapeHtml(text);
+        text = text.replace(/^# (.+)$/gm, '<h2 style="font-size:18px;font-weight:500;margin:16px 0 8px;color:#1a73e8">$1</h2>');
+        text = text.replace(/^## (.+)$/gm, '<h3 style="font-size:16px;font-weight:500;margin:12px 0 6px">$1</h3>');
+        text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+        text = text.replace(/^──+$/gm, '<hr style="border:none;border-top:1px solid #eee;margin:8px 0">');
+        text = text.replace(/\n/g, '<br>');
+
+        // Khôi phục công thức
+        text = text.replace(/%%FORMULA_(\d+)%%/g, (_, i) => formulas[i]);
+
+        return text;
+      }
+
+      let typingTimer;
+      function renderPreview() {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(() => {
+          const content = document.getElementById('noi_dung').value;
+          const box = document.getElementById('preview-realtime');
+
+          if (!content.trim()) {
+            box.innerHTML = '<span style="color:#bbb;font-style:italic">Bắt đầu nhập để xem trước...</span>';
+            return;
+          }
+
+          box.innerHTML = renderMarkdown(content);
+
+          // Render MathJax
+          if (window.MathJax) {
+            MathJax.typesetPromise([box]).catch(err => console.log(err));
+          }
+        }, 300); // Chờ 300ms sau khi ngừng gõ rồi mới render
+      }
+
+      // Initial render on page load
+      window.addEventListener('DOMContentLoaded', function() {
+        renderPreview();
+      });
+
+      document.getElementById('noi_dung').addEventListener('input', renderPreview);
+
+      // ── Chọn môn học ──────────────────────────────────────────
+      document.querySelectorAll('.mon-radio').forEach(radio => {
+        radio.addEventListener('change', function() {
+          document.querySelectorAll('.mon-card').forEach(card => {
+            card.style.borderColor = '#e8e8e8';
+            card.style.background = 'white';
+          });
+          const card = this.parentElement.querySelector('.mon-card');
+          card.style.borderColor = '#1a73e8';
+          card.style.background = '#f0f6ff';
+        });
+      });
+      </script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Xác nhận xóa — Studio{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mt-5">
+      <div class="card-header bg-danger text-white p-4 text-center border-0">
+        <h1 class="display-4 mb-0"><i class="bi bi-exclamation-triangle-fill"></i></h1>
+        <h4 class="fw-bold mt-2 mb-0">Xóa vĩnh viễn nội dung?</h4>
+      </div>
+      <div class="card-body p-5 text-center">
+        <p class="fs-5 text-muted mb-4">Bạn có chắc chắn muốn xóa nội dung này không?</p>
+        <div class="p-3 bg-light rounded-3 mb-4 border d-inline-block px-4">
+          <strong class="text-dark">{{ item_title }}</strong>
+        </div>
+        <p class="text-danger small mb-4"><i class="bi bi-info-circle"></i> Hành động này không thể hoàn tác. Mọi dữ liệu liên quan sẽ bị xóa sạch khỏi hệ thống.</p>
+        
+        <form method="post" class="d-flex gap-3 justify-content-center">
+          {% csrf_token %}
+          <a href="{% url 'studio:content_list' %}" class="btn btn-light rounded-pill px-4 py-2 fw-500">Hủy, quay lại</a>
+          <button type="submit" class="btn btn-danger rounded-pill px-4 py-2 fw-500">Có, tôi muốn xóa</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,25 +1,39 @@
 {% extends 'base.html' %}
-{% block title %}{{ mon.ten }}{% endblock %}
-{% block content %}
-<a href="/kien-thuc/" style="color:#1a73e8;text-decoration:none">← Quay lại</a>
-<h2 style="margin:16px 0 8px">{{ mon.icon }} {{ mon.ten }}</h2>
-<p style="color:#666;margin-bottom:24px">{{ mon.mo_ta }}</p>
 
-<div style="display:flex;flex-direction:column;gap:12px">
-  {% for bai in bai_viet_list %}
-  <a href="/kien-thuc/bai/{{ bai.id }}/"
-     style="background:white;padding:20px 24px;border-radius:10px;
-            text-decoration:none;color:#333;
-            box-shadow:0 2px 6px rgba(0,0,0,0.07);
-            display:flex;justify-content:space-between;align-items:center">
+{% block title %}{{ mon.ten }} — Ôn Thi THPTQG{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
     <div>
-      <h3 style="font-size:16px;margin-bottom:4px">{{ bai.tieu_de }}</h3>
-      <p style="color:#888;font-size:13px">{{ bai.noi_dung|truncatewords:12 }}</p>
+      <a href="/kien-thuc/" class="text-decoration-none text-primary">&larr; Quay lại</a>
+      <h1 class="h3 mt-2">{{ mon.icon }} {{ mon.ten }}</h1>
+      <p class="text-muted">{{ mon.mo_ta }}</p>
     </div>
-    <span style="color:#1a73e8;font-size:20px">→</span>
-  </a>
-  {% empty %}
-  <p style="color:#888">Chưa có bài viết nào cho môn này.</p>
+    {% if user.is_authenticated %}
+    <a href="/kien-thuc/tao-bai/?mon={{ mon.id }}" class="btn btn-outline-primary">✍️ Viết bài mới</a>
+    {% endif %}
+  </div>
+</div>
+
+{% if bai_viet_list %}
+<div class="row row-cols-1 row-cols-md-2 g-4">
+  {% for bai in bai_viet_list %}
+  <div class="col">
+    <a href="{% url 'kien_thuc:chi_tiet_bai_viet' bai.id %}" class="card h-100 text-reset text-decoration-none shadow-sm border-0">
+      <div class="card-body">
+        <h2 class="h5">{{ bai.tieu_de }}</h2>
+        <p class="text-muted mb-3">{{ bai.noi_dung|truncatewords:18 }}</p>
+      </div>
+      <div class="card-footer bg-white border-0 pt-0">
+        <small class="text-muted">Đăng bởi {{ bai.nguoi_dang.username|default:"Admin" }} · {{ bai.ngay_tao|date:'d/m/Y' }}</small>
+      </div>
+    </a>
+  </div>
   {% endfor %}
 </div>
+{% else %}
+<div class="alert alert-secondary">
+  Chưa có bài viết nào cho môn này.</div>
+{% endif %}
 {% endblock %}

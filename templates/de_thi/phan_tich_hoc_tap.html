@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+{% block title %}Phân tích học tập{% endblock %}
+
+{% block content %}
+<style>
+  .analytics-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  .analytics-header {
+    margin-bottom: 32px;
+  }
+
+  .analytics-header h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: #333;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-left: 4px solid #1a73e8;
+  }
+
+  .stat-card.green {
+    border-left-color: #34a853;
+  }
+
+  .stat-card.orange {
+    border-left-color: #fbbc04;
+  }
+
+  .stat-card.red {
+    border-left-color: #ea4335;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #333;
+  }
+
+  .stat-unit {
+    font-size: 14px;
+    color: #999;
+    margin-left: 4px;
+  }
+
+  .chart-container {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+  }
+
+  .chart-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #333;
+  }
+
+  .chart-wrapper {
+    position: relative;
+    height: 300px;
+  }
+
+  .table-container {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow-x: auto;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .data-table thead {
+    background: #f5f5f5;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .data-table th {
+    padding: 12px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+  }
+
+  .data-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #e8e8e8;
+    font-size: 14px;
+  }
+
+  .data-table tbody tr:hover {
+    background: #f9f9f9;
+  }
+
+  .difficulty-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .difficulty-easy {
+    background: #e6f4ea;
+    color: #34a853;
+  }
+
+  .difficulty-medium {
+    background: #fce8e6;
+    color: #fbbc04;
+  }
+
+  .difficulty-hard {
+    background: #fce6e6;
+    color: #ea4335;
+  }
+
+  .subject-link {
+    color: #1a73e8;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .subject-link:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="analytics-container">
+  <!-- Header -->
+  <div class="analytics-header">
+    <h1>📊 Phân tích học tập</h1>
+    <p style="color: #666;">Xem chi tiết hiệu suất và tiến độ học tập của bạn</p>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Tổng bài làm</div>
+      <div class="stat-value">{{ total_exams }}</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Điểm trung bình</div>
+      <div class="stat-value">{{ avg_score }}<span class="stat-unit">/10</span></div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-label">Thời gian học</div>
+      <div class="stat-value">{{ total_time_hours }}<span class="stat-unit">giờ</span></div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">Môn học</div>
+      <div class="stat-value">{{ subject_performance|length }}</div>
+    </div>
+  </div>
+
+  <!-- Exam Progress Chart -->
+  <div class="chart-container">
+    <div class="chart-title">📈 Tiến độ làm bài theo thời gian</div>
+    <div class="chart-wrapper">
+      <canvas id="examProgressChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Subject Performance Chart -->
+  <div class="chart-container">
+    <div class="chart-title">🎯 Điểm theo môn học</div>
+    <div class="chart-wrapper">
+      <canvas id="subjectChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Subject Performance Table -->
+  <div class="table-container" style="margin-top: 24px;">
+    <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #333;">Hiệu suất theo từng môn</h2>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Môn học</th>
+          <th style="text-align: center;">Số bài</th>
+          <th style="text-align: center;">Điểm TB</th>
+          <th style="text-align: center;">Câu đúng</th>
+          <th style="text-align: center;">Tỉ lệ</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for perf in subject_performance %}
+        <tr>
+          <td>
+            <strong>{{ perf.mon.ten }}</strong>
+          </td>
+          <td style="text-align: center;">{{ perf.tong_bai_lam }}</td>
+          <td style="text-align: center; font-weight: 600; color: #1a73e8;">{{ perf.diem_trung_binh|floatformat:1 }}/10</td>
+          <td style="text-align: center;">{{ perf.so_dan_dung }}/{{ perf.tong_dan_tra_loi }}</td>
+          <td style="text-align: center;">
+            {% if perf.tong_dan_tra_loi > 0 %}
+              {% widthratio perf.so_dan_dung perf.tong_dan_tra_loi 100 %}%
+            {% else %}
+              0%
+            {% endif %}
+          </td>
+          <td style="text-align: right;">
+            <a href="{% url 'de_thi:chi_tiet_mon_hoc' perf.mon.id %}" style="color: #1a73e8; text-decoration: none; font-weight: 500;">
+              Chi tiết →
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="text-align: center; color: #999; padding: 24px;">
+            Chưa có dữ liệu. Hãy hoàn thành một số bài thi để xem phân tích.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Top Difficult Questions -->
+  {% if question_difficulties %}
+  <div class="table-container" style="margin-top: 24px;">
+    <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #333;">Câu hỏi khó nhất</h2>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Đề thi</th>
+          <th style="text-align: center;">Lần trả lời</th>
+          <th style="text-align: center;">Lần đúng</th>
+          <th style="text-align: center;">Độ khó</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for difficulty in question_difficulties|slice:":5" %}
+        <tr>
+          <td>
+            <small style="color: #999;">{{ difficulty.cau_hoi.de_thi.ten|truncatewords:3 }}</small>
+          </td>
+          <td style="text-align: center;">{{ difficulty.tong_lan_hoi }}</td>
+          <td style="text-align: center;">{{ difficulty.so_lan_dung }}</td>
+          <td style="text-align: center;">
+            {% if difficulty.do_kho < 0.3 %}
+              <span class="difficulty-badge difficulty-easy">Dễ</span>
+            {% elif difficulty.do_kho < 0.7 %}
+              <span class="difficulty-badge difficulty-medium">Vừa</span>
+            {% else %}
+              <span class="difficulty-badge difficulty-hard">Khó</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<script>
+  const examScoresData = {{ exam_scores_json|safe }};
+  const subjectScoresData = {{ subject_scores_json|safe }};
+
+  // ──── Exam Progress Chart ────
+  const examProgressCtx = document.getElementById('examProgressChart').getContext('2d');
+  new Chart(examProgressCtx, {
+    type: 'line',
+    data: {
+      labels: examScoresData.map(e => e.exam),
+      datasets: [{
+        label: 'Điểm số',
+        data: examScoresData.map(e => e.score),
+        borderColor: '#1a73e8',
+        backgroundColor: 'rgba(26, 115, 232, 0.1)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: '#1a73e8',
+        pointBorderColor: 'white',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 10,
+          ticks: { color: '#666' },
+          grid: { color: '#f0f0f0' }
+        },
+        x: {
+          ticks: { color: '#666' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+
+  // ──── Subject Performance Chart ────
+  const subjectCtx = document.getElementById('subjectChart').getContext('2d');
+  new Chart(subjectCtx, {
+    type: 'bar',
+    data: {
+      labels: subjectScoresData.map(s => s.subject),
+      datasets: [{
+        label: 'Điểm trung bình',
+        data: subjectScoresData.map(s => s.score),
+        backgroundColor: [
+          'rgba(26, 115, 232, 0.8)',
+          'rgba(52, 168, 83, 0.8)',
+          'rgba(251, 188, 4, 0.8)',
+          'rgba(234, 67, 53, 0.8)',
+          'rgba(156, 39, 176, 0.8)',
+        ],
+        borderRadius: 8,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 10,
+          ticks: { color: '#666' },
+          grid: { color: '#f0f0f0' }
+        },
+        x: {
+          ticks: { color: '#666' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+
+
+</script>
+{% endblock %}

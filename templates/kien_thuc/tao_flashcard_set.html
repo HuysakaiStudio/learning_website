@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}Tạo bộ Flashcard{% endblock %}
+
+{% block content %}
+<style>
+  .form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .form-card {
+    background: white;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .form-card h2 {
+    margin-bottom: 24px;
+    font-size: 24px;
+    color: #333;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+  }
+
+  input[type="text"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+
+  input[type="text"]:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .form-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-submit {
+    background: #34a853;
+    color: white;
+  }
+
+  .btn-submit:hover {
+    background: #1e8e3e;
+  }
+
+  .btn-cancel {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  .btn-cancel:hover {
+    background: #e0e0e0;
+  }
+</style>
+
+<div class="form-container">
+  <div class="form-card">
+    <h2>📝 Tạo Bộ Flashcard Mới</h2>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="mon">Môn học *</label>
+        <select name="mon" id="mon" required>
+          <option value="">-- Chọn môn học --</option>
+          {% for mon in mon_list %}
+          <option value="{{ mon.id }}">{{ mon.ten }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tieu_de">Tên bộ Flashcard *</label>
+        <input type="text" name="tieu_de" id="tieu_de" placeholder="ví dụ: Các công thức Toán 12" required>
+      </div>
+
+      <div class="form-group">
+        <label for="mo_ta">Mô tả (tùy chọn)</label>
+        <textarea name="mo_ta" id="mo_ta" placeholder="Mô tả ngắn gọn về nội dung bộ flashcard..."></textarea>
+      </div>
+
+      <div class="form-buttons">
+        <button type="submit" class="btn btn-submit">✅ Tạo Bộ</button>
+        <a href="{% url 'kien_thuc:danh_sach_flashcard_sets' %}" class="btn btn-cancel">❌ Hủy</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -50,10 +50,11 @@
     </div>
 
     <div style="display:flex;flex-direction:column;gap:10px">
-      <a href="/de-thi/ket-qua/{{ kq.id }}/dap-an/"
+      <a href="{% if kq.diem > 6 %}/de-thi/ket-qua/{{ kq.id }}/dap-an/{% else %}#{% endif %}"
          style="padding:12px;background:#f0f6ff;color:#1a73e8;
-                border-radius:8px;text-decoration:none;font-weight:500">
-        📋 Xem đáp án chi tiết
+                border-radius:8px;text-decoration:none;font-weight:500;
+                {% if kq.diem <= 6 %}opacity:0.5;cursor:not-allowed;pointer-events:none{% endif %}">
+        📋 {% if kq.diem > 6 %}Xem đáp án chi tiết{% else %}Cần > 6 điểm để xem đáp án{% endif %}
       </a>
       <a href="/de-thi/{{ kq.de_thi.id }}/"
          style="padding:12px;background:#f8f8f8;color:#555;

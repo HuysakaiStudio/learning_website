@@ -7,4 +7,6 @@ urlpatterns = [
     path('dang-ky/', views.dang_ky, name='dang_ky'),
     path('dang-nhap/', views.dang_nhap, name='dang_nhap'),
     path('dang-xuat/', views.dang_xuat, name='dang_xuat'),
+    path('profile/', views.profile, name='profile'),
+    path('user/<str:username>/', views.profile, name='user_profile'),
 ]

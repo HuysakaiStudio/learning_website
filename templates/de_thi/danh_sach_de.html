@@ -1,60 +1,86 @@
 {% extends 'base.html' %}
-{% block title %}Đề thi{% endblock %}
+{% block title %}Đề thi — Ôn Thi THPTQG{% endblock %}
 {% block content %}
-<h2>📝 Đề thi online</h2>
-{% if user.is_staff %}
-<a href="{% url 'de_thi:tao_de_thi' %}" style="display:inline-block;margin-top:10px;padding:10px 20px;background:#1a73e8;color:white;text-decoration:none;border-radius:8px;margin-bottom:20px">+ Tạo đề thi mới</a>
-{% endif %}
-<p style="color:#666;margin:8px 0 24px">Chọn đề thi để bắt đầu luyện tập</p>
-
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
-  {% for de in de_list %}
-  <div style="position:relative">
-    <a href="/de-thi/{{ de.id }}/"
-       style="background:white;padding:24px;border-radius:12px;text-decoration:none;
-              color:#333;box-shadow:0 2px 8px rgba(0,0,0,0.08);display:block;
-              transition:transform 0.2s;height:100%;box-sizing:border-box"
-       onmouseover="this.style.transform='translateY(-4px)'"
-       onmouseout="this.style.transform='translateY(0)'">
-      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
-        <span style="background:#e8f0fe;color:#1a73e8;padding:4px 10px;
-                     border-radius:20px;font-size:12px;font-weight:500">
-          {{ de.mon }}
-        </span>
-        <span style="color:#888;font-size:12px">{{ de.thoi_gian_phut }} phút</span>
-      </div>
-      <h3 style="font-size:16px;margin-bottom:8px;line-height:1.4">{{ de.ten }}</h3>
-      <p style="color:#888;font-size:13px;margin-bottom:16px">{{ de.mo_ta|truncatewords:12 }}</p>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="color:#666;font-size:13px">{{ de.tong_cau }} câu hỏi</span>
-        <span style="color:#1a73e8;font-weight:500;font-size:14px">Làm bài →</span>
-      </div>
-    </a>
-    {% if user.is_staff or de.creator == user %}
-    <div style="position:absolute;top:50px;right:10px;display:flex;gap:8px;z-index:1">
-      <a href="{% url 'de_thi:sua_de_thi' de.id %}" 
-         style="background:#fef5e7;color:#c67c1f;width:28px;height:28px;display:flex;align-items:center;justify-content:center;
-                border-radius:50%;text-decoration:none;font-size:14px;font-weight:bold;border:1px solid #f9e79f;
-                transition:all 0.2s"
-         onmouseover="this.style.background='#fce6c3'; this.style.color='#a85a1a'"
-         onmouseout="this.style.background='#fef5e7'; this.style.color='#c67c1f'"
-         title="Sửa đề thi">
-        ✏️
-      </a>
-      <a href="{% url 'de_thi:xoa_de_thi' de.id %}" 
-         style="background:#fee2e2;color:#dc2626;width:28px;height:28px;display:flex;align-items:center;justify-content:center;
-                border-radius:50%;text-decoration:none;font-size:14px;font-weight:bold;border:1px solid #fecaca;
-                transition:all 0.2s"
-         onmouseover="this.style.background='#fecaca'; this.style.color='#b91c1c'"
-         onmouseout="this.style.background='#fee2e2'; this.style.color='#dc2626'"
-         title="Xóa đề thi">
-        ×
-      </a>
+<div class="mb-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+    <div>
+      <h1 class="h3 mb-1">📝 Đề thi online</h1>
+      <p class="text-muted mb-0">Lựa chọn đề thi để luyện tập và xem hiệu suất.</p>
     </div>
-    {% endif %}
+    <div class="d-flex flex-wrap gap-2">
+      {% if user.is_authenticated %}
+      <a href="{% url 'de_thi:lich_su_lam_bai' %}" class="btn btn-outline-success">📜 Lịch sử làm bài</a>
+      {% endif %}
+      {% if user.is_staff %}
+      <a href="{% url 'de_thi:tao_de_thi' %}" class="btn btn-primary">+ Tạo đề thi mới</a>
+      {% endif %}
+    </div>
   </div>
-  {% empty %}
-  <p style="color:#888">Chưa có đề thi nào. Admin hãy thêm qua trang quản trị!</p>
+
+  <div class="card card-body mb-4 shadow-sm">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-sm-6 col-md-4">
+        <label for="search-input" class="form-label">Tìm kiếm</label>
+        <input type="text" id="search-input" name="q" class="form-control" placeholder="Nhập tên đề..." value="{{ request.GET.q }}">
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <label for="mon-select" class="form-label">Lọc theo môn</label>
+        <select id="mon-select" name="mon" class="form-select">
+          <option value="">Tất cả môn</option>
+          {% for mon in mon_list %}
+          <option value="{{ mon.id }}" {% if selected_mon == mon.id %}selected{% endif %}>{{ mon.ten }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Áp dụng</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if page_obj %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+  {% for de in page_obj %}
+  <div class="col">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-body d-flex flex-column">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <span class="badge bg-info text-dark">{{ de.mon }}</span>
+          <span class="text-muted small">{{ de.thoi_gian_phut }} phút</span>
+        </div>
+        <h3 class="h5 card-title">{{ de.ten }}</h3>
+        <p class="text-muted mb-4">{{ de.mo_ta|truncatewords:12 }}</p>
+        
+        <div class="mb-3">
+            {% if de.creator %}
+                <a href="{% url 'nguoi_dung:user_profile' de.creator.username %}" class="small text-decoration-none text-muted">
+                    <i class="bi bi-person-circle me-1"></i>{{ de.creator.username }}
+                </a>
+            {% else %}
+                <small class="text-muted"><i class="bi bi-person-circle me-1"></i>Hệ thống</small>
+            {% endif %}
+        </div>
+
+        <div class="mt-auto d-flex justify-content-between align-items-center">
+          <small class="text-muted">{{ de.tong_cau }} câu hỏi</small>
+          <a href="/de-thi/{{ de.id }}/" class="btn btn-sm btn-outline-primary">Làm bài →</a>
+        </div>
+      </div>
+      {% if user.is_staff or de.creator == user %}
+      <div class="card-footer bg-white border-0 d-flex gap-2 flex-wrap">
+        <a href="{% url 'de_thi:sua_de_thi' de.id %}" class="btn btn-sm btn-outline-secondary">Sửa</a>
+        <a href="{% url 'de_thi:xoa_de_thi' de.id %}" class="btn btn-sm btn-outline-danger">Xóa</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
   {% endfor %}
 </div>
+{% include 'includes/pagination.html' %}
+{% else %}
+<div class="alert alert-secondary">
+  Chưa có đề thi nào. Admin hãy thêm qua trang quản trị!
+</div>
+{% endif %}
 {% endblock %}

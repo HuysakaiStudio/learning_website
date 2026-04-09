@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Kết quả tìm kiếm cho "{{ query }}"{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+  <div class="col-12 text-center">
+    <h2 class="fw-bold">Kết quả tìm kiếm</h2>
+    <p class="text-muted">Tìm thấy {{ total_results }} kết quả phù hợp với "<strong>{{ query }}</strong>"</p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-10 col-lg-8">
+    
+    <!-- Bài viết -->
+    {% if articles %}
+    <h4 class="mb-3 d-flex align-items-center">
+      <span class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-2 d-inline-flex">✍️</span> 
+      Bài viết ({{ articles|length }})
+    </h4>
+    <div class="list-group shadow-sm mb-5 border-0">
+      {% for item in articles %}
+      <a href="{% url 'kien_thuc:chi_tiet_bai_viet' item.id %}" class="list-group-item list-group-item-action p-4 border-0 border-bottom">
+        <div class="d-flex w-100 justify-content-between align-items-center mb-2">
+          <h5 class="mb-1 fw-bold text-dark">{{ item.tieu_de }}</h5>
+          <span class="badge bg-light text-dark border">{{ item.mon.ten }}</span>
+        </div>
+        <p class="mb-1 text-muted small">{{ item.noi_dung|striptags|truncatewords:30 }}</p>
+        <small class="text-muted">Bởi {{ item.nguoi_dang.username|default:"Admin" }} • {{ item.ngay_tao|date:"d/m/Y" }}</small>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Flashcard -->
+    {% if flashcards %}
+    <h4 class="mb-3 d-flex align-items-center">
+      <span class="bg-warning bg-opacity-10 text-warning rounded-circle p-2 me-2 d-inline-flex">💡</span> 
+      Bộ Flashcard ({{ flashcards|length }})
+    </h4>
+    <div class="list-group shadow-sm mb-5 border-0">
+      {% for item in flashcards %}
+      <a href="{% url 'kien_thuc:hoc_flashcard' item.id %}" class="list-group-item list-group-item-action p-4 border-0 border-bottom">
+        <div class="d-flex w-100 justify-content-between align-items-center mb-2">
+          <h5 class="mb-1 fw-bold text-dark">{{ item.tieu_de }}</h5>
+          <span class="badge bg-light text-dark border">{{ item.mon.ten }}</span>
+        </div>
+        <p class="mb-1 text-muted small">{{ item.mo_ta|truncatewords:20 }}</p>
+        <small class="text-secondary fw-500">{{ item.so_luong_the }} thẻ học</small>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Đề thi -->
+    {% if exams %}
+    <h4 class="mb-3 d-flex align-items-center">
+      <span class="bg-danger bg-opacity-10 text-danger rounded-circle p-2 me-2 d-inline-flex">⏱️</span> 
+      Đề thi ({{ exams|length }})
+    </h4>
+    <div class="list-group shadow-sm mb-5 border-0">
+      {% for item in exams %}
+      <a href="{% url 'de_thi:chon_che_do' item.id %}" class="list-group-item list-group-item-action p-4 border-0 border-bottom">
+        <div class="d-flex w-100 justify-content-between align-items-center mb-2">
+          <h5 class="mb-1 fw-bold text-dark">{{ item.ten }}</h5>
+          <span class="badge bg-light text-dark border">{{ item.mon.ten|default:"Tổng hợp" }}</span>
+        </div>
+        <p class="mb-1 text-muted small">{{ item.mo_ta|truncatewords:20 }}</p>
+        <small class="text-secondary fw-500">{{ item.tong_cau }} câu hỏi • {{ item.thoi_gian_phut }} phút</small>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not articles and not flashcards and not exams %}
+    <div class="text-center py-5 bg-light rounded-4">
+      <h1 class="display-1 text-muted mb-3">🔍</h1>
+      <h4 class="text-muted">Không tìm thấy kết quả nào</h4>
+      <p class="text-muted">Thử tìm với các từ khóa ngắn gọn hoặc phổ biến hơn.</p>
+      <a href="/" class="btn btn-primary mt-3 px-4 py-2 rounded-pill">Quay lại trang chủ</a>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

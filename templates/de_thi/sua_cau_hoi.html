@@ -25,6 +25,7 @@
 
     <form method="post" id="main-form">
         {% csrf_token %}
+        <div id="validation-errors" style="display:none;background:#fdecea;color:#b71c1c;border:1px solid #f5c2c7;padding:14px;border-radius:10px;margin-bottom:20px;font-size:14px;"></div>
         <div class="form-group">
             <label for="id_loai">Loại câu hỏi:</label>
             <select name="loai" id="id_loai" onchange="toggleForms()">
@@ -113,11 +114,82 @@ function toggleForms() {
     }
 }
 
+function setValidationError(message) {
+    const errorBox = document.getElementById('validation-errors');
+    if (!errorBox) return;
+    errorBox.textContent = message;
+    errorBox.style.display = 'block';
+}
+
+function clearValidationError() {
+    const errorBox = document.getElementById('validation-errors');
+    if (!errorBox) return;
+    errorBox.textContent = '';
+    errorBox.style.display = 'none';
+}
+
+function validateQuestionForm() {
+    clearValidationError();
+    const loai = document.getElementById('id_loai').value;
+    const content = document.getElementById('id_noi_dung')?.value.trim();
+    if (!content) {
+        setValidationError('Nội dung câu hỏi không được để trống.');
+        return false;
+    }
+
+    if (loai === 'tn') {
+        const answers = ['id_dap_an_a', 'id_dap_an_b', 'id_dap_an_c', 'id_dap_an_d']
+            .map(id => document.getElementById(id)?.value.trim());
+        if (answers.some(answer => !answer)) {
+            setValidationError('Cả 4 đáp án A/B/C/D phải được nhập.');
+            return false;
+        }
+        const uniqueAnswers = new Set(answers.map(ans => ans.toLowerCase()));
+        if (uniqueAnswers.size < 4) {
+            setValidationError('Các đáp án trắc nghiệm không được trùng nhau.');
+            return false;
+        }
+        const correct = document.getElementById('id_dap_an_dung')?.value;
+        if (!correct) {
+            setValidationError('Vui lòng chọn đáp án đúng.');
+            return false;
+        }
+    }
+
+    if (loai === 'ds') {
+        const statements = ['id_y_a', 'id_y_b', 'id_y_c', 'id_y_d']
+            .map(id => document.getElementById(id)?.value.trim());
+        if (statements.some(text => !text)) {
+            setValidationError('Cả 4 ý đúng/sai phải có nội dung.');
+            return false;
+        }
+    }
+
+    if (loai === 'dien') {
+        const value = document.getElementById('id_dap_an_so')?.value.trim();
+        if (!value) {
+            setValidationError('Đáp án số không được để trống.');
+            return false;
+        }
+        if (!isFinite(Number(value))) {
+            setValidationError('Đáp án số phải là một giá trị số hợp lệ.');
+            return false;
+        }
+    }
+
+    return true;
+}
+
 window.onload = function() {
     toggleForms();
     if (window.MathJax) {
         MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
     }
+    document.getElementById('main-form').addEventListener('submit', function(event) {
+        if (!validateQuestionForm()) {
+            event.preventDefault();
+        }
+    });
 };
 </script>
 {% endblock %}

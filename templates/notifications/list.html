@@ -1,0 +1,418 @@
+{% extends 'base.html' %}
+{% block title %}Thông báo{% endblock %}
+
+{% block content %}
+<style>
+  .notifications-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .notifications-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 32px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .notifications-header h1 {
+    margin: 0 0 8px 0;
+    font-size: 32px;
+    font-weight: 700;
+  }
+
+  .notifications-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    padding: 10px 20px;
+    border: 2px solid white;
+    border-radius: 8px;
+    background: transparent;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .action-btn:hover {
+    background: white;
+    color: #667eea;
+  }
+
+  .filter-tabs {
+    display: flex;
+    gap: 8px;
+    background: white;
+    padding: 8px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow-x: auto;
+  }
+
+  .filter-tab {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .filter-tab:hover {
+    background: #f0f0f0;
+  }
+
+  .filter-tab.active {
+    background: #667eea;
+    color: white;
+  }
+
+  .notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .notification-item {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.2s;
+    position: relative;
+    border-left: 4px solid transparent;
+  }
+
+  .notification-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+  }
+
+  .notification-item.unread {
+    background: #f0f7ff;
+    border-left-color: #1a73e8;
+  }
+
+  .notification-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .notification-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+  }
+
+  .notification-content {
+    flex: 1;
+  }
+
+  .notification-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 4px 0;
+  }
+
+  .notification-message {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 8px 0;
+    line-height: 1.5;
+  }
+
+  .notification-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: #999;
+  }
+
+  .notification-time {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .notification-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .notif-btn {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    color: #666;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .notif-btn:hover {
+    background: #f0f0f0;
+    border-color: #999;
+  }
+
+  .notif-btn.primary {
+    background: #1a73e8;
+    color: white;
+    border-color: #1a73e8;
+  }
+
+  .notif-btn.primary:hover {
+    background: #1557b0;
+  }
+
+  .unread-badge {
+    background: #1a73e8;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 64px 24px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .empty-state-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+
+  .empty-state h3 {
+    color: #333;
+    margin: 0 0 8px 0;
+  }
+
+  .empty-state p {
+    color: #666;
+    margin: 0;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .page-link {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    color: #666;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .page-link:hover {
+    background: #f0f0f0;
+  }
+
+  .page-link.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+  }
+
+  @media (max-width: 768px) {
+    .notifications-container {
+      padding: 16px;
+    }
+
+    .notifications-header {
+      padding: 24px 16px;
+    }
+
+    .notifications-header h1 {
+      font-size: 24px;
+    }
+
+    .filter-tabs {
+      padding: 4px;
+    }
+
+    .notification-item {
+      padding: 16px;
+    }
+
+    .notification-icon {
+      font-size: 24px;
+    }
+  }
+</style>
+
+<div class="notifications-container">
+  <div class="notifications-header">
+    <h1>🔔 Thông báo</h1>
+    <p>{% if unread_count > 0 %}Bạn có <strong>{{ unread_count }}</strong> thông báo chưa đọc{% else %}Bạn đã đọc hết thông báo{% endif %}</p>
+    
+    <div class="notifications-actions">
+      {% if unread_count > 0 %}
+      <form method="post" action="{% url 'notifications:mark_all_as_read' %}" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" class="action-btn">✓ Đánh dấu tất cả đã đọc</button>
+      </form>
+      {% endif %}
+      <a href="{% url 'notifications:preferences' %}" class="action-btn">⚙️ Cài đặt</a>
+    </div>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="filter-tabs">
+    <a href="?type=all" class="filter-tab {% if filter_type == 'all' %}active{% endif %}">
+      📋 Tất cả
+    </a>
+    <a href="?type=unread" class="filter-tab {% if filter_type == 'unread' %}active{% endif %}">
+      🔵 Chưa đọc {% if unread_count > 0 %}<span class="unread-badge">{{ unread_count }}</span>{% endif %}
+    </a>
+    <a href="?type=achievement" class="filter-tab {% if filter_type == 'achievement' %}active{% endif %}">
+      🏆 Thành tựu
+    </a>
+    <a href="?type=leaderboard" class="filter-tab {% if filter_type == 'leaderboard' %}active{% endif %}">
+      📊 Xếp hạng
+    </a>
+    <a href="?type=exam_result" class="filter-tab {% if filter_type == 'exam_result' %}active{% endif %}">
+      📝 Kết quả thi
+    </a>
+    <a href="?type=forum_reply" class="filter-tab {% if filter_type == 'forum_reply' %}active{% endif %}">
+      💬 Diễn đàn
+    </a>
+  </div>
+
+  <!-- Notifications List -->
+  <div class="notifications-list">
+    {% if notifications %}
+      {% for notif in notifications %}
+      <div class="notification-item {% if not notif.is_read %}unread{% endif %}">
+        <div class="notification-header">
+          <div class="notification-icon">
+            {% if notif.notification_type == 'achievement' %}🏆
+            {% elif notif.notification_type == 'leaderboard' %}📊
+            {% elif notif.notification_type == 'exam_result' %}📝
+            {% elif notif.notification_type == 'forum_reply' %}💬
+            {% elif notif.notification_type == 'flashcard_milestone' %}⭐
+            {% elif notif.notification_type == 'study_reminder' %}📚
+            {% elif notif.notification_type == 'badge' %}🎖️
+            {% else %}🔔
+            {% endif %}
+          </div>
+          <div class="notification-content">
+            <h3 class="notification-title">{{ notif.title }}</h3>
+            <p class="notification-message">{{ notif.message }}</p>
+            
+            <div class="notification-meta">
+              <span class="notification-time">
+                🕐 {{ notif.created_at|timesince }} trước
+              </span>
+              {% if not notif.is_read %}
+                <span class="unread-badge">Mới</span>
+              {% endif %}
+            </div>
+
+            <div class="notification-actions">
+              {% if notif.action_url %}
+                <a href="{{ notif.action_url }}" class="notif-btn primary">Xem chi tiết</a>
+              {% endif %}
+              
+              {% if not notif.is_read %}
+                <form method="post" action="{% url 'notifications:mark_as_read' notif.id %}" style="display: inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="notif-btn">✓ Đánh dấu đã đọc</button>
+                </form>
+              {% else %}
+                <form method="post" action="{% url 'notifications:mark_as_unread' notif.id %}" style="display: inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="notif-btn">↺ Đánh dấu chưa đọc</button>
+                </form>
+              {% endif %}
+              
+              <form method="post" action="{% url 'notifications:delete' notif.id %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="notif-btn" onclick="return confirm('Xóa thông báo này?')">🗑️ Xóa</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">🔔</div>
+        <h3>Không có thông báo</h3>
+        <p>{% if filter_type == 'unread' %}Bạn đã đọc hết thông báo!{% else %}Chưa có thông báo nào.{% endif %}</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Pagination -->
+  {% if page_obj.has_other_pages %}
+  <div class="pagination">
+    {% if page_obj.has_previous %}
+      <a href="?page=1&type={{ filter_type }}" class="page-link">« Đầu</a>
+      <a href="?page={{ page_obj.previous_page_number }}&type={{ filter_type }}" class="page-link">‹ Trước</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <span class="page-link active">{{ num }}</span>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <a href="?page={{ num }}&type={{ filter_type }}" class="page-link">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}&type={{ filter_type }}" class="page-link">Sau ›</a>
+      <a href="?page={{ page_obj.paginator.num_pages }}&type={{ filter_type }}" class="page-link">Cuối »</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<script>
+// Auto-refresh unread count every 30 seconds
+setInterval(function() {
+  fetch('{% url "notifications:api_unread_count" %}')
+    .then(response => response.json())
+    .then(data => {
+      // Update badge if exists
+      const badge = document.querySelector('.unread-badge');
+      if (badge && data.count > 0) {
+        badge.textContent = data.count;
+      }
+    });
+}, 30000);
+</script>
+{% endblock %}

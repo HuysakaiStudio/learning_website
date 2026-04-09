@@ -1,0 +1,388 @@
+<!-- Notification Bell Widget - Include in base.html -->
+<style>
+  .notification-bell {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .notification-bell-icon {
+    font-size: 24px;
+    color: #666;
+    transition: all 0.2s;
+  }
+
+  .notification-bell:hover .notification-bell-icon {
+    color: #667eea;
+    transform: scale(1.1);
+  }
+
+  .notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff4444;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
+
+  .notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    width: 360px;
+    max-height: 480px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    display: none;
+    z-index: 1000;
+    overflow: hidden;
+  }
+
+  .notification-dropdown.show {
+    display: block;
+    animation: slideDown 0.2s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .notification-dropdown-header {
+    padding: 16px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .notification-dropdown-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .notification-dropdown-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .notification-dropdown-btn {
+    padding: 4px 8px;
+    border: none;
+    background: transparent;
+    color: #667eea;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .notification-dropdown-btn:hover {
+    background: #f0f0f0;
+  }
+
+  .notification-dropdown-list {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .notification-dropdown-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f8f8f8;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .notification-dropdown-item:hover {
+    background: #f8f9fa;
+  }
+
+  .notification-dropdown-item.unread {
+    background: #f0f7ff;
+  }
+
+  .notification-item-header {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .notification-item-icon {
+    font-size: 20px;
+  }
+
+  .notification-item-content {
+    flex: 1;
+  }
+
+  .notification-item-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 2px 0;
+  }
+
+  .notification-item-message {
+    font-size: 12px;
+    color: #666;
+    margin: 0 0 4px 0;
+  }
+
+  .notification-item-time {
+    font-size: 11px;
+    color: #999;
+  }
+
+  .notification-dropdown-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #f0f0f0;
+    text-align: center;
+  }
+
+  .notification-view-all {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .notification-view-all:hover {
+    text-decoration: underline;
+  }
+
+  .notification-empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: #999;
+  }
+
+  .notification-empty-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .notification-dropdown {
+      width: 320px;
+      right: -50px;
+    }
+  }
+</style>
+
+{% if user.is_authenticated %}
+<div class="notification-bell" id="notificationBell">
+  <span class="notification-bell-icon">🔔</span>
+  <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+  
+  <div class="notification-dropdown" id="notificationDropdown">
+    <div class="notification-dropdown-header">
+      <span class="notification-dropdown-title">Thông báo</span>
+      <div class="notification-dropdown-actions">
+        <button class="notification-dropdown-btn" onclick="markAllAsRead()">Đọc hết</button>
+        <button class="notification-dropdown-btn" onclick="closeNotifications()">✕</button>
+      </div>
+    </div>
+    
+    <div class="notification-dropdown-list" id="notificationList">
+      <div class="notification-empty">
+        <div class="notification-empty-icon">🔔</div>
+        <div>Đang tải...</div>
+      </div>
+    </div>
+    
+    <div class="notification-dropdown-footer">
+      <a href="{% url 'notifications:list' %}" class="notification-view-all">Xem tất cả thông báo</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// Notification Bell Widget
+(function() {
+  const bell = document.getElementById('notificationBell');
+  const dropdown = document.getElementById('notificationDropdown');
+  const badge = document.getElementById('notificationBadge');
+  const list = document.getElementById('notificationList');
+  
+  // Toggle dropdown
+  bell.addEventListener('click', function(e) {
+    e.stopPropagation();
+    dropdown.classList.toggle('show');
+    if (dropdown.classList.contains('show')) {
+      loadNotifications();
+    }
+  });
+  
+  // Close when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!bell.contains(e.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+  
+  // Load notifications
+  function loadNotifications() {
+    fetch('{% url "notifications:api_recent" %}')
+      .then(response => response.json())
+      .then(data => {
+        if (data.notifications.length === 0) {
+          list.innerHTML = `
+            <div class="notification-empty">
+              <div class="notification-empty-icon">🔔</div>
+              <div>Không có thông báo mới</div>
+            </div>
+          `;
+        } else {
+          list.innerHTML = data.notifications.map(notif => `
+            <div class="notification-dropdown-item ${notif.is_read ? '' : 'unread'}" 
+                 onclick="handleNotificationClick('${notif.action_url}', ${notif.id})">
+              <div class="notification-item-header">
+                <span class="notification-item-icon">${getNotificationIcon(notif.type)}</span>
+                <div class="notification-item-content">
+                  <div class="notification-item-title">${notif.title}</div>
+                  <div class="notification-item-message">${notif.message}</div>
+                  <div class="notification-item-time">${formatTime(notif.created_at)}</div>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+      })
+      .catch(error => {
+        console.error('Error loading notifications:', error);
+        list.innerHTML = `
+          <div class="notification-empty">
+            <div>Lỗi tải thông báo</div>
+          </div>
+        `;
+      });
+  }
+  
+  // Update unread count
+  function updateUnreadCount() {
+    fetch('{% url "notifications:api_unread_count" %}')
+      .then(response => response.json())
+      .then(data => {
+        if (data.count > 0) {
+          badge.textContent = data.count > 99 ? '99+' : data.count;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      })
+      .catch(error => console.error('Error updating count:', error));
+  }
+  
+  // Handle notification click
+  window.handleNotificationClick = function(url, id) {
+    // Mark as read
+    fetch(`/notifications/${id}/read/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    }).then(() => {
+      updateUnreadCount();
+      if (url) {
+        window.location.href = url;
+      }
+    });
+  };
+  
+  // Mark all as read
+  window.markAllAsRead = function() {
+    fetch('{% url "notifications:mark_all_as_read" %}', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    }).then(() => {
+      updateUnreadCount();
+      loadNotifications();
+    });
+  };
+  
+  // Close dropdown
+  window.closeNotifications = function() {
+    dropdown.classList.remove('show');
+  };
+  
+  // Get notification icon
+  function getNotificationIcon(type) {
+    const icons = {
+      'achievement': '🏆',
+      'leaderboard': '📊',
+      'exam_result': '📝',
+      'forum_reply': '💬',
+      'flashcard_milestone': '⭐',
+      'study_reminder': '📚',
+      'badge': '🎖️',
+      'system': '🔔'
+    };
+    return icons[type] || '🔔';
+  }
+  
+  // Format time
+  function formatTime(isoString) {
+    const date = new Date(isoString);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000); // seconds
+    
+    if (diff < 60) return 'Vừa xong';
+    if (diff < 3600) return Math.floor(diff / 60) + ' phút trước';
+    if (diff < 86400) return Math.floor(diff / 3600) + ' giờ trước';
+    if (diff < 604800) return Math.floor(diff / 86400) + ' ngày trước';
+    return date.toLocaleDateString('vi-VN');
+  }
+  
+  // Get CSRF token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  
+  // Initial load and periodic refresh
+  updateUnreadCount();
+  setInterval(updateUnreadCount, 30000); // Every 30 seconds
+})();
+</script>
+{% endif %}

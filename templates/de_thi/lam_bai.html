@@ -57,6 +57,7 @@
   <form id="form-lam-bai" method="post">
     {% csrf_token %}
     <input type="hidden" name="thoi_gian_lam" id="thoi_gian_lam" value="0">
+    <input type="hidden" name="strict_violation" id="strict_violation" value="false">
 
     {% for cau in cau_hoi_list %}
     <div style="background:white;border-radius:12px;padding:28px;
@@ -456,14 +457,62 @@ restoreDraft();
 updateProgress();
 saveDraft(false);
 
-// Re-render after form submission if needed
+// ── Strict Mode & Anti-cheat ────────────────────────
+let isSubmitting = false;
+
+function forceSubmit(reason) {
+  if (isSubmitting) return;
+  isSubmitting = true;
+  
+  // Đánh dấu hành vi vi phạm (chuyển tab/thoát cửa sổ)
+  document.getElementById('strict_violation').value = 'true';
+  document.getElementById('thoi_gian_lam').value = daChay;
+  
+  console.log('Strict auto-submit triggered:', reason);
+  clearDraft();
+  form.submit();
+}
+
+{% if che_do == 'thi_that' %}
+// ── Chế độ Thi thật: Bật giám sát nghiêm ngặt ──────
+function handleVisibilityChange() {
+  if (document.visibilityState === 'hidden' && !isSubmitting) {
+    forceSubmit('Vi phạm: Chuyển tab/Ẩn cửa sổ');
+  }
+}
+
+function handleBlur() {
+  if (!isSubmitting) {
+    forceSubmit('Vi phạm: Thoát tiêu điểm cửa sổ (Blur)');
+  }
+}
+
+function handlePageHide() {
+  if (!isSubmitting) {
+    forceSubmit('page hide');
+  }
+}
+
+window.addEventListener('visibilitychange', handleVisibilityChange);
+window.addEventListener('blur', handleBlur);
+window.addEventListener('pagehide', handlePageHide);
+{% endif %}
+
+// ── Bảo vệ beforeunload ─────────────────────────────
+window.addEventListener('beforeunload', (e) => {
+  if (!isSubmitting) {
+    saveDraft(false);
+  }
+});
+
+// Re-render nopBai with MathJax
 const originalNopBai = nopBai;
 nopBai = function() {
+  isSubmitting = true;
   renderMathJax();
   originalNopBai();
 };
 
-window.addEventListener('beforeunload', saveDraft);
 setInterval(saveDraft, 30000);
 </script>
 {% endblock %}

@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% block title %}Flashcards{% endblock %}
+
+{% block content %}
+<style>
+  .flashcard-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .header-section h2 {
+    font-size: 24px;
+    margin: 0;
+  }
+
+  .filter-section {
+    margin-bottom: 20px;
+  }
+
+  .filter-form {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .filter-form select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  .filter-form button {
+    padding: 10px 20px;
+    background: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .filter-form button:hover {
+    background: #0d47a1;
+  }
+
+  .flashcard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+
+  .flashcard-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.3s;
+    border-left: 4px solid #1a73e8;
+  }
+
+  .flashcard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .flashcard-card.mon-1 {
+    border-left-color: #1a73e8;
+  }
+
+  .flashcard-card.mon-2 {
+    border-left-color: #34a853;
+  }
+
+  .flashcard-card.mon-3 {
+    border-left-color: #fbbc04;
+  }
+
+  .flashcard-card.mon-4 {
+    border-left-color: #ea4335;
+  }
+
+  .card-mon {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 8px;
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .card-desc {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+
+  .card-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a73e8;
+  }
+
+  .stat-label {
+    color: #999;
+    font-size: 11px;
+  }
+
+  .card-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: #1a73e8;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #0d47a1;
+  }
+
+  .btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  .btn-secondary:hover {
+    background: #e0e0e0;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: #999;
+  }
+
+  .empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+
+  .create-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #34a853;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+  }
+
+  .create-btn:hover {
+    background: #1e8e3e;
+  }
+</style>
+
+<div class="flashcard-container">
+  <div class="header-section">
+    <h2>💡 Flashcards</h2>
+    <div class="header-buttons">
+      {% if user.is_staff %}
+      <a href="{% url 'kien_thuc:tao_flashcard_set' %}" class="create-btn">+ Tạo bộ mới</a>
+      {% endif %}
+      <a href="{% url 'kien_thuc:flashcard_dashboard' %}" class="create-btn">Xem thống kê học tập</a>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="card card-body mb-4 shadow-sm">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-sm-6 col-md-4">
+        <label for="search-input" class="form-label">Tìm kiếm</label>
+        <input type="text" id="search-input" name="q" class="form-control" placeholder="Nhập tên bộ..." value="{{ request.GET.q }}">
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <label for="mon-select" class="form-label">Môn học</label>
+        <select name="mon" id="mon-select" class="form-select">
+          <option value="">Tất cả môn học</option>
+          {% for mon in mon_list %}
+          <option value="{{ mon.id }}" {% if selected_mon == mon.id|stringformat:"s" %}selected{% endif %}>
+            {{ mon.ten }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary">🔍 Lọc</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Flashcard Grid -->
+  {% if page_obj %}
+  <div class="flashcard-grid">
+    {% for fs in page_obj %}
+    <div class="flashcard-card mon-{{ forloop.counter0|divisibleby:4|yesno:"4,1" }}">
+      <div class="card-mon">{{ fs.mon.ten }}</div>
+      <div class="card-title">{{ fs.tieu_de }}</div>
+      {% if fs.mo_ta %}
+      <div class="card-desc">{{ fs.mo_ta|truncatewords:20 }}</div>
+      {% endif %}
+      
+      <div class="mb-3">
+          {% if fs.creator %}
+              <a href="{% url 'nguoi_dung:user_profile' fs.creator.username %}" class="small text-decoration-none text-muted">
+                  <i class="bi bi-person-circle me-1"></i>{{ fs.creator.username }}
+              </a>
+          {% else %}
+              <small class="text-muted"><i class="bi bi-person-circle me-1"></i>Hệ thống</small>
+          {% endif %}
+      </div>
+
+      <div class="card-stats">
+        <div class="stat">
+          <div class="stat-value">{{ fs.so_luong_the }}</div>
+          <div class="stat-label">Thẻ</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">📅</div>
+          <div class="stat-label">{{ fs.ngay_tao|date:"d/m/Y" }}</div>
+        </div>
+      </div>
+
+      <div class="card-buttons">
+        <a href="{% url 'kien_thuc:hoc_flashcard' fs.id %}" class="btn btn-primary">
+          🎓 Học
+        </a>
+        {% if user.is_staff or fs.creator == user %}
+        <a href="{% url 'kien_thuc:them_flashcard' fs.id %}" class="btn btn-secondary">
+          ➕ Thêm
+        </a>
+        {% endif %}
+      </div>
+      
+      <div class="card-buttons" style="margin-top: 8px;">
+        <button onclick="copyToClipboard('{{ request.scheme }}://{{ request.get_host }}{% url 'kien_thuc:share_flashcards' fs.uuid %}')" class="btn btn-secondary" style="font-size: 10px; padding: 5px; cursor: pointer;">Copy đường dẫn</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% include 'includes/pagination.html' %}
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">📚</div>
+    <h3>Chưa có flashcard</h3>
+    <p style="margin-top: 8px; margin-bottom: 20px;">Admin hãy tạo bộ flashcard để bắt đầu học.</p>
+    {% if user.is_staff %}
+    <a href="{% url 'kien_thuc:tao_flashcard_set' %}" class="create-btn">+ Tạo bộ đầu tiên</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+<script>
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Đã sao chép đường dẫn!');
+    });
+  }
+</script>
+
+{% endblock %}
+

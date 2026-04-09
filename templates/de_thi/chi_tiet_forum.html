@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.tieu_de }}{% endblock %}
+
+{% block content %}
+<div class="forum-detail container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card post-card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+                        <div>
+                            <div class="post-tags mb-2">
+                                <span class="tag">#diễn-đàn</span>
+                                {% if post.is_solved %}
+                                    <span class="tag tag-success">Đã giải quyết</span>
+                                {% endif %}
+                            </div>
+                            <h2 class="post-heading">{{ post.tieu_de }}</h2>
+                            <p class="meta text-muted">Đăng bởi 
+                                <a href="{% url 'nguoi_dung:user_profile' post.tac_gia.username %}" class="fw-bold text-decoration-none text-dark hover-primary">
+                                    {{ post.tac_gia.username }}
+                                </a> · {{ post.ngay_tao|date:"d/m/Y H:i" }}
+                            </p>
+                        </div>
+                        <div class="post-actions text-right">
+                            <button class="btn btn-pill btn-outline-primary vote-btn" data-type="post" data-id="{{ post.id }}" data-vote="1" title="Upvote">
+                                👍 <span class="vote-count" style="color:black">{{ post.vote_count }}</span>
+                            </button>
+                            <button class="btn btn-pill btn-outline-danger vote-btn" data-type="post" data-id="{{ post.id }}" data-vote="-1" title="Downvote">
+                                👎
+                            </button>
+                        </div>
+                    </div>
+                    <div class="post-body mt-4">
+                        {{ post.noi_dung|linebreaks }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="comments-section mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="mb-0" style="color:black;">💬 Bình luận</h5>
+                        <small class="text-muted">{{ comments|length }} bình luận</small>
+                    </div>
+                </div>
+
+                {% if comments %}
+                    {% for comment in comments %}
+                        <div class="card comment-card mb-3 {% if post.best_answer_comment.id == comment.id %}best-answer{% endif %}">
+                            <div class="card-body">
+                                <div class="comment-header d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-3">
+                                    <div>
+                                        <a href="{% url 'nguoi_dung:user_profile' comment.tac_gia.username %}" class="fw-bold text-decoration-none text-dark hover-primary">
+                                            {{ comment.tac_gia.username }}
+                                        </a>
+                                        <span class="text-muted">· {{ comment.ngay_tao|date:"d/m/Y H:i" }}</span>
+                                        {% if post.best_answer_comment.id == comment.id %}
+                                            <span class="badge badge-success badge-pill ml-2">Câu trả lời tốt nhất</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if post.tac_gia == request.user %}
+                                        <div>
+                                            {% if post.best_answer_comment.id != comment.id %}
+                                                <a href="{% url 'de_thi:chon_cau_tra_loi_tot' comment.id %}" class="btn btn-sm btn-success btn-pill">⭐ Chọn</a>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="comment-body mb-3">
+                                    {{ comment.noi_dung|linebreaks }}
+                                </div>
+
+                                {% if comment.replies.all %}
+                                    <div class="replies-list mb-3">
+                                        {% for reply in comment.replies.all %}
+                                            <div class="reply-card mb-3">
+                                                <div class="reply-header d-flex justify-content-between align-items-start gap-2 mb-2">
+                                                    <div>
+                                                        <a href="{% url 'nguoi_dung:user_profile' reply.tac_gia.username %}" class="fw-bold text-decoration-none text-dark hover-primary">
+                                                            {{ reply.tac_gia.username }}
+                                                        </a>
+                                                        <span class="text-muted">· {{ reply.ngay_tao|date:"d/m/Y H:i" }}</span>
+                                                    </div>
+                                                    <div class="reply-meta text-muted">👍 {{ reply.vote_count }}</div>
+                                                </div>
+                                                <div class="reply-body">{{ reply.noi_dung|linebreaks }}</div>
+                                                <div class="reply-actions mt-2">
+                                                    <button class="btn btn-sm btn-outline-primary vote-btn" data-type="reply" data-id="{{ reply.id }}" data-vote="1" title="Upvote">👍</button>
+                                                    <button class="btn btn-sm btn-outline-danger vote-btn" data-type="reply" data-id="{{ reply.id }}" data-vote="-1" title="Downvote">👎</button>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+
+                                <div class="comment-footer d-flex flex-wrap justify-content-between align-items-center gap-2 pt-3 border-top">
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-primary vote-btn" data-type="comment" data-id="{{ comment.id }}" data-vote="1" title="Upvote">👍 <span class="vote-count">{{ comment.vote_count }}</span></button>
+                                        <button class="btn btn-sm btn-outline-danger vote-btn" data-type="comment" data-id="{{ comment.id }}" data-vote="-1" title="Downvote">👎</button>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-info reply-toggle" type="button">💬 Trả lời</button>
+                                </div>
+
+                                <form method="post" action="{% url 'de_thi:them_tra_loi' comment.id %}" class="reply-form mt-3" style="display:none;">
+                                    {% csrf_token %}
+                                    <div class="form-group mb-3">
+                                        <textarea name="noi_dung" class="form-control" rows="3" placeholder="Nhập trả lời của bạn..." required></textarea>
+                                    </div>
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        <button type="submit" class="btn btn-primary btn-sm">Gửi trả lời</button>
+                                        <button type="button" class="btn btn-secondary btn-sm reply-cancel">Hủy</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">Chưa có bình luận nào. Hãy là người đầu tiên!</div>
+                {% endif %}
+            </div>
+
+            <div class="card new-comment-card shadow-sm">
+                <div class="card-header bg-white border-bottom-0">
+                    <h5 class="mb-0">Thêm bình luận</h5>
+                </div>
+                <form method="post" action="{% url 'de_thi:them_binh_luan' post.id %}">
+                    {% csrf_token %}
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Bình luận của bạn</label>
+                            <textarea name="noi_dung" class="form-control" rows="4" placeholder="Viết bình luận (Markdown được hỗ trợ)" required></textarea>
+                            <small class="form-text text-muted">💡 Hỗ trợ Markdown: **bold**, *italic*, `code`, [link](url), $$math$$</small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0 d-flex gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-primary">Gửi bình luận</button>
+                        <a href="{% url 'de_thi:danh_sach_forum' post.cau_hoi.id %}" class="btn btn-outline-secondary">Quay lại</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card sidebar-card sticky-top shadow-sm">
+                <div class="card-body">
+                    <h5 class="mb-3">📝 Thông tin bài viết</h5>
+                    <div class="sidebar-item">
+                        <span>Người tạo</span>
+                        <a href="{% url 'nguoi_dung:user_profile' post.tac_gia.username %}" class="fw-bold text-decoration-none text-primary">
+                            {{ post.tac_gia.username }}
+                        </a>
+                    </div>
+                    <div class="sidebar-item">
+                        <span>Ngày đăng</span>
+                        <strong>{{ post.ngay_tao|date:"d/m/Y" }}</strong>
+                    </div>
+                    <div class="sidebar-item">
+                        <span>Bình luận</span>
+                        <strong>{{ post.so_binh_luan }}</strong>
+                    </div>
+                    <div class="sidebar-item">
+                        <span>Bình chọn</span>
+                        <strong>{{ post.vote_count }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.vote-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const type = this.dataset.type;
+            const id = this.dataset.id;
+            const vote = parseInt(this.dataset.vote);
+            const countSpan = this.querySelector('.vote-count');
+
+            fetch('{% url "de_thi:api_binh_chon" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ type: type, id: id, vote: vote })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && countSpan) {
+                    countSpan.textContent = data.vote_count;
+                }
+            })
+            .catch(console.error);
+        });
+    });
+
+    document.querySelectorAll('.reply-toggle').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const form = this.closest('.card-body').querySelector('.reply-form');
+            if (form) {
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            }
+        });
+    });
+
+    document.querySelectorAll('.reply-cancel').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.closest('.reply-form').style.display = 'none';
+        });
+    });
+});
+</script>
+
+{% endblock %}

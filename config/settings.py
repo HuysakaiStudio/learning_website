@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'apps.de_thi',
     'apps.nguoi_dung',
     'apps.leaderboard',
+    'apps.notifications',
+    'apps.studio.apps.StudioConfig',
 ]
 
 MIDDLEWARE = [

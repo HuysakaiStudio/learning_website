@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Diễn đàn - {{ cau_hoi.de_thi.ten }}{% endblock %}
+
+{% block content %}
+
+<style>
+    .badge-light{
+        color: black;
+    }
+    .badge-success{
+        background-color: lightgreen;
+        color: white;
+    }
+</style>
+<div class="forum-page container mt-4">
+    <div class="forum-hero card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+                <div>
+                    <p class="text-secondary mb-1">Diễn đàn câu hỏi</p>
+                    <h2 class="mb-2">{{ cau_hoi.de_thi.ten }}</h2>
+                    <p class="mb-2 text-muted line-clamp-3">{{ cau_hoi.noi_dung|safe }}</p>
+                    {% if cau_hoi.difficulty %}
+                        <div class="badge badge-pill badge-info-soft">
+                            Độ khó: {% if cau_hoi.difficulty.do_kho < 0.33 %}Dễ{% elif cau_hoi.difficulty.do_kho < 0.66 %}Trung bình{% else %}Khó{% endif %}
+                            ({{ cau_hoi.difficulty.do_kho|floatformat:2 }})
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="text-right">
+                    <a href="{% url 'de_thi:tao_post_forum' cau_hoi.id %}" class="btn btn-primary btn-lg">
+                        💬 Tạo thảo luận mới
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="discussion-posts">
+                {% if page_obj %}
+                    {% for post in page_obj %}
+                        <div class="card discussion-card mb-4 {% if post.is_solved %}solved{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3 gap-3">
+                                    <div class="post-title-group">
+                                        <a href="{% url 'de_thi:chi_tiet_forum' post.id %}" class="post-link">
+                                            <h5 class="mb-1">{{ post.tieu_de }}</h5>
+                                        </a>
+                                        <div class="meta text-muted small">
+                                            Đăng bởi 
+                                            <a href="{% url 'nguoi_dung:user_profile' post.tac_gia.username %}" class="fw-bold text-decoration-none text-dark hover-primary">
+                                                {{ post.tac_gia.username }}
+                                            </a> · {{ post.ngay_tao|date:"d/m/Y H:i" }}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        {% if post.is_solved %}
+                                            <span class="badge badge-success">Đã giải quyết</span>
+                                        {% endif %}
+                                        <div class="mt-2 stats">
+                                            <span class="badge badge-light">👍 {{ post.vote_count }}</span>
+                                            <span class="badge badge-light">💬 {{ post.so_binh_luan }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-secondary mb-0">{{ post.noi_dung|truncatewords:28 }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% include 'includes/pagination.html' %}
+                {% else %}
+                    <div class="alert alert-info text-center">
+                        Chưa có thảo luận nào. <a href="{% url 'de_thi:tao_post_forum' cau_hoi.id %}">Tạo bài viết đầu tiên ngay</a>.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card sidebar-card sticky-top">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">📊 Thông tin nhanh</h5>
+                    <div class="sidebar-stat">
+                        <span class="stat-label">Bài viết</span>
+                        <span class="stat-value">{{ posts|length }}</span>
+                    </div>
+                    <div class="sidebar-stat">
+                        <span class="stat-label">Câu hỏi</span>
+                        <span class="stat-value">1</span>
+                    </div>
+                                    <hr>
+                    <h6 class="mb-2">💡 Mẹo sử dụng</h6>
+                    <ul class="small mb-0 sidebar-list">
+                        <li>Viết tiêu đề rõ ràng và cụ thể.</li>
+                        <li>Dùng Markdown để nhấn mạnh ý chính.</li>
+                        <li>Sử dụng $x+y$ (dấu $) cho công thức toán.</li>
+                        <li>Ưu tiên bình chọn câu trả lời chính xác.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

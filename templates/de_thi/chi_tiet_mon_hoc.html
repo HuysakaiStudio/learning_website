@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% block title %}Chi tiết {{ mon.ten }}{% endblock %}
+
+{% block content %}
+<style>
+  .container-detail {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  .detail-header {
+    background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+    color: white;
+    padding: 32px;
+    border-radius: 12px;
+    margin-bottom: 32px;
+  }
+
+  .detail-header h1 {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+
+  .detail-header p {
+    font-size: 15px;
+    opacity: 0.9;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .stat-box {
+    background: rgba(255,255,255,0.15);
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+
+  .stat-box-label {
+    font-size: 12px;
+    opacity: 0.8;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .stat-box-value {
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #1a73e8;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #333;
+  }
+
+  .exam-item {
+    border-left: 4px solid #1a73e8;
+    padding: 16px;
+    margin-bottom: 12px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .exam-info h3 {
+    margin: 0 0 6px 0;
+    font-size: 15px;
+    color: #333;
+  }
+
+  .exam-info p {
+    margin: 0;
+    font-size: 13px;
+    color: #999;
+  }
+
+  .exam-score {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a73e8;
+  }
+
+  .question-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .question-table thead {
+    background: #f5f5f5;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .question-table th {
+    padding: 12px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+  }
+
+  .question-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #e8e8e8;
+    font-size: 14px;
+  }
+
+  .question-table tbody tr:hover {
+    background: #f9f9f9;
+  }
+
+  .progress-bar {
+    height: 8px;
+    background: #e8e8e8;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: #1a73e8;
+    border-radius: 4px;
+    transition: width 0.3s;
+  }
+</style>
+
+<div class="container-detail">
+  <a href="{% url 'de_thi:phan_tich_hoc_tap' %}" class="back-link">← Quay lại phân tích chung</a>
+
+  <div class="detail-header">
+    <h1>📚 {{ mon.ten }}</h1>
+    <p>Chi tiết hiệu suất học tập theo môn học</p>
+    
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-box-label">Số bài làm</div>
+        <div class="stat-box-value">{{ total_exams }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">Điểm trung bình</div>
+        <div class="stat-box-value">{{ total_score|floatformat:1 }}/10</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">Câu đúng</div>
+        <div class="stat-box-value">{{ total_correct }}/{{ total_attempts }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">Tỉ lệ đúng</div>
+        <div class="stat-box-value">
+          {% if total_attempts > 0 %}
+            {{ success_rate|add:total_correct|add:total_attempts|stringformat:"d" }}%
+          {% else %}
+            0%
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exam History -->
+  <div class="card">
+    <div class="card-title">📋 Lịch sử làm bài</div>
+    {% for exam in exams %}
+    <div class="exam-item">
+      <div class="exam-info">
+        <h3>{{ exam.de_thi.ten }}</h3>
+        <p>{{ exam.ngay_lam|date:"d/m/Y H:i" }} • {{ exam.tong_cau }} câu • {{ exam.thoi_gian_lam }}s</p>
+      </div>
+      <div class="exam-score">{{ exam.diem|floatformat:1 }}</div>
+    </div>
+    {% empty %}
+    <p style="color: #999; text-align: center; padding: 20px;">
+      Chưa có bài làm nào cho môn học này
+    </p>
+    {% endfor %}
+  </div>
+
+  <!-- Question Performance -->
+  {% if questions_stats %}
+  <div class="card">
+    <div class="card-title">🎯 Phân tích câu hỏi</div>
+    <table class="question-table">
+      <thead>
+        <tr>
+          <th style="width: 50%;">Câu hỏi (ID)</th>
+          <th style="text-align: center;">Đúng</th>
+          <th style="text-align: center;">Tỉ lệ</th>
+          <th style="text-align: center;">Độ khó</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for stat in questions_stats %}
+        <tr>
+          <td>
+            <small style="color: #666;">
+              [{{ stat.question.loai|upper }}] {{ stat.question.noi_dung|truncatewords:8 }}
+            </small>
+          </td>
+          <td style="text-align: center;">{{ stat.correct }}/{{ stat.total }}</td>
+          <td style="text-align: center;">
+            <div>{{ stat.rate }}%</div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: {{ stat.rate }}%"></div>
+            </div>
+          </td>
+          <td style="text-align: center;">
+            {% if stat.difficulty < 0.3 %}
+              <span style="background: #e6f4ea; color: #34a853; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Dễ</span>
+            {% elif stat.difficulty < 0.7 %}
+              <span style="background: #fef5e7; color: #c67c1f; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Vừa</span>
+            {% else %}
+              <span style="background: #fee2e2; color: #dc2626; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Khó</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <!-- Recommendations -->
+  <div class="card">
+    <div class="card-title">💡 Gợi ý cải thiện</div>
+    <div style="padding: 16px; background: #f0f6ff; border-left: 4px solid #1a73e8; border-radius: 6px;">
+      {% if total_score >= 8 %}
+        <strong style="color: #0d47a1;">👏 Tuyệt vời!</strong>
+        <p>Bạn đạt điểm rất cao. Hãy tiếp tục nỗ lực để duy trì kết quả này!</p>
+      {% elif total_score >= 6 %}
+        <strong style="color: #0d47a1;">📈 Khá tốt</strong>
+        <p>Hiệu suất của bạn ở mức khá. Hãy tập trung vào những câu hỏi khó để cải thiện thêm.</p>
+      {% elif total_score >= 4 %}
+        <strong style="color: #c67c1f;">⚠️ Cần cải thiện</strong>
+        <p>Bạn cần ôn tập lại những nội dung chưa nắm vững. Tập trung vào những câu hỏi được đánh dấu là khó.</p>
+      {% else %}
+        <strong style="color: #dc2626;">❌ Điểm thấp</strong>
+        <p>Bạn cần ôn tập lại toàn bộ môn học này. Hãy xem lại những câu sai và hiểu rõ lý do.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

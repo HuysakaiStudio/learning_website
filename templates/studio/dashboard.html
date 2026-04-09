@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Huysakai Studio{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-3">
+    <div class="bg-white rounded-4 shadow-sm p-3 sticky-top" style="top: 80px;">
+      <h5 class="fw-bold px-2 mb-3">Studio</h5>
+      <div class="list-group list-group-flush border-0">
+        <a href="{% url 'studio:dashboard' %}" class="list-group-item list-group-item-action border-0 rounded-2 fw-500 mb-1 active bg-primary text-white">
+          <i class="bi bi-grid-1x2-fill me-2"></i> Bảng điều khiển
+        </a>
+        <a href="{% url 'studio:content_list' %}" class="list-group-item list-group-item-action border-0 rounded-2 fw-500 mb-1">
+          <i class="bi bi-collection-play me-2"></i> Nội dung của tôi
+        </a>
+        {% if user.is_superuser or user.is_staff %}
+        <a href="{% url 'studio:moderation_list' %}" class="list-group-item list-group-item-action border-0 rounded-2 fw-500 mb-1">
+          <i class="bi bi-shield-check me-2"></i> Kiểm duyệt
+          {% if user.is_superuser or user.is_staff %}
+            {% load studio_tags %}
+            {% get_pending_count as pending_count %}
+            {% if pending_count > 0 %}
+              <span class="badge bg-warning text-dark rounded-pill float-end">{{ pending_count }}</span>
+            {% endif %}
+          {% endif %}
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-9">
+    <h3 class="fw-bold mb-4">Bảng điều khiển kênh</h3>
+    
+    <div class="row g-4 mb-5">
+      <div class="col-md-6">
+        <div class="bg-white rounded-4 shadow-sm p-4 h-100 border-start border-primary border-4 text-center">
+          <h1 class="display-4 fw-bold text-primary">{{ articles_count }}</h1>
+          <p class="text-muted fw-500 mb-0">Bài viết đã tạo</p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="bg-white rounded-4 shadow-sm p-4 h-100 border-start border-warning border-4 text-center">
+          <h1 class="display-4 fw-bold text-warning">{{ flashcards_count }}</h1>
+          <p class="text-muted fw-500 mb-0">Bộ Flashcard đã tạo</p>
+        </div>
+      </div>
+    </div>
+    
+    <h4 class="fw-bold mb-3">5 Bài viết gần nhất</h4>
+    <div class="bg-white rounded-4 shadow-sm overflow-hidden">
+      {% if recent_articles %}
+      <table class="table mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col" class="py-3 px-4 border-bottom-0">Tiêu đề</th>
+            <th scope="col" class="py-3 px-4 border-bottom-0">Ngày xuất bản</th>
+            <th scope="col" class="py-3 px-4 border-bottom-0">Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in recent_articles %}
+          <tr>
+            <td class="p-4 align-middle fw-500">{{ a.tieu_de }}</td>
+            <td class="p-4 align-middle text-muted">{{ a.ngay_tao|date:"d/m/Y" }}</td>
+            <td class="p-4 align-middle">
+              {% if a.status == 'published' %}
+                <span class="badge bg-success bg-opacity-10 text-success">Đã xuất bản</span>
+              {% elif a.status == 'pending' %}
+                <span class="badge bg-warning bg-opacity-10 text-warning">Đang chờ duyệt</span>
+              {% else %}
+                <span class="badge bg-danger bg-opacity-10 text-danger">Bị từ chối</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="p-5 text-center text-muted">
+        Bạn chưa xuất bản bài viết nào.
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,748 @@
+{% extends 'base.html' %}
+{% block title %}Học {{ flashcard_set.tieu_de }}{% endblock %}
+
+{% block content %}
+<style>
+  .study-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  .study-header {
+    background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+    color: white;
+    padding: 24px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+  }
+
+  .study-header h1 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+  }
+
+  .progress-container {
+    width: 100%;
+    margin-top: 16px;
+  }
+
+  .progress-info {
+    font-size: 13px;
+    opacity: 0.9;
+    margin-bottom: 8px;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: white;
+    transition: width 0.3s;
+  }
+
+  .card-container {
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 24px;
+    position: relative;
+    perspective: 1000px;
+  }
+
+  .flip-card {
+    width: 100%;
+    max-width: 600px;
+    height: 300px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .flip-card.flipped {
+    transform: rotateY(180deg);
+  }
+
+  .card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+    border-radius: 16px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .card-front {
+    background: white;
+    color: #333;
+    border: 2px solid #e0e0e0;
+  }
+
+  .card-back {
+    background: #f8f9fa;
+    color: #333;
+    transform: rotateY(180deg);
+    border: 2px solid #1a73e8;
+  }
+
+  .hint-text {
+    font-size: 13px;
+    color: #999;
+    margin-top: 16px;
+    font-weight: normal;
+  }
+
+  .controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-flip {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  .btn-flip:hover {
+    background: #e0e0e0;
+  }
+
+  .btn-again {
+    background: #ea4335;
+    color: white;
+  }
+
+  .btn-again:hover {
+    background: #d32f2f;
+  }
+
+  .btn-hard {
+    background: #fbbc04;
+    color: white;
+  }
+
+  .btn-hard:hover {
+    background: #f57f17;
+  }
+
+  .btn-good {
+    background: #34a853;
+    color: white;
+  }
+
+  .btn-good:hover {
+    background: #1e8e3e;
+  }
+
+  .btn-easy {
+    background: #1a73e8;
+    color: white;
+  }
+
+  .btn-easy:hover {
+    background: #0d47a1;
+  }
+
+  .stats-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .stat-box {
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a73e8;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  .completion-message {
+    background: #e6f4ea;
+    border-left: 4px solid #34a853;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    color: #1e8e3e;
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  .keyboard-hint {
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transform: translateX(400px);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+  }
+
+  .toast.show {
+    transform: translateX(0);
+  }
+
+  .toast-icon {
+    font-size: 24px;
+  }
+
+  .toast-message {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* Session Stats */
+  .session-stats {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .session-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    text-align: center;
+  }
+
+  .session-stat {
+    padding: 8px;
+  }
+
+  .session-stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a73e8;
+  }
+
+  .session-stat-label {
+    font-size: 11px;
+    color: #666;
+    margin-top: 4px;
+  }
+
+  /* Mode Toggle */
+  .mode-toggle {
+    display: flex;
+    gap: 8px;
+    background: rgba(255,255,255,0.2);
+    padding: 4px;
+    border-radius: 8px;
+    margin-top: 12px;
+  }
+
+  .mode-btn {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .mode-btn.active {
+    background: white;
+    color: #1a73e8;
+    font-weight: 600;
+  }
+
+  .mode-btn:hover:not(.active) {
+    background: rgba(255,255,255,0.1);
+  }
+
+  /* Bookmark Button */
+  .bookmark-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 20px;
+    z-index: 10;
+  }
+
+  .bookmark-btn:hover {
+    transform: scale(1.1);
+    border-color: #fbbc04;
+  }
+
+  .bookmark-btn.bookmarked {
+    background: #fbbc04;
+    border-color: #fbbc04;
+  }
+
+  @media (max-width: 768px) {
+    .session-stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .toast {
+      right: 10px;
+      left: 10px;
+      transform: translateY(-100px);
+    }
+    
+    .toast.show {
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toast-icon">✓</span>
+  <span class="toast-message" id="toast-message">Đã lưu</span>
+</div>
+
+<div class="study-container">
+    <div class="study-header">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>📚 {{ flashcard_set.tieu_de }}</h1>
+      </div>
+      
+      <!-- Mode Toggle -->
+      <div class="mode-toggle">
+        <button class="mode-btn {% if mode != 'review' %}active{% endif %}" onclick="window.location.href='{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=study'">
+          🔍 Lướt thẻ
+        </button>
+        <button class="mode-btn {% if mode == 'review' %}active{% endif %}" onclick="window.location.href='{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=review'">
+          📝 Học tập
+        </button>
+        <button class="mode-btn" onclick="shuffleCards()">
+          🔀 Xáo trộn
+        </button>
+        <button class="mode-btn" onclick="filterUnlearned()">
+          🎯 Chưa thuộc
+        </button>
+      </div>
+      
+      <div class="progress-container">
+        <div class="progress-info">
+          <span id="current-card">0</span> / <span id="total-cards">{{ tong_so }}</span>
+          (<span id="learned-count">{{ da_thuoc }}</span> đã thuộc)
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Session Statistics -->
+    <div class="session-stats">
+      <div class="session-stats-grid">
+        <div class="session-stat">
+          <div class="session-stat-value" id="cards-viewed">0</div>
+          <div class="session-stat-label">Đã xem</div>
+        </div>
+        <div class="session-stat">
+          <div class="session-stat-value" id="session-time">00:00</div>
+          <div class="session-stat-label">Thời gian</div>
+        </div>
+        <div class="session-stat">
+          <div class="session-stat-value" id="cards-per-min">0</div>
+          <div class="session-stat-label">Thẻ/phút</div>
+        </div>
+        <div class="session-stat">
+          <div class="session-stat-value" id="session-learned">0</div>
+          <div class="session-stat-label">Đã thuộc</div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Statistics Overlay -->
+    <div id="study-area">
+    <div class="card-container">
+      <div class="flip-card" id="flip-card">
+        <button class="bookmark-btn" id="bookmark-btn" onclick="toggleBookmark(event)" title="Đánh dấu thẻ này">
+          ⭐
+        </button>
+        <div class="card-face card-front" id="card-front"></div>
+        <div class="card-face card-back" id="card-back"></div>
+      </div>
+      <div class="hint-text">👆 Nhấp vào thẻ để lật mặt sau • ⭐ Đánh dấu thẻ quan trọng</div>
+    </div>
+
+    <div class="controls" id="review-controls">
+      <div class="mode-switch">
+        {% if mode == 'review' %}
+          <a href="{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=study" class="btn btn-flip">Chuyển sang Lướt thẻ</a>
+        {% else %}
+          <a href="{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=review" class="btn btn-good">Chuyển sang Học tập</a>
+        {% endif %}
+      </div>
+      {% if mode == 'study' %}
+        <button class="btn btn-flip" onclick="moveCard(-1)">⬅️ Trước</button>
+        <button class="btn btn-flip" onclick="moveCard(1)">Sau ➡️</button>
+      {% endif %}
+      <button class="btn btn-flip" onclick="toggleFlip()">🔄 Lật</button>
+
+      {% if mode == 'review' %}
+        <button class="btn btn-again" onclick="submitReview(false)">Đang học</button>
+        <button class="btn btn-good" onclick="submitReview(true)">Đã thuộc</button>
+      {% endif %}
+    </div>
+
+    <div class="keyboard-hint" id="keyboard-hint" {% if mode != 'review' %}style="display: none;"{% endif %}>
+      💡 Phím tắt: Mũi tên trái=Đang học, Mũi tên phải=Đã thuộc, Space=Lật
+    </div>
+    </div>
+  </div>
+
+  <div id="completion-area" style="display: none;">
+    <div class="completion-message">
+      ✨ Bạn đã xem qua hết các thẻ!
+    </div>
+    <div style="text-align: center; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 500px; margin: 0 auto;">
+      <a href="{% url 'kien_thuc:danh_sach_flashcard_sets' %}" style="padding: 12px; background: #666; color: white; text-decoration: none; border-radius: 8px;">← Quay lại</a>
+      <a href="{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}" style="padding: 12px; background: #1a73e8; color: white; text-decoration: none; border-radius: 8px;">🔄 Ôn lại từ đầu</a>
+      <a href="{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=review" style="padding: 12px; background: #34a853; color: white; text-decoration: none; border-radius: 8px;">📝 Ôn thẻ đang học</a>
+      <form method="post" action="{% url 'kien_thuc:api_reset_flashcard' flashcard_set.id %}" onsubmit="return confirm('Bạn muốn đặt lại tiến độ bộ thẻ này?');">
+        {% csrf_token %}
+        <button type="submit" style="width: 100%; padding: 12px; background: #ea4335; color: white; border: none; border-radius: 8px; cursor: pointer;">⚠️ Đặt lại tiến độ</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Flashcard data from Django
+  let flashcardData = JSON.parse('{{ flashcard_data_json|escapejs }}');
+  let originalFlashcardData = [...flashcardData]; // Keep original order
+  let currentIndex = 0;
+  let isFlipped = false;
+  
+  // Session statistics
+  let sessionStats = {
+    startTime: Date.now(),
+    cardsViewed: new Set(),
+    cardsLearned: 0
+  };
+  
+  // Bookmarked cards (stored in localStorage)
+  let bookmarkedCards = JSON.parse(localStorage.getItem('bookmarked_cards_{{ flashcard_set.id }}') || '[]');
+
+  function showCard(index) {
+    if (index >= flashcardData.length) {
+      showCompletion();
+      return;
+    }
+
+    currentIndex = index;
+    const card = flashcardData[index];
+    
+    document.getElementById('card-front').innerHTML = card.flashcard.mat_truoc;
+    document.getElementById('card-back').innerHTML = card.flashcard.mat_sau;
+    document.getElementById('flip-card').classList.remove('flipped');
+    document.getElementById('current-card').textContent = index + 1;
+
+    isFlipped = false;
+    
+  }
+
+  function moveCard(direction) {
+    const next = currentIndex + direction;
+    // Fix: Cho phép lùi/tiến thẻ nếu trong phạm vi hợp lệ
+    if (next >= 0 && next < flashcardData.length) {
+        // 3D Flip/Slide Animation
+        const flipCard = document.getElementById('flip-card');
+        if (!flipCard) return; 
+        
+        flipCard.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+        flipCard.style.opacity = '0';
+        flipCard.style.transform = `rotateY(${direction * 90}deg)`;
+        
+        setTimeout(() => {
+            showCard(next);
+            flipCard.style.transition = 'none';
+            flipCard.style.transform = `rotateY(${direction * -90}deg)`;
+            
+            // Trigger reflow
+            flipCard.offsetWidth;
+            
+            flipCard.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+            flipCard.style.opacity = '1';
+            flipCard.style.transform = 'rotateY(0deg)';
+        }, 400);
+    } else if (next >= flashcardData.length) {
+        showCompletion();
+    }
+  }
+
+  function toggleFlip() {
+    const card = document.getElementById('flip-card');
+    card.classList.toggle('flipped');
+    isFlipped = !isFlipped;
+    
+    // Render MathJax if needed after flip
+    if (window.MathJax) {
+      MathJax.typesetPromise([document.getElementById('card-back')]).catch(err => console.log('MathJax error:', err));
+    }
+  }
+
+  // New Toast Notification
+  function showToast(message, icon = '✓') {
+    const toast = document.getElementById('toast');
+    const toastIcon = document.getElementById('toast-icon');
+    const toastMessage = document.getElementById('toast-message');
+    
+    toastIcon.textContent = icon;
+    toastMessage.textContent = message;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2000);
+  }
+  
+  // Session Statistics Update
+  function updateSessionStats() {
+    const elapsed = Math.floor((Date.now() - sessionStats.startTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    
+    document.getElementById('session-time').textContent =
+      `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    
+    document.getElementById('cards-viewed').textContent = sessionStats.cardsViewed.size;
+    document.getElementById('session-learned').textContent = sessionStats.cardsLearned;
+    
+    const cardsPerMin = minutes > 0 ? Math.round(sessionStats.cardsViewed.size / minutes) : 0;
+    document.getElementById('cards-per-min').textContent = cardsPerMin;
+  }
+  
+  // Shuffle Cards
+  function shuffleCards() {
+    flashcardData = [...originalFlashcardData].sort(() => Math.random() - 0.5);
+    currentIndex = 0;
+    showCard(0);
+    showToast('Đã xáo trộn thẻ', '🔀');
+  }
+  
+  // Filter Unlearned Cards
+  function filterUnlearned() {
+    const unlearnedCards = originalFlashcardData.filter(card => !card.is_learned);
+    if (unlearnedCards.length === 0) {
+      showToast('Tất cả thẻ đã được đánh dấu thuộc!', '🎉');
+      return;
+    }
+    flashcardData = unlearnedCards;
+    currentIndex = 0;
+    document.getElementById('total-cards').textContent = flashcardData.length;
+    showCard(0);
+    showToast(`Lọc ${flashcardData.length} thẻ chưa thuộc`, '🎯');
+  }
+  
+  // Toggle Bookmark
+  function toggleBookmark(event) {
+    event.stopPropagation(); // Prevent card flip
+    if (currentIndex >= flashcardData.length) return;
+    
+    const card = flashcardData[currentIndex];
+    const cardId = card.flashcard.id;
+    const bookmarkBtn = document.getElementById('bookmark-btn');
+    
+    const index = bookmarkedCards.indexOf(cardId);
+    if (index > -1) {
+      bookmarkedCards.splice(index, 1);
+      bookmarkBtn.classList.remove('bookmarked');
+      showToast('Đã bỏ đánh dấu', '⭐');
+    } else {
+      bookmarkedCards.push(cardId);
+      bookmarkBtn.classList.add('bookmarked');
+      showToast('Đã đánh dấu thẻ', '⭐');
+    }
+    
+    localStorage.setItem('bookmarked_cards_{{ flashcard_set.id }}', JSON.stringify(bookmarkedCards));
+  }
+  
+  // Update bookmark button state
+  function updateBookmarkButton() {
+    if (currentIndex >= flashcardData.length) return;
+    const card = flashcardData[currentIndex];
+    const bookmarkBtn = document.getElementById('bookmark-btn');
+    
+    if (bookmarkedCards.includes(card.flashcard.id)) {
+      bookmarkBtn.classList.add('bookmarked');
+    } else {
+      bookmarkBtn.classList.remove('bookmarked');
+    }
+  }
+
+  function submitReview(isLearned) {
+    if (currentIndex >= flashcardData.length) return;
+    const card = flashcardData[currentIndex];
+    
+    // Track session learned
+    if (isLearned) {
+      sessionStats.cardsLearned++;
+    }
+    
+    // Send to backend
+    fetch('{% url "kien_thuc:api_flashcard_progress" %}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      body: JSON.stringify({
+        flashcard_id: card.flashcard.id,
+        is_learned: isLearned
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Update card data
+        card.is_learned = isLearned;
+        
+        // Update stats
+        document.getElementById('learned-count').textContent = data.da_thuoc;
+        const total = originalFlashcardData.length;
+        const progress = (data.da_thuoc / total) * 100;
+        document.getElementById('progress-fill').style.width = progress + '%';
+        
+        // Show toast
+        showToast(isLearned ? 'Đã thuộc ✓' : 'Đang học...', isLearned ? '✓' : '📝');
+        
+        // Move to next card with animation
+        moveCard(1);
+      } else {
+        alert('Lỗi: ' + data.error);
+      }
+    })
+    .catch(error => console.error('Error:', error));
+  }
+
+  function showCompletion() {
+    const studyArea = document.getElementById('study-area');
+    const completionArea = document.getElementById('completion-area');
+    const keyboardHint = document.getElementById('keyboard-hint');
+    if (studyArea) studyArea.style.display = 'none';
+    if (keyboardHint) keyboardHint.style.display = 'none';
+    if (completionArea) completionArea.style.display = 'block';
+  }
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    // Chỉ cho phép phím Space khi đang ở study-area
+    const studyArea = document.getElementById('study-area');
+    if (!studyArea || studyArea.style.display === 'none') return;
+
+    if (e.key === ' ') {
+      e.preventDefault();
+      toggleFlip();
+    } else if (e.key === 'ArrowLeft' && '{{ mode }}' === 'study') {
+        moveCard(-1);
+    } else if (e.key === 'ArrowRight' && '{{ mode }}' === 'study') {
+        moveCard(1);
+    } else if (e.key === 'ArrowLeft' && '{{ mode }}' === 'review') {
+      submitReview(false);
+    } else if (e.key === 'ArrowRight' && '{{ mode }}' === 'review') {
+      submitReview(true);
+    }
+  });
+
+  // Click card to flip
+  document.getElementById('flip-card').addEventListener('click', toggleFlip);
+
+  // CSRF token helper
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  // Initialize on page load
+  const initialLearned = parseInt('{{ da_thuoc|default:0 }}');
+  const totalCards = parseInt('{{ tong_so|default:1 }}');
+  const progressFill = document.getElementById('progress-fill');
+  if (progressFill) progressFill.style.width = (initialLearned / totalCards * 100) + '%';
+  
+  // Start session stats timer
+  setInterval(updateSessionStats, 1000);
+  
+  // Initialize
+  showCard(0);
+  updateSessionStats();
+</script>
+{% endblock %}

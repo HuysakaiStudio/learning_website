@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>📊 Tiến độ học Flashcard</h2>
+    <hr>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card bg-info text-white text-center p-3">
+                <h5>Tổng bộ thẻ</h5>
+                <h3>{{ all_sets_count }}</h3>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-success text-white text-center p-3">
+                <h5>Bộ bạn đã học</h5>
+                <h3>{{ user_sets_count }}</h3>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-5">
+        <h4>Chi tiết tiến độ bộ thẻ</h4>
+        {% if sets_stats %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Bộ thẻ</th>
+                    <th>Đã thuộc</th>
+                    <th>Đang học</th>
+                    <th>Tổng</th>
+                    <th>Tiến độ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for set in sets_stats %}
+                <tr>
+                    <td>
+                        <a href="{% url 'kien_thuc:hoc_flashcard' set.id %}" class="text-decoration-none">
+                            {{ set.tieu_de }}
+                        </a>
+                    </td>
+                    <td><span class="badge bg-success">{{ set.learned }}</span></td>
+                    <td><span class="badge bg-warning">{{ set.learning }}</span></td>
+                    <td><span class="badge bg-info">{{ set.total }}</span></td>
+                    <td>
+                        {% widthratio set.learned set.total 100 as progress_percent %}
+                        <div class="progress" style="width: 100px; height: 20px;">
+                            <div class="progress-bar {% if progress_percent == 100 %}bg-success{% else %}bg-primary{% endif %}"
+                                 role="progressbar"
+                                 style="width: {{ progress_percent }}%">
+                                {{ progress_percent }}%
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle"></i> Bạn chưa học bộ Flashcard nào.
+            <a href="{% url 'kien_thuc:danh_sach_flashcard_sets' %}" class="alert-link">Bắt đầu học ngay!</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

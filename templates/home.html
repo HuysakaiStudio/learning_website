@@ -1,24 +1,50 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}Trang chủ — Ôn Thi THPTQG{% endblock %}
 {% block content %}
-<h1>Chào mừng đến với Ôn Thi THPTQG 🎓</h1>
-<p>Chọn tính năng để bắt đầu:</p>
-<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:24px">
-  <a href="/kien-thuc/" style="background:white;padding:24px;border-radius:12px;text-decoration:none;color:#333;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
-    <h2>📚 Kiến thức nền tảng</h2>
-    <p>Lý thuyết theo từng môn</p>
-  </a>
-  <a href="/de-thi/" style="background:white;padding:24px;border-radius:12px;text-decoration:none;color:#333;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
-    <h2>📝 Đề thi online</h2>
-    <p>Luyện tập trắc nghiệm có chấm điểm</p>
-  </a>
-  <a href="/leaderboard/" style="background:white;padding:24px;border-radius:12px;text-decoration:none;color:#333;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
-    <h2>🏆 Bảng xếp hạng</h2>
-    <p>Thi đua cùng bạn bè</p>
-  </a>
-  <a href="/nguoi-dung/dang-ky/" style="background:white;padding:24px;border-radius:12px;text-decoration:none;color:#333;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
-    <h2>👤 Tạo tài khoản</h2>
-    <p>Lưu điểm và theo dõi tiến độ</p>
-  </a>
+
+<div class="hero-section py-5 mb-5 text-center">
+  <div class="container">
+    <h1 class="display-3 fw-bold mb-3">Ôn Thi THPTQG</h1>
+    <p class="lead mb-4 text-white-50">Nền tảng học tập toàn diện, thông minh cho kỳ thi quan trọng nhất của bạn.</p>
+    {% if not user.is_authenticated %}
+      <a href="/nguoi-dung/dang-ky/" class="btn btn-light btn-lg px-4 me-2">Bắt đầu ngay</a>
+      <a href="/nguoi-dung/dang-nhap/" class="btn btn-outline-light btn-lg px-4">Đăng nhập</a>
+    {% else %}
+      <a href="/de-thi/" class="btn btn-light btn-lg px-4">Luyện đề ngay</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="container">
+  <section class="mb-5">
+    <h2 class="h3 fw-bold mb-4">Các tính năng chính</h2>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <div class="col">
+        <div class="feature-tile bg-white">
+          <h3 class="h5">📚 Kiến thức</h3>
+          <p class="text-muted">Hệ thống bài giảng và lý thuyết chi tiết theo từng môn học.</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="feature-tile bg-white">
+          <h3 class="h5">📝 Đề thi</h3>
+          <p class="text-muted">Ngân hàng đề thi phong phú, chấm điểm tự động và giải chi tiết.</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="feature-tile bg-white">
+          <h3 class="h5">🎴 Flashcard</h3>
+          <p class="text-muted">Ghi nhớ kiến thức nhanh chóng với phương pháp Spaced Repetition.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  {% if not user.is_authenticated %}
+    <section class="bg-primary rounded-4 text-white p-5 text-center shadow-lg mb-5">
+      <h2 class="h3 fw-bold mb-3">Sẵn sàng vượt qua kỳ thi?</h2>
+      <p class="lead mb-4">Đăng ký ngay hôm nay để bắt đầu lộ trình ôn luyện hiệu quả của riêng bạn.</p>
+      <a href="/nguoi-dung/dang-ky/" class="btn btn-light btn-lg">Tạo tài khoản miễn phí</a>
+    </section>
+  {% endif %}
 </div>
 {% endblock %}
