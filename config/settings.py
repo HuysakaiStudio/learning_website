@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'apps.nguoi_dung',
     'apps.leaderboard',
     'apps.notifications',
+    'apps.gamification',
     'apps.studio.apps.StudioConfig',
 ]
 

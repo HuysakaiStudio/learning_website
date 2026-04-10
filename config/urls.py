@@ -33,16 +33,17 @@ urlpatterns = [
     path('de-thi/', include('apps.de_thi.urls')),
     path('leaderboard/', include('apps.leaderboard.urls')),
     path('notifications/', include('apps.notifications.urls')),
+    path('gamification/', include('apps.gamification.urls')),
     path('search/', include([
         path('', kien_thuc_search.global_search_results, name='global_search'),
         path('api/suggestions/', kien_thuc_search.api_search_suggestions, name='api_search_suggestions'),
     ])),
     path('studio/', include('apps.studio.urls', namespace='studio')),
-    
+
     # PWA files - serve from root
     path('sw.js', lambda r: serve(r, 'sw.js', document_root=os.path.join(settings.BASE_DIR, 'static'))),
     path('manifest.json', lambda r: serve(r, 'manifest.json', document_root=os.path.join(settings.BASE_DIR, 'static'))),
     path('offline.html', TemplateView.as_view(template_name='offline.html'), name='offline'),
-    
+
     path('.well-known/appspecific/com.chrome.devtools.json', lambda r: HttpResponseNotFound()),
 ]
