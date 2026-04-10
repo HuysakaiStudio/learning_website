@@ -380,7 +380,8 @@ img[loading="lazy"].loaded {
    DARK MODE ADJUSTMENTS FOR PWA
    ============================================ */
 
-@media (prefers-color-scheme: dark) {
+/* Removed prefers-color-scheme auto dark mode - use manual dark mode toggle instead */
+/* @media (prefers-color-scheme: dark) {
   .pwa-install-floating {
     background: linear-gradient(135deg, #1a73e8 0%, #188038 100%);
   }
@@ -398,7 +399,7 @@ img[loading="lazy"].loaded {
   .navbar-collapse {
     background: #1e1e1e;
   }
-}
+} */
 
 /* ============================================
    ACCESSIBILITY IMPROVEMENTS

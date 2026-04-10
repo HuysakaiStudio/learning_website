@@ -8,26 +8,26 @@
     <h1 class="display-3 fw-extrabold mb-4" style="font-size: var(--text-5xl);">
       Ôn Thi THPTQG
     </h1>
-    <p class="lead mb-5" style="font-size: var(--text-xl); opacity: 0.95;">
-      Nền tảng học tập toàn diện, thông minh cho kỳ thi quan trọng nhất của bạn.
+    <p class="lead mb-5" style="font-size: var(--text-xl); opacity: 0.95; font-weight: var(--font-medium);">
+      Nền tảng học tập toàn diện, chuyên nghiệp với động lực học tập mỗi ngày.
     </p>
     {% if not user.is_authenticated %}
       <div class="d-flex gap-3 justify-content-center flex-wrap">
-        <a href="/nguoi-dung/dang-ky/" class="btn btn-primary" style="padding: var(--space-3) var(--space-6); font-size: var(--text-lg);">
+        <a href="/nguoi-dung/dang-ky/" class="btn btn-lg px-5" style="background: var(--gradient-cta); color: var(--primary-900); font-weight: var(--font-bold); border: none; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);">
           <i class="bi bi-rocket-takeoff-fill"></i>
           Bắt đầu ngay
         </a>
-        <a href="/nguoi-dung/dang-nhap/" class="btn btn-outline-light btn-lg px-5">
+        <a href="/nguoi-dung/dang-nhap/" class="btn btn-outline-light btn-lg px-5" style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.2);">
           Đăng nhập
         </a>
       </div>
     {% else %}
       <div class="d-flex gap-3 justify-content-center flex-wrap">
-        <a href="/de-thi/" class="btn btn-primary" style="padding: var(--space-3) var(--space-6); font-size: var(--text-lg);">
+        <a href="/de-thi/" class="btn btn-lg px-5" style="background: var(--gradient-cta); color: var(--primary-900); font-weight: var(--font-bold); border: none; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);">
           <i class="bi bi-pencil-square"></i>
           Luyện đề ngay
         </a>
-        <a href="/kien-thuc/flashcard/" class="btn btn-outline-light btn-lg px-5">
+        <a href="/kien-thuc/flashcard/" class="btn btn-outline-light btn-lg px-5" style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.2);">
           <i class="bi bi-lightning-fill"></i>
           Flashcard
         </a>
@@ -36,47 +36,39 @@
       <!-- User Stats Dashboard -->
       <div class="row mt-5 g-4">
         <div class="col-md-3 col-6">
-          <div class="card" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);">
-            <div class="text-center p-3">
-              <div class="stat-icon" style="font-size: var(--text-4xl);">🏆</div>
-              <div id="user-level" class="stat-value" style="color: white; font-size: var(--text-2xl);">
-                {% if xp %}Level {{ level }}{% else %}Level 0{% endif %}
-              </div>
-              <div class="stat-label" style="color: rgba(255, 255, 255, 0.8);">Cấp độ</div>
+          <div class="stat-card text-center">
+            <div class="stat-icon">🏆</div>
+            <div id="user-level" class="stat-value">
+              {% if xp %}Level {{ level }}{% else %}Level 0{% endif %}
             </div>
+            <div class="stat-label">Cấp độ</div>
           </div>
         </div>
         <div class="col-md-3 col-6">
-          <div class="card" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);">
-            <div class="text-center p-3">
-              <div class="stat-icon" style="font-size: var(--text-4xl);">⭐</div>
-              <div id="user-xp" class="stat-value" style="color: white; font-size: var(--text-2xl);">
-                {% if xp %}{{ xp }} XP{% else %}0 XP{% endif %}
-              </div>
-              <div class="stat-label" style="color: rgba(255, 255, 255, 0.8);">Kinh nghiệm</div>
+          <div class="stat-card text-center">
+            <div class="stat-icon">⭐</div>
+            <div id="user-xp" class="stat-value">
+              {% if xp %}{{ xp }} XP{% else %}0 XP{% endif %}
             </div>
+            <div class="stat-label">Kinh nghiệm</div>
           </div>
         </div>
         <div class="col-md-3 col-6">
-          <div class="card" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);">
-            <div class="text-center p-3">
-              <div class="stat-icon" style="font-size: var(--text-4xl);">🔥</div>
-              <div id="study-streak" class="stat-value" style="color: white; font-size: var(--text-2xl);">
-                {% if current_streak %}{{ current_streak }} ngày{% else %}0 ngày{% endif %}
-              </div>
-              <div class="stat-label" style="color: rgba(255, 255, 255, 0.8);">Chuỗi học tập</div>
+          <div class="stat-card text-center">
+            <div class="stat-icon">🔥</div>
+            <div id="study-streak" class="stat-value">
+              {% if current_streak %}{{ current_streak }} ngày{% else %}0 ngày{% endif %}
             </div>
+            <div class="stat-label">Chuỗi học tập</div>
           </div>
         </div>
         <div class="col-md-3 col-6">
-          <div class="card" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);">
-            <div class="text-center p-3">
-              <div class="stat-icon" style="font-size: var(--text-4xl);">📊</div>
-              <div class="stat-value" style="color: white; font-size: var(--text-2xl);">
-                {% if exam_count is not None %}{{ exam_count }}{% else %}{{ user.ketqua_set.count }}{% endif %}
-              </div>
-              <div class="stat-label" style="color: rgba(255, 255, 255, 0.8);">Bài thi</div>
+          <div class="stat-card text-center">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value">
+              {% if exam_count is not None %}{{ exam_count }}{% else %}{{ user.ketqua_set.count }}{% endif %}
             </div>
+            <div class="stat-label">Bài thi</div>
           </div>
         </div>
       </div>
@@ -88,8 +80,9 @@
   <!-- Features Section -->
   <section style="margin-bottom: var(--space-12);">
     <div class="text-center mb-5">
-      <h2 class="fw-bold" style="font-size: var(--text-4xl); color: var(--text-primary);">
+      <h2 class="fw-bold position-relative d-inline-block" style="font-size: var(--text-4xl); color: var(--primary-900);">
         Các tính năng chính
+        <span style="position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 60px; height: 4px; background: var(--gradient-accent); border-radius: 2px;"></span>
       </h2>
       <p class="text-secondary" style="font-size: var(--text-lg); max-width: 600px; margin: var(--space-3) auto 0;">
         Hệ thống học tập toàn diện với công nghệ hiện đại

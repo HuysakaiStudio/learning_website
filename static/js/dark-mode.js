@@ -50,11 +50,23 @@
 
   // Cập nhật trạng thái nút toggle
   function updateToggleButton(isDark) {
-    const toggleBtn = document.getElementById('darkModeToggle');
-    if (toggleBtn) {
-      toggleBtn.setAttribute('aria-pressed', isDark);
-      toggleBtn.title = isDark ? 'Chuyển sang chế độ sáng' : 'Chuyển sang chế độ tối';
-    }
+    const toggleBtns = [
+      document.getElementById('theme-toggle'),
+      document.getElementById('theme-toggle-mobile')
+    ];
+
+    toggleBtns.forEach(btn => {
+      if (btn) {
+        btn.setAttribute('aria-pressed', isDark);
+        btn.title = isDark ? 'Chuyển sang chế độ sáng' : 'Chuyển sang chế độ tối';
+
+        // Cập nhật icon
+        const icon = btn.querySelector('i');
+        if (icon) {
+          icon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        }
+      }
+    });
   }
 
   // Lắng nghe thay đổi system preference
@@ -72,13 +84,6 @@
     });
   }
 
-  // Khởi tạo khi DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initDarkMode);
-  } else {
-    initDarkMode();
-  }
-
   // Export functions để có thể gọi từ bên ngoài
   window.darkMode = {
     toggle: toggleDarkMode,
@@ -87,12 +92,25 @@
     isEnabled: () => document.body.classList.contains(DARK_MODE_CLASS)
   };
 
-  // Thêm event listener cho toggle button khi DOM ready
+  // Khởi tạo khi DOM ready - chỉ chạy 1 lần
   document.addEventListener('DOMContentLoaded', function() {
-    const toggleBtn = document.getElementById('darkModeToggle');
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', toggleDarkMode);
-    }
+    // Khởi tạo dark mode
+    initDarkMode();
+
+    // Gắn event listener cho cả 2 nút
+    const toggleBtns = [
+      document.getElementById('theme-toggle'),
+      document.getElementById('theme-toggle-mobile')
+    ];
+
+    toggleBtns.forEach(btn => {
+      if (btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          toggleDarkMode();
+        });
+      }
+    });
   });
 
 })();

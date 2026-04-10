@@ -2,6 +2,7 @@
 {% block title %}Học {{ flashcard_set.tieu_de }}{% endblock %}
 
 {% block content %}
+<!-- Cache version: {{ cache_version }} -->
 <style>
   .study-container {
     max-width: 800px;
@@ -10,11 +11,15 @@
   }
 
   .study-header {
-    background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
     color: white;
     padding: 24px;
     border-radius: 12px;
     margin-bottom: 24px;
+  }
+
+  body.dark-mode .study-header {
+    background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
   }
 
   .study-header h1 {
@@ -34,16 +39,34 @@
   }
 
   .progress-bar {
-    height: 4px;
-    background: rgba(255,255,255,0.3);
-    border-radius: 2px;
+    height: 8px !important;
+    background: rgba(255,255,255,0.3) !important;
+    border-radius: 4px;
     overflow: hidden;
+    width: 100% !important;
+    position: relative;
+    display: block !important;
+  }
+
+  body.dark-mode .progress-bar {
+    background: rgba(255,255,255,0.2) !important;
   }
 
   .progress-fill {
-    height: 100%;
-    background: white;
+    height: 100% !important;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b) !important;
     transition: width 0.3s;
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+    min-width: 2px;
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  body.dark-mode .progress-fill {
+    background: linear-gradient(90deg, #fbbf24, #f59e0b) !important;
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
   }
 
   .card-container {
@@ -258,6 +281,11 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
 
+  body.dark-mode .session-stats {
+    background: var(--dm-bg-card);
+    box-shadow: 0 2px 8px var(--dm-shadow);
+  }
+
   .session-stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -272,12 +300,21 @@
   .session-stat-value {
     font-size: 20px;
     font-weight: 700;
-    color: #1a73e8;
+    color: #3b82f6;
+  }
+
+  body.dark-mode .session-stat-value {
+    color: var(--dm-primary);
   }
 
   .session-stat-label {
     font-size: 11px;
     color: #666;
+  }
+
+  body.dark-mode .session-stat-label {
+    color: var(--dm-text-secondary);
+  }
     margin-top: 4px;
   }
 
@@ -481,14 +518,18 @@
   let originalFlashcardData = [...flashcardData]; // Keep original order
   let currentIndex = 0;
   let isFlipped = false;
-  
+
+  // Global totals (never changes)
+  const TOTAL_CARDS = parseInt('{{ tong_so|default:0 }}');
+  let globalLearnedCount = parseInt('{{ da_thuoc|default:0 }}');
+
   // Session statistics
   let sessionStats = {
     startTime: Date.now(),
     cardsViewed: new Set(),
     cardsLearned: 0
   };
-  
+
   // Bookmarked cards (stored in localStorage)
   let bookmarkedCards = JSON.parse(localStorage.getItem('bookmarked_cards_{{ flashcard_set.id }}') || '[]');
 
@@ -587,6 +628,7 @@
     currentIndex = 0;
     showCard(0);
     showToast('Đã xáo trộn thẻ', '🔀');
+    updateProgressBar();
   }
   
   // Filter Unlearned Cards
@@ -598,9 +640,9 @@
     }
     flashcardData = unlearnedCards;
     currentIndex = 0;
-    document.getElementById('total-cards').textContent = flashcardData.length;
     showCard(0);
     showToast(`Lọc ${flashcardData.length} thẻ chưa thuộc`, '🎯');
+    updateProgressBar();
   }
   
   // Toggle Bookmark
@@ -642,12 +684,14 @@
   function submitReview(isLearned) {
     if (currentIndex >= flashcardData.length) return;
     const card = flashcardData[currentIndex];
-    
+
     // Track session learned
-    if (isLearned) {
+    if (isLearned && !card.is_learned) {
       sessionStats.cardsLearned++;
+    } else if (!isLearned && card.is_learned) {
+      sessionStats.cardsLearned--;
     }
-    
+
     // Send to backend
     fetch('{% url "kien_thuc:api_flashcard_progress" %}', {
       method: 'POST',
@@ -663,18 +707,22 @@
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        // Update card data
+        // Update card data in both arrays
         card.is_learned = isLearned;
-        
-        // Update stats
-        document.getElementById('learned-count').textContent = data.da_thuoc;
-        const total = originalFlashcardData.length;
-        const progress = (data.da_thuoc / total) * 100;
-        document.getElementById('progress-fill').style.width = progress + '%';
-        
+        const originalCard = originalFlashcardData.find(c => c.flashcard.id === card.flashcard.id);
+        if (originalCard) {
+          originalCard.is_learned = isLearned;
+        }
+
+        // Update global learned count
+        globalLearnedCount = data.da_thuoc;
+
+        // Update progress bar
+        updateProgressBar();
+
         // Show toast
         showToast(isLearned ? 'Đã thuộc ✓' : 'Đang học...', isLearned ? '✓' : '📝');
-        
+
         // Move to next card with animation
         moveCard(1);
       } else {
@@ -732,17 +780,39 @@
     return cookieValue;
   }
 
-  // Initialize on page load
-  const initialLearned = parseInt('{{ da_thuoc|default:0 }}');
-  const totalCards = parseInt('{{ tong_so|default:1 }}');
-  const progressFill = document.getElementById('progress-fill');
-  if (progressFill) progressFill.style.width = (initialLearned / totalCards * 100) + '%';
-  
-  // Start session stats timer
-  setInterval(updateSessionStats, 1000);
-  
-  // Initialize
-  showCard(0);
-  updateSessionStats();
+  // Update progress bar function
+  function updateProgressBar() {
+    const progress = TOTAL_CARDS > 0 ? (globalLearnedCount / TOTAL_CARDS * 100) : 0;
+    const progressFill = document.getElementById('progress-fill');
+
+    if (progressFill) {
+      progressFill.style.width = progress + '%';
+      console.log('Progress updated:', progress + '%', `(${globalLearnedCount}/${TOTAL_CARDS})`);
+    } else {
+      console.error('progress-fill element not found!');
+    }
+
+    const learnedCount = document.getElementById('learned-count');
+    const totalCards = document.getElementById('total-cards');
+    const currentCard = document.getElementById('current-card');
+
+    if (learnedCount) learnedCount.textContent = globalLearnedCount;
+    if (totalCards) totalCards.textContent = TOTAL_CARDS;
+    if (currentCard) currentCard.textContent = Math.min(currentIndex + 1, flashcardData.length);
+  }
+
+  // Initialize on page load - wait for DOM
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Ready - Initializing...');
+    console.log('TOTAL_CARDS:', TOTAL_CARDS);
+    console.log('globalLearnedCount:', globalLearnedCount);
+
+    updateProgressBar();
+    showCard(0);
+    updateSessionStats();
+
+    // Start session stats timer
+    setInterval(updateSessionStats, 1000);
+  });
 </script>
 {% endblock %}

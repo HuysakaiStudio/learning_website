@@ -2,29 +2,351 @@
 {% block title %}Thêm câu hỏi{% endblock %}
 {% block content %}
 <style>
-    .form-container { max-width: 800px; margin: 40px auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; font-weight: 600; margin-bottom: 8px; color: #444; }
-    input, select, textarea { width: 100%; padding: 14px; border: 1px solid #e0e0e0; border-radius: 10px; background: #f9f9f9; font-size: 15px; }
-    input:focus, textarea:focus { border-color: #1a73e8; outline: none; background: white; }
-    .btn-submit { background: #1a73e8; color: white; padding: 14px 28px; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; width: 100%; font-weight: 600; }
-    .btn-submit:hover { background: #1557b0; }
-    .header-box { text-align: center; margin-bottom: 30px; }
-    .header-box h2 { color: #1a73e8; margin-bottom: 10px; }
-    .question-form { display: none; }
+    .form-container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    body.dark-mode .form-container {
+        background: var(--dm-bg-card);
+        box-shadow: 0 8px 24px var(--dm-shadow);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #444;
+    }
+
+    body.dark-mode label {
+        color: var(--dm-text-primary);
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 14px;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        background: #f9f9f9;
+        font-size: 15px;
+    }
+
+    body.dark-mode input,
+    body.dark-mode select,
+    body.dark-mode textarea {
+        background: var(--dm-bg-tertiary);
+        border-color: var(--dm-border);
+        color: var(--dm-text-primary);
+    }
+
+    input:focus, textarea:focus, select:focus {
+        border-color: #3b82f6;
+        outline: none;
+        background: white;
+    }
+
+    body.dark-mode input:focus,
+    body.dark-mode textarea:focus,
+    body.dark-mode select:focus {
+        border-color: var(--dm-primary);
+        background: var(--dm-bg-hover);
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: #1a1d23;
+        padding: 14px 28px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 16px;
+        width: 100%;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+        transition: all 0.2s;
+    }
+
+    .btn-submit:hover {
+        background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
+        transform: translateY(-1px);
+    }
+
+    body.dark-mode .btn-submit {
+        color: #1a1d23;
+    }
+
+    .header-box {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .header-box h2 {
+        color: #3b82f6;
+        margin-bottom: 10px;
+    }
+
+    body.dark-mode .header-box h2 {
+        color: var(--dm-primary);
+    }
+
+    .question-form {
+        display: none;
+    }
+
+    .btn-action {
+        padding: 10px 20px;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+        display: inline-block;
+    }
+
+    .btn-action-edit {
+        background: #ff9800;
+    }
+
+    .btn-action-edit:hover {
+        background: #f57c00;
+    }
+
+    .btn-action-bulk {
+        background: #34a853;
+    }
+
+    .btn-action-bulk:hover {
+        background: #2d8e47;
+    }
+
+    body.dark-mode .btn-action-edit {
+        background: #ff9800;
+    }
+
+    body.dark-mode .btn-action-bulk {
+        background: #34a853;
+    }
+
+    .validation-errors {
+        display: none;
+        background: #fdecea;
+        color: #b71c1c;
+        border: 1px solid #f5c2c7;
+        padding: 14px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    body.dark-mode .validation-errors {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--dm-danger);
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .field-error {
+        color: red;
+    }
+
+    body.dark-mode .field-error {
+        color: var(--dm-danger);
+    }
+
+    .question-list-container {
+        max-width: 800px;
+        margin: 40px auto;
+    }
+
+    .question-list-title {
+        color: #3b82f6;
+        margin-bottom: 20px;
+        font-size: 18px;
+    }
+
+    body.dark-mode .question-list-title {
+        color: var(--dm-primary);
+    }
+
+    .question-card {
+        background: white;
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        border-left: 4px solid;
+    }
+
+    body.dark-mode .question-card {
+        background: var(--dm-bg-card);
+        box-shadow: 0 2px 6px var(--dm-shadow);
+    }
+
+    .question-card-tn {
+        border-left-color: #3b82f6;
+    }
+
+    .question-card-ds {
+        border-left-color: #ea4335;
+    }
+
+    .question-card-dien {
+        border-left-color: #34a853;
+    }
+
+    .question-card-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+    }
+
+    .question-card-body {
+        flex: 1;
+    }
+
+    .question-card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+
+    .question-badge-number {
+        background: #f0f0f0;
+        color: #555;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    body.dark-mode .question-badge-number {
+        background: var(--dm-bg-tertiary);
+        color: var(--dm-text-secondary);
+    }
+
+    .question-badge {
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+    }
+
+    .question-badge-tn {
+        background: #e8f0fe;
+        color: #3b82f6;
+    }
+
+    body.dark-mode .question-badge-tn {
+        background: rgba(59, 130, 246, 0.2);
+        color: var(--dm-primary);
+    }
+
+    .question-badge-ds {
+        background: #fce8e8;
+        color: #ea4335;
+    }
+
+    body.dark-mode .question-badge-ds {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--dm-danger);
+    }
+
+    .question-badge-dien {
+        background: #e6f4ea;
+        color: #34a853;
+    }
+
+    body.dark-mode .question-badge-dien {
+        background: rgba(52, 168, 83, 0.2);
+        color: var(--dm-success);
+    }
+
+    .question-content {
+        font-size: 15px;
+        margin: 8px 0;
+        line-height: 1.5;
+        color: #333;
+    }
+
+    body.dark-mode .question-content {
+        color: var(--dm-text-primary);
+    }
+
+    .question-explanation {
+        font-size: 13px;
+        color: #666;
+        margin-top: 6px;
+        border-top: 1px solid #eee;
+        padding-top: 6px;
+    }
+
+    body.dark-mode .question-explanation {
+        color: var(--dm-text-secondary);
+        border-top-color: var(--dm-border);
+    }
+
+    .question-card-actions {
+        display: flex;
+        gap: 8px;
+        margin-left: 12px;
+    }
+
+    .btn-question-action {
+        padding: 8px 12px;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-question-edit {
+        background: #ff9800;
+    }
+
+    .btn-question-edit:hover {
+        background: #f57c00;
+    }
+
+    .btn-question-delete {
+        background: #ea4335;
+    }
+
+    .btn-question-delete:hover {
+        background: #d32f2f;
+    }
+
+    body.dark-mode .btn-question-edit {
+        background: #ff9800;
+    }
+
+    body.dark-mode .btn-question-delete {
+        background: #ea4335;
+    }
 </style>
 
 <div class="form-container">
     <div class="header-box">
         <h2>Thêm câu hỏi cho: <strong>{{ de.ten }}</strong></h2>
         <div style="display: flex; gap: 12px; justify-content: center; margin-top: 16px;">
-            <a href="{% url 'de_thi:sua_de_thi' de.id %}" style="padding: 10px 20px; background: #ff9800; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500;">⚙️ Sửa đề thi</a>
-            <a href="{% url 'de_thi:bulk_add_questions' de.id %}" style="padding: 10px 20px; background: #34a853; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500;">📋 Thêm hàng loạt</a>
+            <a href="{% url 'de_thi:sua_de_thi' de.id %}" class="btn-action btn-action-edit">⚙️ Sửa đề thi</a>
+            <a href="{% url 'de_thi:bulk_add_questions' de.id %}" class="btn-action btn-action-bulk">📋 Thêm hàng loạt</a>
         </div>
     </div>
     <form method="post" id="main-form">
         {% csrf_token %}
-        <div id="validation-errors" style="display:none;background:#fdecea;color:#b71c1c;border:1px solid #f5c2c7;padding:14px;border-radius:10px;margin-bottom:20px;font-size:14px;"></div>
+        <div id="validation-errors" class="validation-errors"></div>
         <div class="form-group">
             <label for="id_loai">Loại câu hỏi:</label>
             <select name="loai" id="id_loai" onchange="toggleForms()">
@@ -40,7 +362,7 @@
                     {{ field.label_tag }}
                     {{ field }}
                     {% if field.errors %}
-                        <div style="color: red;">{{ field.errors }}</div>
+                        <div class="field-error">{{ field.errors }}</div>
                     {% endif %}
                 </div>
             {% endfor %}
@@ -51,7 +373,7 @@
                     {{ field.label_tag }}
                     {{ field }}
                     {% if field.errors %}
-                        <div style="color: red;">{{ field.errors }}</div>
+                        <div class="field-error">{{ field.errors }}</div>
                     {% endif %}
                 </div>
             {% endfor %}
@@ -62,7 +384,7 @@
                     {{ field.label_tag }}
                     {{ field }}
                     {% if field.errors %}
-                        <div style="color: red;">{{ field.errors }}</div>
+                        <div class="field-error">{{ field.errors }}</div>
                     {% endif %}
                 </div>
             {% endfor %}
@@ -74,33 +396,33 @@
 
 <!-- Danh sách câu hỏi hiện có -->
 {% if cau_hoi_list %}
-<div style="max-width: 800px; margin: 40px auto;">
-    <h3 style="color: #1a73e8; margin-bottom: 20px; font-size: 18px;">📚 Danh sách câu hỏi ({{ cau_hoi_list|length }})</h3>
-    
+<div class="question-list-container">
+    <h3 class="question-list-title">📚 Danh sách câu hỏi ({{ cau_hoi_list|length }})</h3>
+
     {% for cau in cau_hoi_list %}
-    <div style="background: white; border-radius: 12px; padding: 18px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border-left: 4px solid {% if cau.loai == 'tn' %}#1a73e8{% elif cau.loai == 'ds' %}#ea4335{% else %}#34a853{% endif %};">
-        <div style="display: flex; justify-content: space-between; align-items: start;">
-            <div style="flex: 1;">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                    <span style="background: #f0f0f0; color: #555; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;">Câu {{ forloop.counter }}</span>
+    <div class="question-card question-card-{{ cau.loai }}">
+        <div class="question-card-content">
+            <div class="question-card-body">
+                <div class="question-card-header">
+                    <span class="question-badge-number">Câu {{ forloop.counter }}</span>
                     {% if cau.loai == 'tn' %}
-                    <span style="background: #e8f0fe; color: #1a73e8; padding: 3px 10px; border-radius: 20px; font-size: 12px;">📌 Trắc nghiệm</span>
+                    <span class="question-badge question-badge-tn">📌 Trắc nghiệm</span>
                     {% elif cau.loai == 'ds' %}
-                    <span style="background: #fce8e8; color: #ea4335; padding: 3px 10px; border-radius: 20px; font-size: 12px;">✅ Đúng/Sai</span>
+                    <span class="question-badge question-badge-ds">✅ Đúng/Sai</span>
                     {% elif cau.loai == 'dien' %}
-                    <span style="background: #e6f4ea; color: #34a853; padding: 3px 10px; border-radius: 20px; font-size: 12px;">🔢 Điền số</span>
+                    <span class="question-badge question-badge-dien">🔢 Điền số</span>
                     {% endif %}
                 </div>
-                <p style="font-size: 15px; margin: 8px 0; line-height: 1.5; color: #333;">{{ cau.noi_dung|truncatewords:30 }}</p>
+                <p class="question-content">{{ cau.noi_dung|truncatewords:30 }}</p>
                 {% if cau.giai_thich %}
-                <p style="font-size: 13px; color: #666; margin-top: 6px; border-top: 1px solid #eee; padding-top: 6px;">
+                <p class="question-explanation">
                     <strong>Giải thích:</strong> {{ cau.giai_thich|truncatewords:20 }}
                 </p>
                 {% endif %}
             </div>
-            <div style="display: flex; gap: 8px; margin-left: 12px;">
-                <a href="{% url 'de_thi:sua_cau_hoi' cau.id %}" style="padding: 8px 12px; background: #ff9800; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer;">✏️ Sửa</a>
-                <a href="{% url 'de_thi:xoa_cau_hoi' cau.id %}" style="padding: 8px 12px; background: #ea4335; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer;">🗑️ Xóa</a>
+            <div class="question-card-actions">
+                <a href="{% url 'de_thi:sua_cau_hoi' cau.id %}" class="btn-question-action btn-question-edit">✏️ Sửa</a>
+                <a href="{% url 'de_thi:xoa_cau_hoi' cau.id %}" class="btn-question-action btn-question-delete">🗑️ Xóa</a>
             </div>
         </div>
     </div>

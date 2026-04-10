@@ -1,44 +1,61 @@
 {% extends 'base.html' %}
 {% block title %}Kiến thức nền tảng — Ôn Thi THPTQG{% endblock %}
 {% block content %}
-<div class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
-  <div>
-    <h1 class="h3 mb-1">📚 Kiến thức nền tảng</h1>
-    <p class="text-muted mb-0">Chọn môn học để bắt đầu ôn tập và đọc bài viết.</p>
+<div class="container main-container">
+  <div class="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+    <div>
+      <h1 class="page-title">
+        📚 Kiến thức nền tảng
+        <span class="page-title-underline"></span>
+      </h1>
+      <p class="page-subtitle">Chọn môn học để bắt đầu ôn tập và đọc bài viết.</p>
+    </div>
+    {% if user.is_authenticated %}
+    <a href="/kien-thuc/tao-bai/" class="btn btn-lg px-4 btn-cta">
+      <i class="bi bi-pencil-square me-2"></i>Tạo bài viết
+    </a>
+    {% endif %}
   </div>
-  {% if user.is_authenticated %}
-  <a href="/kien-thuc/tao-bai/" class="btn btn-primary">✍️ Tạo bài viết</a>
+
+  {% if mon_list %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for mon in mon_list %}
+    <div class="col">
+      <a href="/kien-thuc/{{ mon.id }}/" class="text-decoration-none">
+        <div class="card full-height-card" style="padding: var(--space-6);">
+          <div class="text-center">
+            <div class="mb-4" style="font-size: 4rem;">{{ mon.icon }}</div>
+            <h3 class="card-title">
+              {{ mon.ten }}
+            </h3>
+            <p class="card-description">
+              {{ mon.mo_ta }}
+            </p>
+
+            <div class="d-flex justify-content-center gap-4 mb-4">
+              <div class="text-center">
+                <div class="stat-value">{{ mon.bai_viet.count }}</div>
+                <div class="stat-label">Bài viết</div>
+              </div>
+              <div class="text-center">
+                <div class="stat-value" style="color: var(--accent-600);">{{ mon.flashcard_set.count }}</div>
+                <div class="stat-label">Flashcard</div>
+              </div>
+            </div>
+
+            <span class="badge badge-rare">
+              <i class="bi bi-arrow-right me-1"></i>Xem chi tiết
+            </span>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert alert-secondary">
+    Chưa có môn học nào. Hãy thêm qua trang Admin!
+  </div>
   {% endif %}
 </div>
-
-{% if mon_list %}
-<div class="content-grid">
-  {% for mon in mon_list %}
-  <a href="/kien-thuc/{{ mon.id }}/" class="content-card subject-card text-reset text-decoration-none">
-    <div class="display-6 mb-3">{{ mon.icon }}</div>
-    <h3 class="content-card-title">{{ mon.ten }}</h3>
-    <p class="content-card-description">{{ mon.mo_ta }}</p>
-    
-    <div class="card-stats">
-      <div class="stat-item">
-        <span class="stat-value">{{ mon.bai_viet.count }}</span>
-        <span class="stat-label">bài viết</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-value">{{ mon.flashcard_set.count }}</span>
-        <span class="stat-label">flashcard</span>
-      </div>
-    </div>
-    
-    <div class="content-card-actions">
-      <span class="btn btn-primary flex-grow-1">Xem chi tiết →</span>
-    </div>
-  </a>
-  {% endfor %}
-</div>
-{% else %}
-<div class="alert alert-secondary">
-  Chưa có môn học nào. Hãy thêm qua trang Admin!
-</div>
-{% endif %}
 {% endblock %}

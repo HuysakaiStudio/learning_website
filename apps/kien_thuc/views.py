@@ -163,26 +163,29 @@ def danh_sach_flashcard_sets(request):
 
 def hoc_flashcard(request, flashcard_set_id):
     flashcard_set = get_object_or_404(FlashcardSet, pk=flashcard_set_id)
-    
+
     # Check permissions
     if flashcard_set.status != 'published' and not request.user.is_staff and flashcard_set.creator != request.user:
         messages.error(request, 'Bạn không có quyền xem bộ Flashcard này.')
         return redirect('kien_thuc:danh_sach_flashcard_sets')
-        
+
     mode = request.GET.get('mode', 'study') # 'study' hoặc 'review'
-    
-    flashcards = flashcard_set.flashcards.all()
-    
+
+    # Lấy TẤT CẢ flashcards để tính tổng số
+    all_flashcards = flashcard_set.flashcards.all()
+    total_count = all_flashcards.count()
+
     # Lấy tiến độ của người dùng nếu họ đã đăng nhập
     learned_ids = []
     if request.user.is_authenticated:
         learned_ids = FlashcardProgress.objects.filter(
-            user=request.user, 
-            flashcard__flashcard_set=flashcard_set, 
+            user=request.user,
+            flashcard__flashcard_set=flashcard_set,
             is_learned=True
         ).values_list('flashcard_id', flat=True)
 
-    # Nếu mode là 'review', chỉ lấy các thẻ chưa thuộc
+    # Nếu mode là 'review', chỉ lấy các thẻ chưa thuộc để hiển thị
+    flashcards = all_flashcards
     if mode == 'review' and request.user.is_authenticated:
         flashcards = flashcards.exclude(id__in=learned_ids)
 
@@ -196,13 +199,14 @@ def hoc_flashcard(request, flashcard_set_id):
             },
             'is_learned': fc.id in learned_ids
         })
-    
+
     context = {
         'flashcard_set': flashcard_set,
         'flashcard_data_json': json.dumps(flashcard_data),
-        'tong_so': flashcards.count(),
+        'tong_so': total_count,  # Tổng số thẻ trong set (không đổi)
         'da_thuoc': len(learned_ids),
-        'mode': mode
+        'mode': mode,
+        'cache_version': '20260410'  # Update this when CSS/JS changes
     }
     return render(request, 'kien_thuc/hoc_flashcard.html', context)
 

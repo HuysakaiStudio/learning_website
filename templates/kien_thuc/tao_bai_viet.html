@@ -1,36 +1,433 @@
 {% extends 'base.html' %}
 {% block title %}Tạo bài viết mới{% endblock %}
 
-{% block content %}
-<div style="max-width:780px;margin:0 auto">
+{% block extra_css %}
+<style>
+  .create-post-container {
+    max-width: 780px;
+    margin: 0 auto;
+  }
 
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+  .create-post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .create-post-header h2 {
+    margin: 0;
+  }
+
+  .create-post-back {
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  body.dark-mode .create-post-back {
+    color: var(--dm-text-secondary);
+  }
+
+  .create-post-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+
+  body.dark-mode .create-post-card {
+    background: var(--dm-bg-card);
+    box-shadow: 0 2px 8px var(--dm-shadow);
+  }
+
+  .create-post-section {
+    padding: 24px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  body.dark-mode .create-post-section {
+    border-bottom-color: var(--dm-border);
+  }
+
+  .create-post-label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: #333;
+  }
+
+  body.dark-mode .create-post-label {
+    color: var(--dm-text-primary);
+  }
+
+  .mon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  .mon-card {
+    border: 2px solid #e8e8e8;
+    border-radius: 10px;
+    padding: 14px 12px;
+    text-align: center;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  body.dark-mode .mon-card {
+    border-color: var(--dm-border);
+    background: var(--dm-bg-tertiary);
+  }
+
+  .mon-card.selected {
+    border-color: #3b82f6;
+    background: #f0f6ff;
+  }
+
+  body.dark-mode .mon-card.selected {
+    border-color: var(--dm-primary);
+    background: rgba(138, 180, 248, 0.1);
+  }
+
+  .mon-card-icon {
+    font-size: 28px;
+    margin-bottom: 6px;
+  }
+
+  .mon-card-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+  }
+
+  body.dark-mode .mon-card-name {
+    color: var(--dm-text-primary);
+  }
+
+  .create-post-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .create-post-input:focus {
+    border-color: #3b82f6;
+  }
+
+  body.dark-mode .create-post-input {
+    background: var(--dm-bg-tertiary);
+    border-color: var(--dm-border);
+    color: var(--dm-text-primary);
+  }
+
+  body.dark-mode .create-post-input:focus {
+    border-color: var(--dm-primary);
+  }
+
+  .toolbar-buttons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-btn {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    font-size: 12px;
+    color: #555;
+    transition: all 0.2s;
+  }
+
+  .toolbar-btn:hover {
+    background: #f5f5f5;
+  }
+
+  body.dark-mode .toolbar-btn {
+    background: var(--dm-bg-tertiary);
+    border-color: var(--dm-border);
+    color: var(--dm-text-primary);
+  }
+
+  body.dark-mode .toolbar-btn:hover {
+    background: var(--dm-bg-hover);
+  }
+
+  .formula-quick {
+    margin-bottom: 10px;
+    padding: 10px 14px;
+    background: #f0f6ff;
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  body.dark-mode .formula-quick {
+    background: rgba(138, 180, 248, 0.1);
+  }
+
+  .formula-quick-label {
+    font-size: 12px;
+    color: #555;
+    font-weight: 500;
+    margin-right: 4px;
+  }
+
+  body.dark-mode .formula-quick-label {
+    color: var(--dm-text-secondary);
+  }
+
+  .formula-btn {
+    padding: 4px 10px;
+    border: 1px solid #c5d8f8;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    font-size: 12px;
+    color: #3b82f6;
+    transition: all 0.2s;
+  }
+
+  .formula-btn:hover {
+    background: #f0f6ff;
+  }
+
+  body.dark-mode .formula-btn {
+    background: var(--dm-bg-card);
+    border-color: rgba(138, 180, 248, 0.3);
+    color: var(--dm-primary);
+  }
+
+  body.dark-mode .formula-btn:hover {
+    background: rgba(138, 180, 248, 0.15);
+  }
+
+  .split-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .split-view-label {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  body.dark-mode .split-view-label {
+    color: var(--dm-text-muted);
+  }
+
+  .create-post-textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.8;
+    resize: none;
+    font-family: monospace;
+    outline: none;
+    transition: border-color 0.2s;
+    height: 420px;
+  }
+
+  .create-post-textarea:focus {
+    border-color: #3b82f6;
+  }
+
+  body.dark-mode .create-post-textarea {
+    background: var(--dm-bg-tertiary);
+    border-color: var(--dm-border);
+    color: var(--dm-text-primary);
+  }
+
+  body.dark-mode .create-post-textarea:focus {
+    border-color: var(--dm-primary);
+  }
+
+  .preview-box {
+    height: 420px;
+    overflow-y: auto;
+    padding: 14px;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    background: #fafafa;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #333;
+  }
+
+  body.dark-mode .preview-box {
+    background: var(--dm-bg-tertiary);
+    border-color: var(--dm-border);
+    color: var(--dm-text-primary);
+  }
+
+  .syntax-help {
+    margin-top: 10px;
+    padding: 12px 16px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #666;
+    line-height: 2;
+  }
+
+  body.dark-mode .syntax-help {
+    background: var(--dm-bg-tertiary);
+    color: var(--dm-text-secondary);
+  }
+
+  .syntax-help code {
+    background: #e8e8e8;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  body.dark-mode .syntax-help code {
+    background: var(--dm-bg-hover);
+    color: var(--dm-info);
+  }
+
+  .warning-box {
+    margin-top: 12px;
+    padding: 14px 18px;
+    background: #fff8e1;
+    border-left: 4px solid #ffc107;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.8;
+  }
+
+  body.dark-mode .warning-box {
+    background: rgba(253, 224, 71, 0.1);
+    border-left-color: var(--dm-warning);
+    color: var(--dm-text-secondary);
+  }
+
+  .warning-box strong {
+    color: #f57c00;
+  }
+
+  body.dark-mode .warning-box strong {
+    color: var(--dm-warning);
+  }
+
+  .tip-box {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+
+  body.dark-mode .tip-box {
+    background: var(--dm-bg-card);
+  }
+
+  .create-post-footer {
+    padding: 24px;
+    background: #fcfcfc;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  body.dark-mode .create-post-footer {
+    background: var(--dm-bg-secondary);
+    border-top-color: var(--dm-border);
+  }
+
+  .btn-cancel {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    color: #666;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .btn-cancel:hover {
+    background: #f5f5f5;
+  }
+
+  body.dark-mode .btn-cancel {
+    border-color: var(--dm-border);
+    color: var(--dm-text-secondary);
+  }
+
+  body.dark-mode .btn-cancel:hover {
+    background: var(--dm-bg-hover);
+  }
+
+  .btn-submit {
+    padding: 12px 32px;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #1a1d23;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+    transition: all 0.2s;
+  }
+
+  .btn-submit:hover {
+    background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
+    transform: translateY(-1px);
+  }
+
+  body.dark-mode .btn-submit {
+    color: #1a1d23;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="create-post-container">
+
+  <div class="create-post-header">
     <h2>✍️ Tạo bài viết mới</h2>
-    <a href="/kien-thuc/" style="color:#666;text-decoration:none;font-size:14px">← Quay lại</a>
+    <a href="/kien-thuc/" class="create-post-back">← Quay lại</a>
   </div>
 
   <form method="post" id="form-bai-viet">
     {% csrf_token %}
 
-    <div style="background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);overflow:hidden">
+    <div class="create-post-card">
 
       <!-- Chọn môn -->
-      <div style="padding:24px;border-bottom:1px solid #f0f0f0">
-        <label style="display:block;font-weight:500;margin-bottom:12px;color:#333">
+      <div class="create-post-section">
+        <label class="create-post-label">
           📚 Môn học
         </label>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">
+        <div class="mon-grid">
           {% for mon in mon_list %}
           <label style="cursor:pointer">
             <input type="radio" name="mon" value="{{ mon.id }}"
                    style="display:none" class="mon-radio"
                    {% if forloop.first %}checked{% endif %}>
-            <div class="mon-card" data-id="{{ mon.id }}"
-                 style="border:2px solid #e8e8e8;border-radius:10px;padding:14px 12px;
-                        text-align:center;transition:all 0.2s;
-                        {% if forloop.first %}border-color:#1a73e8;background:#f0f6ff{% endif %}">
-              <div style="font-size:28px;margin-bottom:6px">{{ mon.icon }}</div>
-              <div style="font-size:14px;font-weight:500;color:#333">{{ mon.ten }}</div>
+            <div class="mon-card {% if forloop.first %}selected{% endif %}" data-id="{{ mon.id }}">
+              <div class="mon-card-icon">{{ mon.icon }}</div>
+              <div class="mon-card-name">{{ mon.ten }}</div>
             </div>
           </label>
           {% endfor %}
@@ -38,137 +435,96 @@
       </div>
 
       <!-- Tiêu đề -->
-      <div style="padding:24px;border-bottom:1px solid #f0f0f0">
-        <label style="display:block;font-weight:500;margin-bottom:8px;color:#333">
+      <div class="create-post-section">
+        <label class="create-post-label">
           📌 Tiêu đề bài viết
         </label>
         <input type="text" name="tieu_de" placeholder="Ví dụ: Công thức đạo hàm cơ bản"
-               required
-               style="width:100%;padding:12px 16px;border:1px solid #ddd;border-radius:8px;
-                      font-size:16px;outline:none;transition:border-color 0.2s"
-               onfocus="this.style.borderColor='#1a73e8'"
-               onblur="this.style.borderColor='#ddd'">
+               required class="create-post-input">
       </div>
 
       <!-- Thứ tự -->
-      <div style="padding:24px;border-bottom:1px solid #f0f0f0">
-        <label style="display:block;font-weight:500;margin-bottom:8px;color:#333">
+      <div class="create-post-section">
+        <label class="create-post-label">
           🔢 Thứ tự hiển thị
           <span style="font-weight:400;color:#888;font-size:13px">(số nhỏ hiển thị trước)</span>
         </label>
         <input type="number" name="thu_tu" value="0" min="0"
-               style="width:120px;padding:10px 14px;border:1px solid #ddd;border-radius:8px;
-                      font-size:15px;outline:none"
-               onfocus="this.style.borderColor='#1a73e8'"
-               onblur="this.style.borderColor='#ddd'">
+               class="create-post-input" style="width:120px">
       </div>
 
       <!-- Nội dung + toolbar -->
-      <div style="padding:24px">
+      <div class="create-post-section" style="border-bottom:none">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <label style="font-weight:500;color:#333">📝 Nội dung</label>
-          <div style="display:flex;gap:6px;align-items:center">
+          <label class="create-post-label" style="margin-bottom:0">📝 Nội dung</label>
+          <div class="toolbar-buttons">
             <span style="font-size:12px;color:#888;margin-right:4px">Chèn mẫu:</span>
-            <button type="button" onclick="chenMau('dinh_nghia')"
-                    style="padding:5px 10px;border:1px solid #ddd;border-radius:6px;
-                           background:white;cursor:pointer;font-size:12px;color:#555">
+            <button type="button" onclick="chenMau('dinh_nghia')" class="toolbar-btn">
               📌 Định nghĩa
             </button>
-            <button type="button" onclick="chenMau('cong_thuc')"
-                    style="padding:5px 10px;border:1px solid #ddd;border-radius:6px;
-                           background:white;cursor:pointer;font-size:12px;color:#555">
+            <button type="button" onclick="chenMau('cong_thuc')" class="toolbar-btn">
               📐 Công thức
             </button>
-            <button type="button" onclick="chenMau('vi_du')"
-                    style="padding:5px 10px;border:1px solid #ddd;border-radius:6px;
-                           background:white;cursor:pointer;font-size:12px;color:#555">
+            <button type="button" onclick="chenMau('vi_du')" class="toolbar-btn">
               💡 Ví dụ
             </button>
-            <button type="button" onclick="chenMau('chu_y')"
-                    style="padding:5px 10px;border:1px solid #ddd;border-radius:6px;
-                           background:white;cursor:pointer;font-size:12px;color:#555">
+            <button type="button" onclick="chenMau('chu_y')" class="toolbar-btn">
               ⚠️ Chú ý
             </button>
-            <button type="button" onclick="chenMau('buoc')"
-                    style="padding:5px 10px;border:1px solid #ddd;border-radius:6px;
-                           background:white;cursor:pointer;font-size:12px;color:#555">
+            <button type="button" onclick="chenMau('buoc')" class="toolbar-btn">
               🔢 Các bước
             </button>
           </div>
         </div>
 
         <!-- Công thức mẫu nhanh -->
-        <div style="margin-bottom:10px;padding:10px 14px;background:#f0f6ff;
-                    border-radius:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
-          <span style="font-size:12px;color:#555;font-weight:500;margin-right:4px">Công thức nhanh:</span>
-          <button type="button" onclick="chenCongThuc('phuong_trinh_bac2')"
-                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
-                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+        <div class="formula-quick">
+          <span class="formula-quick-label">Công thức nhanh:</span>
+          <button type="button" onclick="chenCongThuc('phuong_trinh_bac2')" class="formula-btn">
             Nghiệm bậc 2
           </button>
-          <button type="button" onclick="chenCongThuc('gioi_han')"
-                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
-                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+          <button type="button" onclick="chenCongThuc('gioi_han')" class="formula-btn">
             Giới hạn
           </button>
-          <button type="button" onclick="chenCongThuc('tich_phan')"
-                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
-                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+          <button type="button" onclick="chenCongThuc('tich_phan')" class="formula-btn">
             Tích phân
           </button>
-          <button type="button" onclick="chenCongThuc('dao_ham')"
-                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
-                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+          <button type="button" onclick="chenCongThuc('dao_ham')" class="formula-btn">
             Đạo hàm
           </button>
-          <button type="button" onclick="chenCongThuc('sin_cos')"
-                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
-                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+          <button type="button" onclick="chenCongThuc('sin_cos')" class="formula-btn">
             Sin/Cos
           </button>
-          <button type="button" onclick="chenCongThuc('logarit')"
-                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
-                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+          <button type="button" onclick="chenCongThuc('logarit')" class="formula-btn">
             Logarit
           </button>
-          <button type="button" onclick="chenCongThuc('vector')"
-                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
-                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+          <button type="button" onclick="chenCongThuc('vector')" class="formula-btn">
             Vector
           </button>
-          <button type="button" onclick="chenCongThuc('xac_suat')"
-                  style="padding:4px 10px;border:1px solid #c5d8f8;border-radius:6px;
-                         background:white;cursor:pointer;font-size:12px;color:#1a73e8">
+          <button type="button" onclick="chenCongThuc('xac_suat')" class="formula-btn">
             Xác suất
           </button>
         </div>
 
         <!-- Split view: textarea + preview -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="split-view">
 
           <!-- Bên trái: textarea -->
           <div>
-            <div style="font-size:12px;color:#888;margin-bottom:6px;text-align:center">
+            <div class="split-view-label">
               ✏️ Soạn thảo
             </div>
             <textarea name="noi_dung" id="noi_dung" rows="20" required
                       placeholder="Nhập nội dung bài viết tại đây..."
-                      style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;
-                             font-size:14px;line-height:1.8;resize:none;font-family:monospace;
-                             outline:none;transition:border-color 0.2s;height:420px"
-                      onfocus="this.style.borderColor='#1a73e8'"
-                      onblur="this.style.borderColor='#ddd'"></textarea>
+                      class="create-post-textarea"></textarea>
           </div>
 
           <!-- Bên phải: preview realtime -->
           <div>
-            <div style="font-size:12px;color:#888;margin-bottom:6px;text-align:center">
+            <div class="split-view-label">
               👁️ Xem trước (realtime)
             </div>
-            <div id="preview-realtime"
-                 style="height:420px;overflow-y:auto;padding:14px;
-                        border:1px solid #e8e8e8;border-radius:8px;background:#fafafa;
-                        font-size:14px;line-height:1.8;color:#333">
+            <div id="preview-realtime" class="preview-box">
               <span style="color:#bbb;font-style:italic">Bắt đầu nhập để xem trước...</span>
             </div>
           </div>
@@ -176,8 +532,7 @@
         </div>
 
         <!-- Ghi chú cú pháp và hướng dẫn -->
-        <div class="tex2jax_ignore" style="margin-top:10px;padding:12px 16px;background:#f8f8f8;
-                    border-radius:8px;font-size:12px;color:#666;line-height:2">
+        <div class="tex2jax_ignore syntax-help">
           <strong>📖 Cú pháp MathJax & Markdown:</strong><br>
           • Công thức inline: <code>$x^2 + y^2 = z^2$</code> → $x^2 + y^2 = z^2$<br>
           • Công thức block: <code>$$\int_a^b f(x)dx$$</code> (hiển thị riêng 1 dòng)<br>
@@ -187,9 +542,8 @@
         </div>
 
         <!-- Nguyên tắc tạo bài viết -->
-        <div style="margin-top:12px;padding:14px 18px;background:#fff8e1;
-                    border-left:4px solid #ffc107;border-radius:8px;font-size:13px;color:#555;line-height:1.8">
-          <strong style="color:#f57c00">⚠️ Nguyên tắc tạo bài viết nghiêm túc:</strong><br>
+        <div class="warning-box">
+          <strong>⚠️ Nguyên tắc tạo bài viết nghiêm túc:</strong><br>
           <div style="margin-top:8px">
             ✅ <strong>Nội dung chính xác:</strong> Đảm bảo kiến thức đúng, có nguồn gốc rõ ràng<br>
             ✅ <strong>Trình bày rõ ràng:</strong> Sử dụng công thức MathJax đúng cú pháp, dễ đọc<br>
@@ -198,26 +552,18 @@
             ❌ <strong>Không spam:</strong> Không đăng nội dung trùng lặp, vô nghĩa<br>
             ❌ <strong>Không vi phạm:</strong> Không chép nguyên văn từ nguồn khác mà không trích dẫn
           </div>
-          <div style="margin-top:10px;padding:8px 12px;background:white;border-radius:6px;font-size:12px">
+          <div class="tip-box">
             💡 <strong>Mẹo:</strong> Bài viết chất lượng cao sẽ được ưu tiên hiển thị và nhận được nhiều lượt xem hơn!
           </div>
         </div>
       </div>
-    
+
       <!-- Footer Buttons -->
-      <div style="padding:24px; background:#fcfcfc; border-top:1px solid #f0f0f0; 
-                  display:flex; justify-content:flex-end; gap:12px">
-        <a href="/kien-thuc/" 
-           style="padding:12px 24px; border-radius:8px; border:1px solid #ddd; 
-                  color:#666; text-decoration:none; font-size:15px; font-weight:500">
+      <div class="create-post-footer">
+        <a href="/kien-thuc/" class="btn-cancel">
           Hủy bỏ
         </a>
-        <button type="submit" 
-                style="padding:12px 32px; background:#1a73e8; color:white; border:none; 
-                       border-radius:8px; font-size:15px; font-weight:600; cursor:pointer;
-                       box-shadow:0 4px 12px rgba(26,115,232,0.2); transition:all 0.2s"
-                onmouseover="this.style.background='#1557b0';this.style.transform='translateY(-1px)'"
-                onmouseout="this.style.background='#1a73e8';this.style.transform='translateY(0)'">
+        <button type="submit" class="btn-submit">
           🚀 {% if user.is_staff %}Xuất bản ngay{% else %}Gửi kiểm duyệt{% endif %}
         </button>
       </div>
@@ -322,12 +668,10 @@
       document.querySelectorAll('.mon-radio').forEach(radio => {
         radio.addEventListener('change', function() {
           document.querySelectorAll('.mon-card').forEach(card => {
-            card.style.borderColor = '#e8e8e8';
-            card.style.background = 'white';
+            card.classList.remove('selected');
           });
           const card = this.parentElement.querySelector('.mon-card');
-          card.style.borderColor = '#1a73e8';
-          card.style.background = '#f0f6ff';
+          card.classList.add('selected');
         });
       });
       </script>
