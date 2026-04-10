@@ -17,8 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponseNotFound
+from django.views.generic import TemplateView
+from django.views.static import serve
 from apps.kien_thuc import views_search as kien_thuc_search
 from apps.home_views import home_view
+import os
+from django.conf import settings
 
 
 urlpatterns = [
@@ -34,5 +38,11 @@ urlpatterns = [
         path('api/suggestions/', kien_thuc_search.api_search_suggestions, name='api_search_suggestions'),
     ])),
     path('studio/', include('apps.studio.urls', namespace='studio')),
+    
+    # PWA files - serve from root
+    path('sw.js', lambda r: serve(r, 'sw.js', document_root=os.path.join(settings.BASE_DIR, 'static'))),
+    path('manifest.json', lambda r: serve(r, 'manifest.json', document_root=os.path.join(settings.BASE_DIR, 'static'))),
+    path('offline.html', TemplateView.as_view(template_name='offline.html'), name='offline'),
+    
     path('.well-known/appspecific/com.chrome.devtools.json', lambda r: HttpResponseNotFound()),
 ]

@@ -137,28 +137,7 @@
     gap: 8px;
   }
 
-  .btn {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-    display: block;
-    transition: all 0.2s;
-  }
-
-  .btn-primary {
-    background: #1a73e8;
-    color: white;
-  }
-
-  .btn-primary:hover {
-    background: #0d47a1;
-  }
+  
 
   .btn-secondary {
     background: #f0f0f0;
@@ -233,14 +212,28 @@
 
   <!-- Flashcard Grid -->
   {% if page_obj %}
-  <div class="flashcard-grid">
+  <div class="content-grid">
     {% for fs in page_obj %}
-    <div class="flashcard-card mon-{{ forloop.counter0|divisibleby:4|yesno:"4,1" }}">
-      <div class="card-mon">{{ fs.mon.ten }}</div>
-      <div class="card-title">{{ fs.tieu_de }}</div>
+    <div class="content-card flashcard-card">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <span class="badge bg-info text-dark">{{ fs.mon.ten }}</span>
+        <span class="text-muted small">{{ fs.ngay_tao|date:"d/m/Y" }}</span>
+      </div>
+      <h3 class="content-card-title">{{ fs.tieu_de }}</h3>
       {% if fs.mo_ta %}
-      <div class="card-desc">{{ fs.mo_ta|truncatewords:20 }}</div>
+      <p class="content-card-description">{{ fs.mo_ta|truncatewords:12 }}</p>
       {% endif %}
+      
+      <div class="card-stats">
+        <div class="stat-item">
+          <span class="stat-value">{{ fs.so_luong_the }}</span>
+          <span class="stat-label">thẻ</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ fs.lan_xem }}</span>
+          <span class="stat-label">lượt xem</span>
+        </div>
+      </div>
       
       <div class="mb-3">
           {% if fs.creator %}
@@ -252,30 +245,17 @@
           {% endif %}
       </div>
 
-      <div class="card-stats">
-        <div class="stat">
-          <div class="stat-value">{{ fs.so_luong_the }}</div>
-          <div class="stat-label">Thẻ</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value">📅</div>
-          <div class="stat-label">{{ fs.ngay_tao|date:"d/m/Y" }}</div>
-        </div>
-      </div>
-
-      <div class="card-buttons">
-        <a href="{% url 'kien_thuc:hoc_flashcard' fs.id %}" class="btn btn-primary">
-          🎓 Học
-        </a>
+      <div class="content-card-actions">
+        <a href="{% url 'kien_thuc:hoc_flashcard' fs.id %}" class="btn btn-primary flex-grow-1">🎓 Học ngay</a>
         {% if user.is_staff or fs.creator == user %}
-        <a href="{% url 'kien_thuc:them_flashcard' fs.id %}" class="btn btn-secondary">
-          ➕ Thêm
-        </a>
+        <div class="btn-group">
+          <a href="{% url 'kien_thuc:them_flashcard' fs.id %}" class="btn btn-sm btn-outline-secondary">➕ Thêm</a>
+        </div>
         {% endif %}
       </div>
       
-      <div class="card-buttons" style="margin-top: 8px;">
-        <button onclick="copyToClipboard('{{ request.scheme }}://{{ request.get_host }}{% url 'kien_thuc:share_flashcards' fs.uuid %}')" class="btn btn-secondary" style="font-size: 10px; padding: 5px; cursor: pointer;">Copy đường dẫn</button>
+      <div class="d-flex mt-2">
+        <button class="btn btn-sm btn-outline-secondary w-100 share-btn" data-url="{{ request.scheme }}://{{ request.get_host }}{% url 'kien_thuc:share_flashcards' fs.uuid %}">🔗 Share</button>
       </div>
     </div>
     {% endfor %}
@@ -298,6 +278,17 @@
       alert('Đã sao chép đường dẫn!');
     });
   }
+  
+  // Add event listeners to share buttons
+  document.addEventListener('DOMContentLoaded', function() {
+    const shareButtons = document.querySelectorAll('.share-btn');
+    shareButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const url = this.getAttribute('data-url');
+        copyToClipboard(url);
+      });
+    });
+  });
 </script>
 
 {% endblock %}

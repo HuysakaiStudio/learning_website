@@ -40,35 +40,41 @@
 </div>
 
 {% if page_obj %}
-<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+<div class="content-grid">
   {% for de in page_obj %}
-  <div class="col">
-    <div class="card h-100 shadow-sm border-0">
-      <div class="card-body d-flex flex-column">
-        <div class="d-flex justify-content-between align-items-start mb-3">
-          <span class="badge bg-info text-dark">{{ de.mon }}</span>
-          <span class="text-muted small">{{ de.thoi_gian_phut }} phút</span>
-        </div>
-        <h3 class="h5 card-title">{{ de.ten }}</h3>
-        <p class="text-muted mb-4">{{ de.mo_ta|truncatewords:12 }}</p>
-        
-        <div class="mb-3">
-            {% if de.creator %}
-                <a href="{% url 'nguoi_dung:user_profile' de.creator.username %}" class="small text-decoration-none text-muted">
-                    <i class="bi bi-person-circle me-1"></i>{{ de.creator.username }}
-                </a>
-            {% else %}
-                <small class="text-muted"><i class="bi bi-person-circle me-1"></i>Hệ thống</small>
-            {% endif %}
-        </div>
-
-        <div class="mt-auto d-flex justify-content-between align-items-center">
-          <small class="text-muted">{{ de.tong_cau }} câu hỏi</small>
-          <a href="/de-thi/{{ de.id }}/" class="btn btn-sm btn-outline-primary">Làm bài →</a>
-        </div>
+  <div class="content-card exam-card">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <span class="badge bg-info text-dark">{{ de.mon }}</span>
+      <span class="text-muted small">{{ de.thoi_gian_phut }} phút</span>
+    </div>
+    <h3 class="content-card-title">{{ de.ten }}</h3>
+    <p class="content-card-description">{{ de.mo_ta|truncatewords:12 }}</p>
+    
+    <div class="card-stats">
+      <div class="stat-item">
+        <span class="stat-value">{{ de.tong_cau }}</span>
+        <span class="stat-label">câu hỏi</span>
       </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ de.thi.count }}</span>
+        <span class="stat-label">lượt thi</span>
+      </div>
+    </div>
+    
+    <div class="mb-3">
+        {% if de.creator %}
+            <a href="{% url 'nguoi_dung:user_profile' de.creator.username %}" class="small text-decoration-none text-muted">
+                <i class="bi bi-person-circle me-1"></i>{{ de.creator.username }}
+            </a>
+        {% else %}
+            <small class="text-muted"><i class="bi bi-person-circle me-1"></i>Hệ thống</small>
+        {% endif %}
+    </div>
+
+    <div class="content-card-actions">
+      <a href="/de-thi/{{ de.id }}/" class="btn btn-primary flex-grow-1">Làm bài →</a>
       {% if user.is_staff or de.creator == user %}
-      <div class="card-footer bg-white border-0 d-flex gap-2 flex-wrap">
+      <div class="btn-group">
         <a href="{% url 'de_thi:sua_de_thi' de.id %}" class="btn btn-sm btn-outline-secondary">Sửa</a>
         <a href="{% url 'de_thi:xoa_de_thi' de.id %}" class="btn btn-sm btn-outline-danger">Xóa</a>
       </div>

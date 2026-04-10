@@ -4,9 +4,58 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/exam-taking.css' %}">
+<link rel="stylesheet" href="{% static 'css/question-palette.css' %}">
 {% endblock %}
 
 {% block content %}
+<!-- Question Palette -->
+<div class="question-palette" id="question-palette">
+  <div class="palette-header">
+    <span class="palette-title">Danh sách câu hỏi</span>
+    <button class="palette-toggle" id="palette-toggle" aria-label="Thu gọn">
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
+
+  <div class="palette-grid" id="palette-grid">
+    <!-- Will be populated by JavaScript -->
+  </div>
+
+  <div class="palette-legend">
+    <div class="legend-item">
+      <div class="legend-box answered"></div>
+      <span>Đã trả lời</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-box current"></div>
+      <span>Câu hiện tại</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-box marked"></div>
+      <span>Đánh dấu</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-box unanswered"></div>
+      <span>Chưa trả lời</span>
+    </div>
+  </div>
+
+  <div class="palette-stats">
+    <div class="stat-row">
+      <span class="stat-label">Đã trả lời:</span>
+      <span class="stat-value" id="palette-answered">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Đánh dấu:</span>
+      <span class="stat-value" id="palette-marked">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Chưa làm:</span>
+      <span class="stat-value" id="palette-unanswered">{{ de.tong_cau }}</span>
+    </div>
+  </div>
+</div>
+
 <!-- Thanh trên cùng cố định -->
 <div class="exam-header">
   <div class="exam-header-content">
@@ -394,6 +443,125 @@ function renderMathJax() {
 restoreDraft();
 updateProgress();
 saveDraft(false);
+
+// ── Question Palette ────────────────────────────────
+const palette = document.getElementById('question-palette');
+const paletteGrid = document.getElementById('palette-grid');
+const paletteToggle = document.getElementById('palette-toggle');
+const markedQuestions = new Set();
+
+// Initialize palette
+function initPalette() {
+  paletteGrid.innerHTML = '';
+  questionMeta.forEach((q, index) => {
+    const btn = document.createElement('button');
+    btn.className = 'q-btn';
+    btn.textContent = index + 1;
+    btn.dataset.index = index;
+    btn.type = 'button';
+    btn.addEventListener('click', () => jumpToQuestion(index));
+    paletteGrid.appendChild(btn);
+  });
+  updatePalette();
+}
+
+// Jump to specific question
+function jumpToQuestion(index) {
+  const questionCard = document.getElementById(`cau-${index + 1}`);
+  if (questionCard) {
+    questionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    updatePalette();
+  }
+}
+
+// Update palette state
+function updatePalette() {
+  const buttons = paletteGrid.querySelectorAll('.q-btn');
+  let answeredCount = 0;
+  let markedCount = markedQuestions.size;
+
+  buttons.forEach((btn, index) => {
+    const q = questionMeta[index];
+    btn.className = 'q-btn';
+
+    // Check if answered
+    let isAnswered = false;
+    if (q.type === 'tn') {
+      isAnswered = !!form.querySelector(`input[name="cau_${q.id}"]:checked`);
+    } else if (q.type === 'ds') {
+      const a = form.querySelector(`input[name="cau_${q.id}_a"]:checked`);
+      const b = form.querySelector(`input[name="cau_${q.id}_b"]:checked`);
+      const c = form.querySelector(`input[name="cau_${q.id}_c"]:checked`);
+      const d = form.querySelector(`input[name="cau_${q.id}_d"]:checked`);
+      isAnswered = a && b && c && d;
+    } else if (q.type === 'dien') {
+      const input = form.querySelector(`input[name="cau_${q.id}"]`);
+      isAnswered = input && input.value.trim();
+    }
+
+    if (isAnswered) {
+      btn.classList.add('answered');
+      answeredCount++;
+    }
+
+    if (markedQuestions.has(index)) {
+      btn.classList.add('marked');
+    }
+
+    // Check if current (in viewport)
+    const questionCard = document.getElementById(`cau-${index + 1}`);
+    if (questionCard && isInViewport(questionCard)) {
+      btn.classList.add('current');
+    }
+  });
+
+  // Update stats
+  document.getElementById('palette-answered').textContent = answeredCount;
+  document.getElementById('palette-marked').textContent = markedCount;
+  document.getElementById('palette-unanswered').textContent = questionMeta.length - answeredCount;
+}
+
+// Check if element is in viewport
+function isInViewport(element) {
+  const rect = element.getBoundingClientRect();
+  return rect.top >= 0 && rect.top <= window.innerHeight / 2;
+}
+
+// Toggle palette collapse
+paletteToggle.addEventListener('click', () => {
+  palette.classList.toggle('collapsed');
+  const icon = paletteToggle.querySelector('i');
+  if (palette.classList.contains('collapsed')) {
+    icon.className = 'bi bi-chevron-left';
+  } else {
+    icon.className = 'bi bi-chevron-right';
+  }
+});
+
+// Mark question for review (double-click on question card)
+document.querySelectorAll('.question-card').forEach((card, index) => {
+  card.addEventListener('dblclick', () => {
+    if (markedQuestions.has(index)) {
+      markedQuestions.delete(index);
+    } else {
+      markedQuestions.add(index);
+    }
+    updatePalette();
+  });
+});
+
+// Update palette on scroll
+let scrollTimeout;
+window.addEventListener('scroll', () => {
+  clearTimeout(scrollTimeout);
+  scrollTimeout = setTimeout(updatePalette, 100);
+});
+
+// Update palette on answer change
+form.addEventListener('change', updatePalette);
+
+// Initialize
+initPalette();
 
 // ── Strict Mode & Anti-cheat ────────────────────────
 let isSubmitting = false;

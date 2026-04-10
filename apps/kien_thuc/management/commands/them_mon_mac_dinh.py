@@ -1,5 +1,11 @@
+import sys
 from django.core.management.base import BaseCommand
 from apps.kien_thuc.models import Mon
+
+# Fix encoding for Windows console
+if sys.platform == 'win32':
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 MON_HOC = [
     {
@@ -61,6 +67,9 @@ class Command(BaseCommand):
         da_them = 0
         bo_qua = 0
 
+        self.stdout.write('Creating subjects...')
+        self.stdout.write('')
+
         for mon in MON_HOC:
             obj, created = Mon.objects.get_or_create(
                 ten=mon['ten'],
@@ -70,13 +79,13 @@ class Command(BaseCommand):
                 }
             )
             if created:
-                self.stdout.write(self.style.SUCCESS(f'  ✅ Đã thêm: {mon["icon"]} {mon["ten"]}'))
+                self.stdout.write(self.style.SUCCESS(f'  [+] Created: {mon["icon"]} {mon["ten"]}'))
                 da_them += 1
             else:
-                self.stdout.write(self.style.WARNING(f'  ⏭️  Bỏ qua (đã có): {mon["ten"]}'))
+                self.stdout.write(self.style.WARNING(f'  [-] Skipped (exists): {mon["ten"]}'))
                 bo_qua += 1
 
         self.stdout.write('')
         self.stdout.write(self.style.SUCCESS(
-            f'Hoàn tất! Đã thêm {da_them} môn, bỏ qua {bo_qua} môn đã tồn tại.'
+            f'Done! Created {da_them} subjects, skipped {bo_qua} existing subjects.'
         ))

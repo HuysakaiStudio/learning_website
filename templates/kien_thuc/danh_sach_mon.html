@@ -12,20 +12,28 @@
 </div>
 
 {% if mon_list %}
-<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+<div class="content-grid">
   {% for mon in mon_list %}
-  <div class="col">
-    <a href="/kien-thuc/{{ mon.id }}/" class="card h-100 text-reset text-decoration-none shadow-sm border-0">
-      <div class="card-body">
-        <div class="display-6 mb-3">{{ mon.icon }}</div>
-        <h3 class="h5">{{ mon.ten }}</h3>
-        <p class="text-muted mb-3">{{ mon.mo_ta }}</p>
+  <a href="/kien-thuc/{{ mon.id }}/" class="content-card subject-card text-reset text-decoration-none">
+    <div class="display-6 mb-3">{{ mon.icon }}</div>
+    <h3 class="content-card-title">{{ mon.ten }}</h3>
+    <p class="content-card-description">{{ mon.mo_ta }}</p>
+    
+    <div class="card-stats">
+      <div class="stat-item">
+        <span class="stat-value">{{ mon.bai_viet.count }}</span>
+        <span class="stat-label">bài viết</span>
       </div>
-      <div class="card-footer bg-white border-0 pt-0">
-        <span class="text-primary fw-semibold">{{ mon.bai_viet.count }} bài viết →</span>
+      <div class="stat-item">
+        <span class="stat-value">{{ mon.flashcard_set.count }}</span>
+        <span class="stat-label">flashcard</span>
       </div>
-    </a>
-  </div>
+    </div>
+    
+    <div class="content-card-actions">
+      <span class="btn btn-primary flex-grow-1">Xem chi tiết →</span>
+    </div>
+  </a>
   {% endfor %}
 </div>
 {% else %}

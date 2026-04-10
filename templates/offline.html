@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Ôn Thi THPTQG</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .offline-container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .offline-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    h1 {
+      color: #333;
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+
+    p {
+      color: #666;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .cached-pages {
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid #eee;
+    }
+
+    .cached-pages h2 {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 16px;
+    }
+
+    .cached-pages ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .cached-pages li {
+      margin: 8px 0;
+    }
+
+    .cached-pages a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .cached-pages a:hover {
+      text-decoration: underline;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 16px;
+    }
+
+    .status.offline {
+      background: #fee;
+      color: #c33;
+    }
+
+    .status.online {
+      background: #efe;
+      color: #3c3;
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <div class="offline-icon">📡</div>
+    <h1>Bạn đang offline</h1>
+    <p>Không thể kết nối đến internet. Vui lòng kiểm tra kết nối mạng của bạn và thử lại.</p>
+    
+    <div id="status" class="status offline">
+      🔴 Offline
+    </div>
+
+    <div style="margin-top: 24px;">
+      <button class="btn" onclick="location.reload()">Thử lại</button>
+    </div>
+
+    <div class="cached-pages">
+      <h2>📚 Trang đã lưu (có thể xem offline)</h2>
+      <ul>
+        <li><a href="/">🏠 Trang chủ</a></li>
+        <li><a href="/de-thi/">📝 Đề thi</a></li>
+        <li><a href="/kien-thuc/">📖 Kiến thức</a></li>
+        <li><a href="/kien-thuc/flashcard/">💡 Flashcard</a></li>
+        <li><a href="/leaderboard/">🏆 Xếp hạng</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Monitor online/offline status
+    function updateStatus() {
+      const statusEl = document.getElementById('status');
+      if (navigator.onLine) {
+        statusEl.className = 'status online';
+        statusEl.innerHTML = '🟢 Online - Đang kết nối lại...';
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
+      } else {
+        statusEl.className = 'status offline';
+        statusEl.innerHTML = '🔴 Offline';
+      }
+    }
+
+    window.addEventListener('online', updateStatus);
+    window.addEventListener('offline', updateStatus);
+
+    // Check status every 5 seconds
+    setInterval(updateStatus, 5000);
+  </script>
+</body>
+</html>

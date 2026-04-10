@@ -54,6 +54,55 @@ a:focus {
   border-bottom: 1px solid var(--border-light);
   box-shadow: var(--shadow-sm);
   transition: var(--transition-base);
+  padding: 0.5rem 0;
+}
+
+/* Mobile navbar improvements */
+@media (max-width: 991px) {
+  .navbar {
+    padding: 0.75rem 0;
+  }
+
+  .navbar-collapse {
+    background: white;
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .navbar-nav {
+    gap: 0.5rem;
+  }
+
+  .navbar-nav .nav-link {
+    padding: 0.75rem 1rem !important;
+    border-radius: 8px;
+  }
+
+  .navbar-nav .nav-link:hover {
+    background: var(--primary-50);
+  }
+
+  /* Search bar full width on mobile */
+  .navbar form {
+    width: 100%;
+    max-width: 100% !important;
+    margin: 1rem 0 !important;
+  }
+
+  .navbar form input {
+    width: 100%;
+  }
+
+  /* User actions stack vertically */
+  .navbar-nav.align-items-center {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+  }
 }
 
 .navbar-brand {
@@ -103,6 +152,151 @@ a:focus {
   border-radius: var(--radius-full);
 }
 
+/* ============================================
+   MEGA MENU
+   ============================================ */
+
+.mega-dropdown {
+  position: static !important;
+}
+
+.mega-menu {
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl) !important;
+  border: 1px solid var(--border-light) !important;
+  background: var(--bg-primary);
+  padding: var(--space-4) 0 !important;
+  min-width: 800px;
+  z-index: 1000 !important;
+}
+
+.mega-menu .container {
+  max-width: 100%;
+  padding: 0 var(--space-4);
+}
+
+.mega-col {
+  padding: 0 var(--space-3);
+  border-right: 1px solid var(--border-light);
+}
+
+.mega-col:last-child {
+  border-right: none;
+}
+
+.featured-col {
+  background: var(--bg-secondary);
+}
+
+.mega-category {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--primary-100);
+  display: flex;
+  align-items: center;
+}
+
+.mega-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.mega-link {
+  display: block;
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--text-primary) !important;
+  text-decoration: none !important;
+  transition: var(--transition-fast);
+  line-height: var(--leading-snug);
+}
+
+.mega-link:hover,
+.mega-link:focus {
+  background: var(--primary-50);
+  color: var(--color-primary) !important;
+  transform: translateX(4px);
+}
+
+.mega-link:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.mega-link i {
+  color: var(--color-primary);
+  width: 20px;
+}
+
+.mega-promo {
+  background: var(--primary-50);
+  border-radius: var(--radius-lg);
+  border-left: 4px solid var(--color-primary);
+}
+
+.mega-promo h6 {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+}
+
+.mega-promo p {
+  font-size: var(--text-xs);
+  margin: 0;
+}
+
+.mega-promo .btn {
+  font-size: var(--text-xs);
+  padding: var(--space-1) var(--space-2);
+}
+
+/* Responsive mega menu */
+@media (max-width: 991px) {
+  .mega-menu {
+    min-width: 300px;
+    left: 0 !important;
+    right: 0 !important;
+    margin: 0 auto;
+  }
+  
+  .mega-menu .container {
+    padding: 0 var(--space-2);
+  }
+  
+  .mega-col {
+    padding: var(--space-2);
+    border-right: none;
+    border-bottom: 1px solid var(--border-light);
+  }
+  
+  .mega-col:last-child {
+    border-bottom: none;
+  }
+  
+  .featured-col {
+    background: var(--bg-primary);
+  }
+  
+  .row {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 576px) {
+  .mega-menu {
+    position: fixed !important;
+    top: 60px !important;
+    left: var(--space-2) !important;
+    right: var(--space-2) !important;
+    width: auto !important;
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
+  }
+}
+
 /* Search Input Enhancement */
 #global-search-input {
   border-radius: var(--radius-lg);
@@ -117,6 +311,26 @@ a:focus {
   outline: none;
 }
 
+/* Additional responsive adjustments for very small screens */
+@media (max-width: 480px) {
+  .mega-menu {
+    min-width: 280px;
+    left: var(--space-1) !important;
+    right: var(--space-1) !important;
+  }
+  
+  .mega-col {
+    padding: var(--space-2) var(--space-2);
+  }
+}
+
+/* Ensure proper spacing on larger screens */
+@media (min-width: 1200px) {
+  .mega-menu {
+    min-width: 900px;
+  }
+}
+
 @media (min-width: 992px) {
   #global-search-input {
     width: 200px;
@@ -128,23 +342,42 @@ a:focus {
   }
 }
 
-/* Mobile Navigation */
+/* Mobile Navigation - Handle dual-row layout */
 @media (max-width: 991px) {
+  nav.navbar:nth-child(1) {
+    z-index: 1050 !important;
+  }
+
   .navbar-nav .nav-link {
     font-size: var(--text-sm);
     padding: var(--space-1) var(--space-2) !important;
   }
-  
+
   .navbar-brand {
     font-size: var(--text-lg);
   }
 }
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 991px) {
+  nav.navbar:nth-child(2) .d-flex {
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  nav.navbar:nth-child(2) .flex-grow-1 {
+    width: auto;
+    margin-bottom: 0;
+  }
+}
+
 
 /* ============================================
    LAYOUT
    ============================================ */
 
 main {
+  margin-top: 120px; /* Account for both header rows */
   min-height: calc(100vh - 200px);
   padding: var(--space-4) 0;
 }
@@ -638,3 +871,183 @@ label {
     border: 1px solid #ddd;
   }
 }
+  
+"/* Content Card Layouts */"  
+".content-grid {"  
+"  display: grid;"  
+"  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));"  
+"  gap: var(--space-4);"  
+"}"  
+"" 
+".content-card {"  
+"  background: var(--bg-primary);"  
+"  border-radius: var(--radius-xl);"  
+"  padding: var(--space-4);"  
+"  box-shadow: var(--shadow-sm);"  
+"  transition: all 0.3s ease;"  
+"  border-left: 4px solid var(--color-primary);"  
+"  position: relative;"  
+"  overflow: hidden;"  
+"}"  
+"" 
+".content-card:hover {"  
+"  transform: translateY(-4px);"  
+"  box-shadow: var(--shadow-lg);"  
+"  border-left-color: var(--color-primary-hover);"  
+"}"  
+""  
+".content-card::before {"  
+"  content: '';"  
+"  position: absolute;"  
+"  top: 0;"  
+"  left: 0;"  
+"  right: 0;"  
+"  height: 2px;"  
+"  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover));"  
+"  opacity: 0;"  
+"  transition: opacity 0.3s ease;"  
+"}"  
+"" 
+".content-card:hover::before {"  
+"  opacity: 1;"  
+"}"  
+""  
+".content-card-title {"  
+"  font-size: var(--text-lg);"  
+"  font-weight: var(--font-semibold);"  
+"  color: var(--text-primary);"  
+"  margin-bottom: var(--space-2);"  
+"}"  
+""  
+".content-card-subtitle {"  
+"  font-size: var(--text-sm);"  
+"  color: var(--text-secondary);"  
+"  margin-bottom: var(--space-2);"  
+"}"  
+"" 
+".content-card-description {"  
+"  font-size: var(--text-base);"  
+"  color: var(--text-secondary);"  
+"  margin-bottom: var(--space-3);"  
+"  line-height: var(--leading-snug);"  
+"}"  
+""  
+".content-card-meta {"  
+"  display: flex;"  
+"  justify-content: space-between;"  
+"  align-items: center;"  
+"  margin-top: var(--space-3);"  
+"}"  
+""  
+".content-card-actions {"  
+"  display: flex;"  
+"  gap: var(--space-2);"  
+"  margin-top: var(--space-3);"  
+"}"  
+"" 
+"/* Subject Card Specific Styles */"  
+".subject-card {"  
+"  border-left-color: var(--color-primary);"  
+"}"  
+""  
+".subject-card.math {"  
+"  border-left-color: #1a73e8; /* Blue for Math */"  
+"}"  
+""  
+".subject-card.literature {"  
+"  border-left-color: #34a853; /* Green for Literature */"  
+"}"  
+""  
+".subject-card.physics {"  
+"  border-left-color: #fbbc04; /* Yellow for Physics */"  
+"}"  
+""  
+".subject-card.chemistry {"  
+"  border-left-color: #ea4335; /* Red for Chemistry */"  
+"}"  
+"" 
+"/* Exam Card Specific Styles */"  
+".exam-card {"  
+"  border-left-color: #6f42c1; /* Purple for exams */"  
+"}"  
+""  
+"/* Flashcard Card Specific Styles */"  
+".flashcard-card {"  
+"  border-left-color: #fd7e14; /* Orange for flashcards */"  
+"}"  
+""  
+"/* Loading States */"  
+".loading-state {"  
+"  opacity: 0.6;"  
+"  pointer-events: none;"  
+"}"  
+"" 
+".skeleton-card {"  
+"  background: var(--bg-primary);"  
+"  border-radius: var(--radius-xl);"  
+"  padding: var(--space-4);"  
+"  box-shadow: var(--shadow-sm);"  
+"  animation: pulse 1.5s infinite ease-in-out;"  
+"}"  
+""  
+"@keyframes pulse {"  
+"  0% { opacity: 0.6; }"  
+"  50% { opacity: 1; }"  
+"  100% { opacity: 0.6; }"  
+"}"  
+""  
+".skeleton-element {"  
+"  background: var(--neutral-200);"  
+"  border-radius: var(--radius-md);"  
+"  margin-bottom: var(--space-2);"  
+"  animation: pulse 1.5s infinite ease-in-out;"  
+"}"  
+"" 
+".skeleton-title {"  
+"  height: 24px;"  
+"  width: 70%;"  
+"  margin-bottom: var(--space-2);"  
+"}"  
+""  
+".skeleton-text {"  
+"  height: 16px;"  
+"  width: 100%;"  
+"  margin-bottom: var(--space-1);"  
+"}"  
+""  
+".skeleton-text:last-child {"  
+"  width: 60%;"  
+"}"  
+""  
+".skeleton-footer {"  
+"  height: 20px;"  
+"  width: 40%;"  
+"  margin-top: var(--space-3);"  
+"}"  
+"" 
+"/* Card Stats */"  
+".card-stats {"  
+"  display: flex;"  
+"  gap: var(--space-4);"  
+"  margin-bottom: var(--space-3);"  
+"  font-size: var(--text-sm);"  
+"}"  
+""  
+".stat-item {"  
+"  display: flex;"  
+"  flex-direction: column;"  
+"  align-items: center;"  
+"}"  
+""  
+".stat-value {"  
+"  font-size: var(--text-xl);"  
+"  font-weight: var(--font-bold);"  
+"  color: var(--color-primary);"  
+"}"  
+""  
+".stat-label {"  
+"  color: var(--text-tertiary);"  
+"  font-size: var(--text-xs);"  
+"  text-transform: uppercase;"  
+"  letter-spacing: var(--tracking-wide);"  
+"}" 

@@ -1,0 +1,394 @@
+/**
+ * Mobile-Optimized Navbar CSS
+ * Enhanced navigation for mobile devices
+ */
+
+/* ============================================
+   MOBILE NAVBAR IMPROVEMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Navbar container */
+  .navbar {
+    padding: 8px 12px !important;
+    min-height: 56px;
+  }
+
+  /* Brand logo - smaller on mobile */
+  .navbar-brand {
+    font-size: 1rem !important;
+    padding: 8px 0;
+  }
+
+  /* Hamburger menu - larger touch target */
+  .navbar-toggler {
+    padding: 12px;
+    border: none !important;
+    border-radius: 8px;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .navbar-toggler:focus {
+    box-shadow: none;
+    background: rgba(66, 133, 244, 0.1);
+  }
+
+  .navbar-toggler-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Collapsed menu */
+  .navbar-collapse {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: white;
+    z-index: 1000;
+    padding: 16px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .navbar-collapse.show,
+  .navbar-collapse.collapsing {
+    transform: translateX(0);
+  }
+
+  /* Nav items - full width, larger */
+  .navbar-nav {
+    width: 100%;
+  }
+
+  .navbar-nav .nav-item {
+    width: 100%;
+    margin: 4px 0;
+  }
+
+  .navbar-nav .nav-link {
+    padding: 14px 16px !important;
+    border-radius: 8px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+  }
+
+  .navbar-nav .nav-link:active {
+    transform: scale(0.98);
+    background: rgba(66, 133, 244, 0.15);
+  }
+
+  /* Add icons to nav items */
+  .navbar-nav .nav-link::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  /* Dropdown menu - full width */
+  .navbar-nav .dropdown-menu {
+    position: static !important;
+    transform: none !important;
+    width: 100%;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+    margin-top: 8px;
+  }
+
+  .navbar-nav .dropdown-item {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 4px 0;
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .navbar-nav .dropdown-item:active {
+    background: rgba(66, 133, 244, 0.15);
+  }
+
+  /* Search bar - full width */
+  .navbar-nav form {
+    width: 100%;
+    margin: 8px 0;
+  }
+
+  .navbar-nav form input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    border-radius: 8px;
+  }
+
+  /* User menu */
+  .navbar-nav .nav-link img {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Dark mode toggle */
+  #theme-toggle {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+
+  /* Login button */
+  .navbar-nav .btn-primary {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+}
+
+/* ============================================
+   BOTTOM NAVIGATION BAR (Optional)
+   ============================================ */
+
+/* Bottom nav for key actions */
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    padding: 8px 0;
+    z-index: 999;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  .mobile-bottom-nav a {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    color: #666;
+    text-decoration: none;
+    font-size: 12px;
+    min-height: 56px;
+    transition: all 0.2s ease;
+  }
+
+  .mobile-bottom-nav a i {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+
+  .mobile-bottom-nav a.active {
+    color: #4285f4;
+    font-weight: 600;
+  }
+
+  .mobile-bottom-nav a:active {
+    transform: scale(0.95);
+    background: rgba(66, 133, 244, 0.1);
+    border-radius: 8px;
+  }
+
+  /* Add padding to main content for bottom nav */
+  main {
+    padding-bottom: 72px !important;
+  }
+}
+
+/* ============================================
+   STICKY HEADER OPTIMIZATION
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Hide navbar on scroll down, show on scroll up */
+  .navbar {
+    transition: transform 0.3s ease;
+  }
+
+  .navbar.navbar-hidden {
+    transform: translateY(-100%);
+  }
+
+  /* Compact navbar when scrolled */
+  .navbar.navbar-compact {
+    min-height: 48px;
+    padding: 4px 12px !important;
+  }
+
+  .navbar.navbar-compact .navbar-brand {
+    font-size: 0.9rem !important;
+  }
+}
+
+/* ============================================
+   HAMBURGER ANIMATION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .navbar-toggler {
+    position: relative;
+  }
+
+  .navbar-toggler-icon {
+    background-image: none !important;
+    position: relative;
+    display: block;
+  }
+
+  .navbar-toggler-icon::before,
+  .navbar-toggler-icon::after,
+  .navbar-toggler-icon {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: currentColor;
+    transition: all 0.3s ease;
+    position: absolute;
+  }
+
+  .navbar-toggler-icon::before {
+    top: -8px;
+  }
+
+  .navbar-toggler-icon::after {
+    top: 8px;
+  }
+
+  /* Animated hamburger to X */
+  .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
+    background: transparent;
+  }
+
+  .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon::before {
+    transform: rotate(45deg);
+    top: 0;
+  }
+
+  .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon::after {
+    transform: rotate(-45deg);
+    top: 0;
+  }
+}
+
+/* ============================================
+   SWIPE GESTURES
+   ============================================ */
+
+@media (max-width: 768px) {
+  .navbar-collapse {
+    touch-action: pan-y;
+  }
+
+  /* Swipe indicator */
+  .navbar-collapse::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+  }
+}
+
+/* ============================================
+   DARK MODE SUPPORT
+   ============================================ */
+
+@media (max-width: 768px) {
+  [data-theme="dark"] .navbar-collapse,
+  [data-theme="dark"] .mobile-bottom-nav {
+    background: #1e1e1e;
+    border-color: #333;
+  }
+
+  [data-theme="dark"] .navbar-nav .dropdown-item {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  [data-theme="dark"] .mobile-bottom-nav a {
+    color: #aaa;
+  }
+
+  [data-theme="dark"] .mobile-bottom-nav a.active {
+    color: #4285f4;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Focus visible for keyboard navigation */
+  .navbar-nav .nav-link:focus-visible,
+  .mobile-bottom-nav a:focus-visible {
+    outline: 2px solid #4285f4;
+    outline-offset: 2px;
+  }
+
+  /* Reduce motion */
+  @media (prefers-reduced-motion: reduce) {
+    .navbar-collapse,
+    .navbar-toggler-icon,
+    .navbar-toggler-icon::before,
+    .navbar-toggler-icon::after {
+      transition: none !important;
+    }
+  }
+}
+
+/* ============================================
+   LANDSCAPE MODE
+   ============================================ */
+
+@media (max-width: 768px) and (orientation: landscape) {
+  .navbar {
+    min-height: 48px;
+  }
+
+  .navbar-collapse {
+    top: 48px;
+  }
+
+  .mobile-bottom-nav {
+    padding: 4px 0;
+  }
+
+  .mobile-bottom-nav a {
+    min-height: 48px;
+    font-size: 11px;
+  }
+
+  .mobile-bottom-nav a i {
+    font-size: 20px;
+  }
+}
