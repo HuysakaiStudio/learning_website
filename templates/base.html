@@ -29,15 +29,15 @@
   <!-- Design System - Psychology-Based UX -->
   <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
-  
+
   <!-- Dark Mode -->
   <link rel="stylesheet" href="{% static 'css/dark-mode.css' %}">
   <link rel="stylesheet" href="{% static 'css/exam-dark-mode.css' %}">
   <link rel="stylesheet" href="{% static 'css/profile-achievements-dark.css' %}">
-  
+
   <!-- PWA Mobile Optimizations -->
   <link rel="stylesheet" href="{% static 'css/pwa-mobile.css' %}">
-  <link rel="stylesheet" href="{% static 'css/mobile-navbar.css' %}">
+  <link rel="stylesheet" href="{% static 'css/navbar-enhanced.css' %}">
   <link rel="stylesheet" href="{% static 'css/xp-guide.css' %}">
 
   <script src="{% static 'js/dark-mode.js' %}"></script>
@@ -99,10 +99,12 @@
 
   <!-- Unified Navigation Bar -->
   <nav class="navbar navbar-expand-lg fixed-top shadow-sm bg-white" style="backdrop-filter: blur(10px); z-index: 1050;">
-    <div class="container-fluid px-3">
+    <div class="container-fluid px-3 px-lg-4">
       <!-- Logo -->
-      <a class="navbar-brand fw-bold text-primary" href="/" style="font-size: 1.1rem;">
-        <i class="bi bi-mortarboard-fill me-1"></i>Ôn Thi THPTQG
+      <a class="navbar-brand fw-bold text-primary d-flex align-items-center" href="/" style="font-size: 1.1rem;">
+        <i class="bi bi-mortarboard-fill me-2"></i>
+        <span class="d-none d-sm-inline">Ôn Thi THPTQG</span>
+        <span class="d-inline d-sm-none">THPTQG</span>
       </a>
 
       <!-- Mobile Toggle -->
@@ -114,53 +116,45 @@
       <div class="collapse navbar-collapse" id="mainNavbar">
         <!-- Left: Main Navigation -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link px-2" href="/">Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link px-3" href="/"><i class="bi bi-house-fill d-lg-none me-2"></i>Trang chủ</a></li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle px-2" href="#" id="knowledgeDropdown" role="button"
+            <a class="nav-link dropdown-toggle px-3" href="#" id="knowledgeDropdown" role="button"
                data-bs-toggle="dropdown" aria-expanded="false">
-              Kiến thức
+              <i class="bi bi-book-fill d-lg-none me-2"></i>Kiến thức
             </a>
             <ul class="dropdown-menu shadow border-0" aria-labelledby="knowledgeDropdown">
-              <li><a class="dropdown-item" href="/kien-thuc/"><i class="bi bi-book me-2"></i>Tất cả môn học</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/kien-thuc/toan-hoc/"><i class="bi bi-calculator me-2"></i>Toán học</a></li>
-              <li><a class="dropdown-item" href="/kien-thuc/vat-ly/"><i class="bi bi-lightning-charge me-2"></i>Vật lý</a></li>
-              <li><a class="dropdown-item" href="/kien-thuc/hoa-hoc/"><i class="bi bi-flask me-2"></i>Hóa học</a></li>
-              <li><a class="dropdown-item" href="/kien-thuc/sinh-hoc/"><i class="bi bi-dna me-2"></i>Sinh học</a></li>
+              <li><a class="dropdown-item" href="/kien-thuc/"><i class="bi bi-book me-2"></i>Tất cả bài viết</a></li>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="/kien-thuc/flashcard/"><i class="bi bi-card-front me-2"></i>Flashcard</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle px-2" href="#" id="examDropdown" role="button"
+            <a class="nav-link dropdown-toggle px-3" href="#" id="examDropdown" role="button"
                data-bs-toggle="dropdown" aria-expanded="false">
-              Đề thi
+              <i class="bi bi-file-earmark-text-fill d-lg-none me-2"></i>Đề thi
             </a>
             <ul class="dropdown-menu shadow border-0" aria-labelledby="examDropdown">
               <li><a class="dropdown-item" href="/de-thi/"><i class="bi bi-file-earmark-text me-2"></i>Tất cả đề thi</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/de-thi/thpt-qg/"><i class="bi bi-award me-2"></i>THPT Quốc Gia</a></li>
-              <li><a class="dropdown-item" href="/de-thi/thu/"><i class="bi bi-hourglass-split me-2"></i>Đề thi thử</a></li>
-              <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="/de-thi/lich-su/"><i class="bi bi-clock-history me-2"></i>Lịch sử làm bài</a></li>
             </ul>
           </li>
-          <li class="nav-item"><a class="nav-link px-2" href="/kien-thuc/flashcard/">Flashcard</a></li>
-          <li class="nav-item"><a class="nav-link px-2" href="/leaderboard/">Xếp hạng</a></li>
+          <li class="nav-item"><a class="nav-link px-3" href="/kien-thuc/flashcard/"><i class="bi bi-card-front d-lg-none me-2"></i>Flashcard</a></li>
+          <li class="nav-item"><a class="nav-link px-3" href="/leaderboard/"><i class="bi bi-trophy-fill d-lg-none me-2"></i>Xếp hạng</a></li>
           {% if user.is_authenticated %}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle text-primary fw-bold px-2" href="#" id="createDropdown" role="button"
+            <a class="nav-link dropdown-toggle text-primary fw-bold px-3" href="#" id="createDropdown" role="button"
               data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-plus-circle-fill"></i> Tạo mới
+              <i class="bi bi-plus-circle-fill me-1"></i> Tạo mới
             </a>
             <ul class="dropdown-menu shadow border-0" aria-labelledby="createDropdown">
-              <li><a class="dropdown-item" href="{% url 'kien_thuc:tao_bai_viet' %}">✍️ Bài viết mới</a></li>
-              <li><a class="dropdown-item" href="{% url 'kien_thuc:tao_flashcard_set' %}">💡 Bộ Flashcard mới</a></li>
+              <li><a class="dropdown-item" href="{% url 'kien_thuc:tao_bai_viet' %}"><i class="bi bi-pencil-square me-2"></i>Bài viết mới</a></li>
+              <li><a class="dropdown-item" href="{% url 'kien_thuc:tao_flashcard_set' %}"><i class="bi bi-lightbulb me-2"></i>Bộ Flashcard mới</a></li>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item fw-bold text-success" href="/studio/"><i class="bi bi-camera-video-fill me-2"></i>Studio</a></li>
               {% if user.is_staff %}
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/admin/de_thi/dethi/add/">⏱️ Đề thi mới (Admin)</a></li>
+              <li><a class="dropdown-item" href="/admin/de_thi/dethi/add/"><i class="bi bi-shield-fill-check me-2"></i>Đề thi mới (Admin)</a></li>
               {% endif %}
             </ul>
           </li>
@@ -168,16 +162,22 @@
         </ul>
 
         <!-- Center: Search Bar (Prominent Position) -->
-        <form action="/search/" method="get" class="d-flex mx-3 flex-grow-1" style="max-width: 400px;">
-          <input class="form-control" type="search" name="q" placeholder="Tìm kiếm bài viết, đề thi, flashcard..."
-            aria-label="Search" style="border-radius: 20px;">
+        <form action="/search/" method="get" class="d-flex mx-lg-3 my-3 my-lg-0 flex-grow-1" style="max-width: 500px;">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0" style="border-radius: 20px 0 0 20px;">
+              <i class="bi bi-search text-muted"></i>
+            </span>
+            <input class="form-control border-start-0 ps-0" type="search" name="q" placeholder="Tìm kiếm..."
+              aria-label="Search" style="border-radius: 0 20px 20px 0;">
+          </div>
         </form>
 
         <!-- Right: User Actions -->
-        <ul class="navbar-nav align-items-center">
+        <ul class="navbar-nav align-items-lg-center">
           <!-- Theme Toggle -->
           <li class="nav-item me-2">
-            <button id="theme-toggle" class="btn btn-sm btn-outline-secondary border-0" aria-label="Toggle dark mode" title="Chế độ tối">
+            <button id="theme-toggle" class="btn btn-sm btn-outline-secondary border-0 rounded-circle"
+              aria-label="Toggle dark mode" title="Chế độ tối" style="width: 40px; height: 40px;">
               <i class="bi bi-moon-fill"></i>
             </button>
           </li>
@@ -196,11 +196,11 @@
               data-bs-toggle="dropdown" aria-expanded="false">
               {% if user.profile.avatar %}
               <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="rounded-circle me-2"
-                style="width: 32px; height: 32px; object-fit: cover;" loading="lazy">
+                style="width: 36px; height: 36px; object-fit: cover; border: 2px solid #4285f4;" loading="lazy">
               {% else %}
-              <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
+              <i class="bi bi-person-circle me-2" style="font-size: 1.8rem; color: #4285f4;"></i>
               {% endif %}
-              <span class="d-none d-lg-inline">{{ user.username }}</span>
+              <span class="d-none d-lg-inline fw-semibold">{{ user.username }}</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown">
               <li><a class="dropdown-item" href="{% url 'nguoi_dung:profile' %}"><i class="bi bi-person me-2"></i>Hồ sơ</a></li>
@@ -214,7 +214,9 @@
           </li>
           {% else %}
           <li class="nav-item">
-            <a class="btn btn-sm btn-primary px-3" href="{% url 'nguoi_dung:dang_nhap' %}">Đăng nhập</a>
+            <a class="btn btn-primary px-4 rounded-pill" href="{% url 'nguoi_dung:dang_nhap' %}">
+              <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+            </a>
           </li>
           {% endif %}
         </ul>
@@ -230,9 +232,7 @@
     <div class="container text-center">
       <p class="mb-2">&copy; 2024 Ôn Thi THPTQG. All rights reserved.</p>
       <p class="text-muted small">
-        <a href="/about/" class="text-decoration-none">Về chúng tôi</a> |
-        <a href="/privacy/" class="text-decoration-none">Chính sách</a> |
-        <a href="/contact/" class="text-decoration-none">Liên hệ</a>
+        Ứng dụng ôn thi THPT Quốc Gia
       </p>
     </div>
   </footer>
