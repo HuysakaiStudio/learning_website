@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>{% block title %}Ôn Thi THPTQG{% endblock %}</title>
-  
+
   {% load static %}
-  
+
   <!-- PWA Meta Tags -->
   <meta name="description" content="Ứng dụng ôn thi THPT Quốc Gia với đề thi, flashcard, và kiến thức chuyên sâu">
   <meta name="theme-color" content="#4285f4">
@@ -14,18 +14,18 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="THPTQG">
-  
+
   <!-- PWA Manifest -->
   <link rel="manifest" href="{% static 'manifest.json' %}">
-  
+
   <!-- Favicon & App Icons -->
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'icons/icon-32x32.png' %}">
   <link rel="icon" type="image/png" sizes="16x16" href="{% static 'icons/icon-16x16.png' %}">
   <link rel="apple-touch-icon" sizes="180x180" href="{% static 'icons/apple-touch-icon.png' %}">
-  
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  
+
   <!-- Design System - Psychology-Based UX -->
   <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
@@ -40,11 +40,14 @@
   <link rel="stylesheet" href="{% static 'css/navbar-enhanced.css' %}">
   <link rel="stylesheet" href="{% static 'css/xp-guide.css' %}">
 
+  <!-- Accessibility -->
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
+
   <script src="{% static 'js/dark-mode.js' %}"></script>
-  
+
   <!-- Page-specific CSS -->
   {% block extra_css %}{% endblock %}
-  
+
   <!-- MathJax render công thức toán -->
   <script>
     MathJax = {
@@ -95,61 +98,64 @@
 
 
 <body>
+  <!-- Skip to main content link for accessibility -->
+  <a href="#main-content" class="skip-to-main">Bỏ qua đến nội dung chính</a>
+
   <div id="toast-container"></div>
 
   <!-- Unified Navigation Bar -->
-  <nav class="navbar navbar-expand-lg fixed-top shadow-sm bg-white" style="backdrop-filter: blur(10px); z-index: 1050;">
+  <nav class="navbar navbar-expand-lg fixed-top shadow-sm bg-white" role="navigation" aria-label="Điều hướng chính" style="backdrop-filter: blur(10px); z-index: 1050;">
     <div class="container-fluid px-3 px-lg-4">
       <!-- Logo -->
-      <a class="navbar-brand fw-bold text-primary d-flex align-items-center" href="/" style="font-size: 1.1rem;">
-        <i class="bi bi-mortarboard-fill me-2"></i>
+      <a class="navbar-brand fw-bold text-primary d-flex align-items-center" href="/" aria-label="Ôn Thi THPTQG - Trang chủ" style="font-size: 1.1rem;">
+        <i class="bi bi-mortarboard-fill me-2" aria-hidden="true"></i>
         <span class="d-none d-sm-inline">Ôn Thi THPTQG</span>
         <span class="d-inline d-sm-none">THPTQG</span>
       </a>
 
       <!-- Mobile Toggle -->
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
-        aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        aria-controls="mainNavbar" aria-expanded="false" aria-label="Mở menu điều hướng">
         <span class="navbar-toggler-icon"></span>
       </button>
 
       <div class="collapse navbar-collapse" id="mainNavbar">
         <!-- Left: Main Navigation -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link px-3" href="/"><i class="bi bi-house-fill d-lg-none me-2"></i>Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link px-3" href="/"><i class="bi bi-house-fill d-lg-none me-2" aria-hidden="true"></i>Trang chủ</a></li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle px-3" href="#" id="knowledgeDropdown" role="button"
-               data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-book-fill d-lg-none me-2"></i>Kiến thức
+               data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+              <i class="bi bi-book-fill d-lg-none me-2" aria-hidden="true"></i>Kiến thức
             </a>
             <ul class="dropdown-menu shadow border-0" aria-labelledby="knowledgeDropdown">
-              <li><a class="dropdown-item" href="/kien-thuc/"><i class="bi bi-book me-2"></i>Tất cả bài viết</a></li>
+              <li><a class="dropdown-item" href="/kien-thuc/"><i class="bi bi-book me-2" aria-hidden="true"></i>Tất cả bài viết</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/kien-thuc/flashcard/"><i class="bi bi-card-front me-2"></i>Flashcard</a></li>
+              <li><a class="dropdown-item" href="/kien-thuc/flashcard/"><i class="bi bi-card-front me-2" aria-hidden="true"></i>Flashcard</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle px-3" href="#" id="examDropdown" role="button"
-               data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-file-earmark-text-fill d-lg-none me-2"></i>Đề thi
+               data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+              <i class="bi bi-file-earmark-text-fill d-lg-none me-2" aria-hidden="true"></i>Đề thi
             </a>
             <ul class="dropdown-menu shadow border-0" aria-labelledby="examDropdown">
-              <li><a class="dropdown-item" href="/de-thi/"><i class="bi bi-file-earmark-text me-2"></i>Tất cả đề thi</a></li>
+              <li><a class="dropdown-item" href="/de-thi/"><i class="bi bi-file-earmark-text me-2" aria-hidden="true"></i>Tất cả đề thi</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/de-thi/lich-su/"><i class="bi bi-clock-history me-2"></i>Lịch sử làm bài</a></li>
+              <li><a class="dropdown-item" href="/de-thi/lich-su/"><i class="bi bi-clock-history me-2" aria-hidden="true"></i>Lịch sử làm bài</a></li>
             </ul>
           </li>
-          <li class="nav-item"><a class="nav-link px-3" href="/kien-thuc/flashcard/"><i class="bi bi-card-front d-lg-none me-2"></i>Flashcard</a></li>
-          <li class="nav-item"><a class="nav-link px-3" href="/leaderboard/"><i class="bi bi-trophy-fill d-lg-none me-2"></i>Xếp hạng</a></li>
+          <li class="nav-item"><a class="nav-link px-3" href="/kien-thuc/flashcard/"><i class="bi bi-card-front d-lg-none me-2" aria-hidden="true"></i>Flashcard</a></li>
+          <li class="nav-item"><a class="nav-link px-3" href="/leaderboard/"><i class="bi bi-trophy-fill d-lg-none me-2" aria-hidden="true"></i>Xếp hạng</a></li>
           {% if user.is_authenticated %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle text-primary fw-bold px-3" href="#" id="createDropdown" role="button"
-              data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-plus-circle-fill me-1"></i> Tạo mới
+              data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+              <i class="bi bi-plus-circle-fill me-1" aria-hidden="true"></i> Tạo mới
             </a>
             <ul class="dropdown-menu shadow border-0" aria-labelledby="createDropdown">
-              <li><a class="dropdown-item" href="{% url 'kien_thuc:tao_bai_viet' %}"><i class="bi bi-pencil-square me-2"></i>Bài viết mới</a></li>
-              <li><a class="dropdown-item" href="{% url 'kien_thuc:tao_flashcard_set' %}"><i class="bi bi-lightbulb me-2"></i>Bộ Flashcard mới</a></li>
+              <li><a class="dropdown-item" href="{% url 'kien_thuc:tao_bai_viet' %}"><i class="bi bi-pencil-square me-2" aria-hidden="true"></i>Bài viết mới</a></li>
+              <li><a class="dropdown-item" href="{% url 'kien_thuc:tao_flashcard_set' %}"><i class="bi bi-lightbulb me-2" aria-hidden="true"></i>Bộ Flashcard mới</a></li>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item fw-bold text-success" href="/studio/"><i class="bi bi-camera-video-fill me-2"></i>Studio</a></li>
               {% if user.is_staff %}
@@ -162,13 +168,14 @@
         </ul>
 
         <!-- Center: Search Bar (Prominent Position) -->
-        <form action="/search/" method="get" class="d-flex mx-lg-3 my-3 my-lg-0 flex-grow-1" style="max-width: 500px;">
+        <form action="/search/" method="get" class="d-flex mx-lg-3 my-3 my-lg-0 flex-grow-1" role="search" style="max-width: 500px;">
           <div class="input-group">
             <span class="input-group-text bg-white border-end-0" style="border-radius: 20px 0 0 20px;">
-              <i class="bi bi-search text-muted"></i>
+              <i class="bi bi-search text-muted" aria-hidden="true"></i>
             </span>
-            <input class="form-control border-start-0 ps-0" type="search" name="q" placeholder="Tìm kiếm..."
-              aria-label="Search" style="border-radius: 0 20px 20px 0;">
+            <label for="main-search-input" class="visually-hidden">Tìm kiếm nội dung</label>
+            <input id="main-search-input" class="form-control border-start-0 ps-0" type="search" name="q" placeholder="Tìm kiếm..."
+              aria-label="Tìm kiếm nội dung" style="border-radius: 0 20px 20px 0;">
           </div>
         </form>
 
@@ -177,8 +184,8 @@
           <!-- Theme Toggle -->
           <li class="nav-item me-2">
             <button id="theme-toggle" class="btn btn-sm btn-outline-secondary border-0 rounded-circle"
-              aria-label="Toggle dark mode" title="Chế độ tối" style="width: 40px; height: 40px;">
-              <i class="bi bi-moon-fill"></i>
+              aria-label="Chuyển đổi chế độ tối" title="Chế độ tối" style="width: 40px; height: 40px;">
+              <i class="bi bi-moon-fill" aria-hidden="true"></i>
             </button>
           </li>
 
@@ -193,12 +200,12 @@
           {% if user.is_authenticated %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center px-2" href="#" id="userDropdown" role="button"
-              data-bs-toggle="dropdown" aria-expanded="false">
+              data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Menu người dùng">
               {% if user.profile.avatar %}
-              <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="rounded-circle me-2"
+              <img src="{{ user.profile.avatar.url }}" alt="Avatar của {{ user.username }}" class="rounded-circle me-2"
                 style="width: 36px; height: 36px; object-fit: cover; border: 2px solid #4285f4;" loading="lazy">
               {% else %}
-              <i class="bi bi-person-circle me-2" style="font-size: 1.8rem; color: #4285f4;"></i>
+              <i class="bi bi-person-circle me-2" style="font-size: 1.8rem; color: #4285f4;" aria-hidden="true"></i>
               {% endif %}
               <span class="d-none d-lg-inline fw-semibold">{{ user.username }}</span>
             </a>
@@ -224,11 +231,11 @@
     </div>
   </nav>
 
-  <main style="margin-top: 80px; min-height: calc(100vh - 140px);">
+  <main id="main-content" style="margin-top: 80px; min-height: calc(100vh - 140px);">
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="bg-light py-4 mt-5">
+  <footer class="bg-light py-4 mt-5" role="contentinfo">
     <div class="container text-center">
       <p class="mb-2">&copy; 2024 Ôn Thi THPTQG. All rights reserved.</p>
       <p class="text-muted small">

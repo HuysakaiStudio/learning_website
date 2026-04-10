@@ -1,0 +1,280 @@
+/* Accessibility Improvements */
+
+/* ── Focus Indicators ────────────────────────────────── */
+
+/* Visible focus indicators for all interactive elements */
+*:focus {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+button:focus,
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+/* Focus for cards */
+.content-card:focus-within {
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.3);
+}
+
+/* ── Skip to Main Content ───────────────────────────── */
+
+.skip-to-main {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary-500);
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 10000;
+  border-radius: 0 0 4px 0;
+  font-weight: 600;
+}
+
+.skip-to-main:focus {
+  top: 0;
+  outline: 2px solid white;
+  outline-offset: -2px;
+}
+
+/* ── Visually Hidden ────────────────────────────────── */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Color Contrast Fixes ───────────────────────────── */
+
+/* Fix low contrast text - WCAG AA compliant */
+.text-muted {
+  color: #666 !important; /* 5.74:1 contrast ratio */
+}
+
+.small.text-muted {
+  color: #555 !important; /* 7.0:1 for smaller text */
+}
+
+/* Badge contrast improvements */
+.badge.bg-info {
+  background-color: #0891b2 !important;
+  color: white !important;
+}
+
+.badge.bg-light {
+  background-color: #e5e7eb !important;
+  color: #1f2937 !important;
+  border: 1px solid #d1d5db;
+}
+
+.badge.bg-secondary {
+  background-color: #4b5563 !important;
+  color: white !important;
+}
+
+/* Link contrast */
+a {
+  color: #1d4ed8; /* Darker blue for better contrast */
+}
+
+a:hover {
+  color: #1e40af;
+  text-decoration: underline;
+}
+
+/* Button contrast */
+.btn-outline-secondary {
+  color: #374151;
+  border-color: #6b7280;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #374151;
+  border-color: #374151;
+  color: white;
+}
+
+.btn-outline-primary {
+  color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.btn-outline-primary:hover {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+  color: white;
+}
+
+/* ── High Contrast Mode Support ─────────────────────── */
+
+@media (prefers-contrast: high) {
+  * {
+    border-color: currentColor !important;
+  }
+
+  button,
+  a {
+    text-decoration: underline;
+  }
+
+  .btn {
+    border: 2px solid currentColor !important;
+  }
+}
+
+/* ── Reduced Motion Support ─────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Keyboard Navigation Improvements ───────────────── */
+
+/* Better focus for interactive cards */
+.content-card a:focus,
+.content-card button:focus {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+  z-index: 1;
+}
+
+/* Focus for dropdown items */
+.dropdown-item:focus {
+  background-color: var(--primary-50);
+  outline: 2px solid var(--primary-500);
+  outline-offset: -2px;
+}
+
+/* Focus for form controls */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+}
+
+/* Focus for checkboxes and radios */
+.form-check-input:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+}
+
+/* ── Screen Reader Only Text ────────────────────────── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* ── Touch Target Size ──────────────────────────────── */
+
+/* Ensure minimum 44x44px touch targets for mobile */
+@media (max-width: 768px) {
+  button,
+  a.btn,
+  .form-check-input,
+  .dropdown-toggle {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .navbar-toggler {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ── Error and Success States ───────────────────────── */
+
+/* Ensure error messages are visible */
+.invalid-feedback {
+  display: block;
+  color: #dc2626;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.is-invalid {
+  border-color: #dc2626 !important;
+}
+
+.is-valid {
+  border-color: #16a34a !important;
+}
+
+/* ── Dark Mode Accessibility ────────────────────────── */
+
+body.dark-mode {
+  /* Ensure sufficient contrast in dark mode */
+  color: #e5e7eb;
+}
+
+body.dark-mode .text-muted {
+  color: #9ca3af !important;
+}
+
+body.dark-mode a {
+  color: #60a5fa;
+}
+
+body.dark-mode a:hover {
+  color: #93c5fd;
+}
+
+body.dark-mode .btn-outline-secondary {
+  color: #d1d5db;
+  border-color: #6b7280;
+}
+
+body.dark-mode .btn-outline-secondary:hover {
+  background-color: #4b5563;
+  border-color: #4b5563;
+  color: white;
+}
+
+/* ── Focus Visible (Modern Browsers) ────────────────── */
+
+/* Only show focus outline when using keyboard */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
