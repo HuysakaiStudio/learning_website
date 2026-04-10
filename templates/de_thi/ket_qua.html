@@ -2,34 +2,40 @@
 {% block title %}Kết quả - {{ kq.de_thi.ten_de }}{% endblock %}
 {% block content %}
 
-<div style="max-width: 600px; margin: 0 auto;">
+<div class="container-sm">
   <!-- Result Card with Animation -->
-  <div class="card achievement-unlock" style="padding: var(--space-8); text-align: center; background: var(--bg-primary);">
-    
+  <div class="card result-card animate-scale-in">
+
     <!-- Achievement Icon & Message -->
     {% if kq.diem >= 8 %}
-      <div class="level-up-animation mb-3">
-        <i class="bi bi-trophy-fill" style="font-size: var(--text-5xl); color: var(--warning-500);"></i>
+      <div class="result-icon mb-4">
+        <i class="bi bi-trophy-fill text-warning"></i>
       </div>
-      <h2 class="fw-bold mb-3" style="font-size: var(--text-3xl); color: var(--success-600);">
-        Xuất sắc! 🎉
+      <h2 class="fw-bold mb-3 text-3xl text-success">
+        Xuất sắc!
       </h2>
       <p class="text-secondary mb-4">Bạn đã làm bài xuất sắc!</p>
     {% elif kq.diem >= 6.5 %}
-      <div class="mb-3" style="font-size: var(--text-5xl);">👍</div>
-      <h2 class="fw-bold mb-3" style="font-size: var(--text-3xl); color: var(--primary-600);">
+      <div class="result-icon mb-4">
+        <i class="bi bi-hand-thumbs-up-fill text-primary"></i>
+      </div>
+      <h2 class="fw-bold mb-3 text-3xl text-primary">
         Khá tốt!
       </h2>
       <p class="text-secondary mb-4">Kết quả tốt, tiếp tục phát huy!</p>
     {% elif kq.diem >= 5 %}
-      <div class="mb-3" style="font-size: var(--text-5xl);">📚</div>
-      <h2 class="fw-bold mb-3" style="font-size: var(--text-3xl); color: var(--warning-600);">
+      <div class="result-icon mb-4">
+        <i class="bi bi-book-fill text-warning"></i>
+      </div>
+      <h2 class="fw-bold mb-3 text-3xl text-warning">
         Cần ôn thêm!
       </h2>
       <p class="text-secondary mb-4">Hãy xem lại các phần chưa vững!</p>
     {% else %}
-      <div class="mb-3" style="font-size: var(--text-5xl);">💪</div>
-      <h2 class="fw-bold mb-3" style="font-size: var(--text-3xl); color: var(--error-600);">
+      <div class="result-icon mb-4">
+        <i class="bi bi-arrow-up-circle-fill text-error"></i>
+      </div>
+      <h2 class="fw-bold mb-3 text-3xl text-error">
         Cố gắng hơn nhé!
       </h2>
       <p class="text-secondary mb-4">Đừng nản lòng, hãy luyện tập thêm!</p>
@@ -37,55 +43,51 @@
 
     <!-- Score Display -->
     <div class="mb-4">
-      <div class="display-1 fw-bold mb-2" style="
-        font-size: 5rem;
-        color: {% if kq.diem >= 8 %}var(--success-600){% elif kq.diem >= 5 %}var(--primary-600){% else %}var(--error-600){% endif %};
-      ">
+      <div class="score-display {% if kq.diem >= 8 %}text-success{% elif kq.diem >= 5 %}text-primary{% else %}text-error{% endif %}">
         {{ kq.diem }}
       </div>
-      <div class="text-secondary" style="font-size: var(--text-lg);">/ 10 điểm</div>
+      <div class="text-secondary text-lg">/ 10 điểm</div>
     </div>
 
     <!-- Progress Bar -->
-    <div class="progress mb-5">
-      <div class="progress-bar" 
-           style="width: {{ kq.diem|floatformat:0 }}0%; 
-                  background: {% if kq.diem >= 8 %}linear-gradient(90deg, var(--success-500), var(--success-600)){% elif kq.diem >= 5 %}linear-gradient(90deg, var(--primary-500), var(--primary-600)){% else %}linear-gradient(90deg, var(--error-500), var(--error-600)){% endif %};">
+    <div class="progress-bar-container mb-5">
+      <div class="progress-bar-fill score-{% if kq.diem >= 8 %}excellent{% elif kq.diem >= 5 %}good{% else %}poor{% endif %}"
+           style="width: {{ kq.diem|floatformat:0 }}0%;">
       </div>
     </div>
 
     <!-- Stats Grid -->
     <div class="row g-3 mb-5">
       <div class="col-4">
-        <div class="card" style="padding: var(--space-3); background: var(--bg-secondary);">
-          <div class="fw-bold mb-1" style="font-size: var(--text-2xl); color: var(--text-primary);">
+        <div class="stat-card">
+          <div class="stat-value text-primary">
             {{ kq.tong_cau }}
           </div>
-          <div class="text-secondary" style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: var(--tracking-wide);">
+          <div class="stat-label">
             Tổng câu
           </div>
         </div>
       </div>
       <div class="col-4">
-        <div class="card" style="padding: var(--space-3); background: var(--success-50);">
-          <div class="fw-bold mb-1" style="font-size: var(--text-2xl); color: var(--success-700);">
+        <div class="stat-card stat-card-success">
+          <div class="stat-value text-success">
             {% widthratio kq.diem 10 kq.tong_cau %}
           </div>
-          <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--success-700);">
+          <div class="stat-label text-success">
             Câu đúng
           </div>
         </div>
       </div>
       <div class="col-4">
-        <div class="card" style="padding: var(--space-3); background: var(--primary-50);">
-          <div class="fw-bold mb-1" style="font-size: var(--text-2xl); color: var(--primary-700);">
+        <div class="stat-card stat-card-primary">
+          <div class="stat-value text-primary">
             {% if kq.thoi_gian_lam >= 60 %}
               {{ kq.thoi_gian_lam|divisibleby:60 }}p
             {% else %}
               {{ kq.thoi_gian_lam }}s
             {% endif %}
           </div>
-          <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--primary-700);">
+          <div class="stat-label text-primary">
             Thời gian
           </div>
         </div>
@@ -93,38 +95,31 @@
     </div>
 
     <!-- XP Reward Display -->
-    <div class="alert alert-success d-flex align-items-center justify-content-center gap-2 mb-4" style="border-radius: var(--radius-lg);">
-      <i class="bi bi-star-fill" style="font-size: var(--text-xl);"></i>
+    <div class="alert alert-success d-flex align-items-center justify-content-center gap-2 mb-4">
+      <i class="bi bi-star-fill text-xl"></i>
       <span class="fw-semibold">Bạn nhận được <span id="exam-xp">20</span> XP!</span>
     </div>
 
     <!-- Action Buttons -->
     <div class="d-flex flex-column gap-3">
       {% if kq.diem > 6 %}
-        <a href="/de-thi/ket-qua/{{ kq.id }}/dap-an/" 
-           class="btn btn-primary" 
-           style="padding: var(--space-3) var(--space-4); font-size: var(--text-base);">
+        <a href="/de-thi/ket-qua/{{ kq.id }}/dap-an/" class="btn btn-primary btn-lg">
           <i class="bi bi-file-text-fill"></i>
           Xem đáp án chi tiết
         </a>
       {% else %}
-        <div class="btn" 
-             style="padding: var(--space-3) var(--space-4); font-size: var(--text-base); background: var(--neutral-200); color: var(--neutral-500); cursor: not-allowed;">
+        <button class="btn btn-lg" disabled>
           <i class="bi bi-lock-fill"></i>
           Cần > 6 điểm để xem đáp án
-        </div>
+        </button>
       {% endif %}
-      
-      <a href="/de-thi/{{ kq.de_thi.id }}/" 
-         class="btn btn-outline-primary" 
-         style="padding: var(--space-3) var(--space-4); font-size: var(--text-base); border-radius: var(--radius-lg);">
+
+      <a href="/de-thi/{{ kq.de_thi.id }}/" class="btn btn-outline-primary btn-lg">
         <i class="bi bi-arrow-clockwise"></i>
         Làm lại đề này
       </a>
-      
-      <a href="/de-thi/" 
-         class="btn btn-outline-secondary" 
-         style="padding: var(--space-3) var(--space-4); font-size: var(--text-base); border-radius: var(--radius-lg);">
+
+      <a href="/de-thi/" class="btn btn-outline-secondary btn-lg">
         <i class="bi bi-list-ul"></i>
         Chọn đề khác
       </a>
@@ -133,24 +128,51 @@
 
   <!-- Recommendations -->
   <div class="mt-4">
-    <div class="card" style="padding: var(--space-4); background: var(--primary-50); border: 1px solid var(--primary-200);">
-      <h3 class="fw-semibold mb-3" style="font-size: var(--text-lg); color: var(--primary-900);">
+    <div class="card recommendation-card">
+      <h3 class="fw-semibold mb-3 text-lg text-primary">
         <i class="bi bi-lightbulb-fill"></i>
         Gợi ý tiếp theo
       </h3>
-      <ul class="list-unstyled mb-0" style="font-size: var(--text-sm);">
+      <ul class="list-unstyled mb-0 text-sm">
         {% if kq.diem >= 8 %}
-          <li class="mb-2">✅ Thử đề khó hơn để thử thách bản thân</li>
-          <li class="mb-2">✅ Chia sẻ kinh nghiệm với bạn bè</li>
-          <li>✅ Xem bảng xếp hạng để so sánh</li>
+          <li class="mb-2">
+            <i class="bi bi-check-circle-fill text-success"></i>
+            Thử đề khó hơn để thử thách bản thân
+          </li>
+          <li class="mb-2">
+            <i class="bi bi-check-circle-fill text-success"></i>
+            Chia sẻ kinh nghiệm với bạn bè
+          </li>
+          <li>
+            <i class="bi bi-check-circle-fill text-success"></i>
+            Xem bảng xếp hạng để so sánh
+          </li>
         {% elif kq.diem >= 5 %}
-          <li class="mb-2">📚 Ôn lại các phần còn yếu</li>
-          <li class="mb-2">🎴 Sử dụng Flashcard để ghi nhớ</li>
-          <li>💪 Làm thêm đề tương tự</li>
+          <li class="mb-2">
+            <i class="bi bi-book-fill text-primary"></i>
+            Ôn lại các phần còn yếu
+          </li>
+          <li class="mb-2">
+            <i class="bi bi-lightning-fill text-warning"></i>
+            Sử dụng Flashcard để ghi nhớ
+          </li>
+          <li>
+            <i class="bi bi-arrow-repeat text-primary"></i>
+            Làm thêm đề tương tự
+          </li>
         {% else %}
-          <li class="mb-2">📖 Xem lại lý thuyết cơ bản</li>
-          <li class="mb-2">🎴 Học Flashcard từ đầu</li>
-          <li>👥 Tham gia diễn đàn để hỏi đáp</li>
+          <li class="mb-2">
+            <i class="bi bi-journal-text text-secondary"></i>
+            Xem lại lý thuyết cơ bản
+          </li>
+          <li class="mb-2">
+            <i class="bi bi-lightning-fill text-warning"></i>
+            Học Flashcard từ đầu
+          </li>
+          <li>
+            <i class="bi bi-people-fill text-secondary"></i>
+            Tham gia diễn đàn để hỏi đáp
+          </li>
         {% endif %}
       </ul>
     </div>
