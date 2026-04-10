@@ -6,10 +6,10 @@
 <div class="hero-section text-center">
   <div class="container">
     <h1 class="display-3 fw-extrabold mb-4" style="font-size: var(--text-5xl);">
-      Ôn Thi THPTQG
+      Đạt điểm cao THPT Quốc Gia
     </h1>
-    <p class="lead mb-5" style="font-size: var(--text-xl); opacity: 0.95; font-weight: var(--font-medium);">
-      Nền tảng học tập toàn diện, chuyên nghiệp với động lực học tập mỗi ngày.
+    <p class="lead mb-5" style="font-size: var(--text-xl); opacity: 0.95; font-weight: var(--font-medium); max-width: 600px; margin-left: auto; margin-right: auto;">
+      Lộ trình học tập cá nhân hóa với đề thi thực chiến, flashcard thông minh và phân tích chi tiết.
     </p>
     {% if not user.is_authenticated %}
       <div class="d-flex gap-3 justify-content-center flex-wrap">
@@ -36,39 +36,55 @@
       <!-- User Stats Dashboard -->
       <div class="row mt-5 g-4">
         <div class="col-md-3 col-6">
-          <div class="stat-card text-center">
-            <div class="stat-icon">🏆</div>
-            <div id="user-level" class="stat-value">
-              {% if xp %}Level {{ level }}{% else %}Level 0{% endif %}
+          <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+              <i class="bi bi-trophy-fill" style="font-size: var(--text-4xl); color: var(--warning-600);"></i>
+              <div>
+                <div id="user-level" class="stat-value">
+                  {% if xp %}Level {{ level }}{% else %}Level 0{% endif %}
+                </div>
+                <div class="stat-label">Cấp độ</div>
+              </div>
             </div>
-            <div class="stat-label">Cấp độ</div>
           </div>
         </div>
         <div class="col-md-3 col-6">
-          <div class="stat-card text-center">
-            <div class="stat-icon">⭐</div>
-            <div id="user-xp" class="stat-value">
-              {% if xp %}{{ xp }} XP{% else %}0 XP{% endif %}
+          <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+              <i class="bi bi-star-fill" style="font-size: var(--text-4xl); color: var(--primary-600);"></i>
+              <div>
+                <div id="user-xp" class="stat-value">
+                  {% if xp %}{{ xp }} XP{% else %}0 XP{% endif %}
+                </div>
+                <div class="stat-label">Kinh nghiệm</div>
+              </div>
             </div>
-            <div class="stat-label">Kinh nghiệm</div>
           </div>
         </div>
         <div class="col-md-3 col-6">
-          <div class="stat-card text-center">
-            <div class="stat-icon">🔥</div>
-            <div id="study-streak" class="stat-value">
-              {% if current_streak %}{{ current_streak }} ngày{% else %}0 ngày{% endif %}
+          <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+              <i class="bi bi-fire" style="font-size: var(--text-4xl); color: var(--error-600);"></i>
+              <div>
+                <div id="study-streak" class="stat-value">
+                  {% if current_streak %}{{ current_streak }} ngày{% else %}0 ngày{% endif %}
+                </div>
+                <div class="stat-label">Chuỗi học tập</div>
+              </div>
             </div>
-            <div class="stat-label">Chuỗi học tập</div>
           </div>
         </div>
         <div class="col-md-3 col-6">
-          <div class="stat-card text-center">
-            <div class="stat-icon">📊</div>
-            <div class="stat-value">
-              {% if exam_count is not None %}{{ exam_count }}{% else %}{{ user.ketqua_set.count }}{% endif %}
+          <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+              <i class="bi bi-clipboard-check" style="font-size: var(--text-4xl); color: var(--success-600);"></i>
+              <div>
+                <div class="stat-value">
+                  {% if exam_count is not None %}{{ exam_count }}{% else %}{{ user.ketqua_set.count }}{% endif %}
+                </div>
+                <div class="stat-label">Bài thi</div>
+              </div>
             </div>
-            <div class="stat-label">Bài thi</div>
           </div>
         </div>
       </div>
@@ -84,27 +100,29 @@
         Các tính năng chính
         <span style="position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 60px; height: 4px; background: var(--gradient-accent); border-radius: 2px;"></span>
       </h2>
-      <p class="text-secondary" style="font-size: var(--text-lg); max-width: 600px; margin: var(--space-3) auto 0;">
+      <p class="text-secondary mx-auto" style="font-size: var(--text-lg); max-width: 600px; margin-top: var(--space-3);">
         Hệ thống học tập toàn diện với công nghệ hiện đại
       </p>
     </div>
     
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <div class="row row-cols-1 row-cols-md-2 g-4">
       <!-- Feature 1: Kiến thức -->
       <div class="col">
         <a href="/kien-thuc/" class="text-decoration-none">
           <div class="card card-interactive" style="height: 100%; padding: var(--space-6);">
-            <div class="text-center">
-              <div class="icon mb-4" style="font-size: var(--text-5xl);">📚</div>
-              <h3 class="fw-bold mb-3" style="font-size: var(--text-xl); color: var(--text-primary);">
-                Kiến thức
-              </h3>
+            <div>
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <i class="bi bi-book-fill" style="font-size: var(--text-4xl); color: var(--primary-600);"></i>
+                <h3 class="fw-bold mb-0" style="font-size: var(--text-xl); color: var(--text-primary);">
+                  Kiến thức
+                </h3>
+              </div>
               <p class="text-secondary" style="font-size: var(--text-base);">
                 Hệ thống bài giảng và lý thuyết chi tiết theo từng môn học.
               </p>
               <div class="mt-4">
                 <span class="badge badge-rare">
-                  <i class="bi bi-book-fill"></i>
+                  <i class="bi bi-arrow-right"></i>
                   Học ngay
                 </span>
               </div>
@@ -117,17 +135,19 @@
       <div class="col">
         <a href="/de-thi/" class="text-decoration-none">
           <div class="card card-interactive" style="height: 100%; padding: var(--space-6);">
-            <div class="text-center">
-              <div class="icon mb-4" style="font-size: var(--text-5xl);">📝</div>
-              <h3 class="fw-bold mb-3" style="font-size: var(--text-xl); color: var(--text-primary);">
-                Đề thi
-              </h3>
+            <div>
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <i class="bi bi-pencil-square" style="font-size: var(--text-4xl); color: var(--success-600);"></i>
+                <h3 class="fw-bold mb-0" style="font-size: var(--text-xl); color: var(--text-primary);">
+                  Đề thi
+                </h3>
+              </div>
               <p class="text-secondary" style="font-size: var(--text-base);">
                 Ngân hàng đề thi phong phú, chấm điểm tự động và giải chi tiết.
               </p>
               <div class="mt-4">
                 <span class="badge badge-epic">
-                  <i class="bi bi-pencil-fill"></i>
+                  <i class="bi bi-arrow-right"></i>
                   Luyện tập
                 </span>
               </div>
@@ -140,17 +160,19 @@
       <div class="col">
         <a href="/kien-thuc/flashcard/" class="text-decoration-none">
           <div class="card card-interactive" style="height: 100%; padding: var(--space-6);">
-            <div class="text-center">
-              <div class="icon mb-4" style="font-size: var(--text-5xl);">🎴</div>
-              <h3 class="fw-bold mb-3" style="font-size: var(--text-xl); color: var(--text-primary);">
-                Flashcard
-              </h3>
+            <div>
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <i class="bi bi-lightning-fill" style="font-size: var(--text-4xl); color: var(--warning-600);"></i>
+                <h3 class="fw-bold mb-0" style="font-size: var(--text-xl); color: var(--text-primary);">
+                  Flashcard
+                </h3>
+              </div>
               <p class="text-secondary" style="font-size: var(--text-base);">
                 Ghi nhớ kiến thức nhanh chóng với phương pháp Spaced Repetition.
               </p>
               <div class="mt-4">
                 <span class="badge badge-legendary">
-                  <i class="bi bi-lightning-fill"></i>
+                  <i class="bi bi-arrow-right"></i>
                   Học thông minh
                 </span>
               </div>
@@ -163,17 +185,19 @@
       <div class="col">
         <a href="/leaderboard/" class="text-decoration-none">
           <div class="card card-interactive" style="height: 100%; padding: var(--space-6);">
-            <div class="text-center">
-              <div class="icon mb-4" style="font-size: var(--text-5xl);">🏆</div>
-              <h3 class="fw-bold mb-3" style="font-size: var(--text-xl); color: var(--text-primary);">
-                Xếp hạng
-              </h3>
+            <div>
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <i class="bi bi-trophy-fill" style="font-size: var(--text-4xl); color: var(--accent-600);"></i>
+                <h3 class="fw-bold mb-0" style="font-size: var(--text-xl); color: var(--text-primary);">
+                  Xếp hạng
+                </h3>
+              </div>
               <p class="text-secondary" style="font-size: var(--text-base);">
                 Cạnh tranh lành mạnh với bạn bè và học sinh toàn quốc.
               </p>
               <div class="mt-4">
                 <span class="badge badge-rare">
-                  <i class="bi bi-trophy-fill"></i>
+                  <i class="bi bi-arrow-right"></i>
                   Xem bảng xếp hạng
                 </span>
               </div>
@@ -182,45 +206,26 @@
         </a>
       </div>
 
-      <!-- Feature 5: Phân tích -->
-      <div class="col">
+      <!-- Feature 5: Phân tích (Large card spanning 2 columns) -->
+      <div class="col-md-12">
         <a href="/de-thi/phan-tich/" class="text-decoration-none">
-          <div class="card card-interactive" style="height: 100%; padding: var(--space-6);">
-            <div class="text-center">
-              <div class="icon mb-4" style="font-size: var(--text-5xl);">📊</div>
-              <h3 class="fw-bold mb-3" style="font-size: var(--text-xl); color: var(--text-primary);">
-                Phân tích
-              </h3>
-              <p class="text-secondary" style="font-size: var(--text-base);">
-                Theo dõi tiến độ học tập và phân tích điểm mạnh, điểm yếu.
-              </p>
-              <div class="mt-4">
-                <span class="badge badge-epic">
-                  <i class="bi bi-graph-up-arrow"></i>
-                  Xem thống kê
-                </span>
+          <div class="card card-interactive" style="padding: var(--space-6);">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                  <i class="bi bi-graph-up-arrow" style="font-size: var(--text-4xl); color: var(--primary-600);"></i>
+                  <h3 class="fw-bold mb-0" style="font-size: var(--text-xl); color: var(--text-primary);">
+                    Phân tích & Thống kê
+                  </h3>
+                </div>
+                <p class="text-secondary" style="font-size: var(--text-base); margin-bottom: 0;">
+                  Theo dõi tiến độ học tập chi tiết, phân tích điểm mạnh và điểm yếu của bạn qua từng bài thi. Nhận gợi ý cải thiện dựa trên dữ liệu thực tế.
+                </p>
               </div>
-            </div>
-          </div>
-        </a>
-      </div>
-
-      <!-- Feature 6: Cộng đồng -->
-      <div class="col">
-        <a href="/de-thi/forum/" class="text-decoration-none">
-          <div class="card card-interactive" style="height: 100%; padding: var(--space-6);">
-            <div class="text-center">
-              <div class="icon mb-4" style="font-size: var(--text-5xl);">💬</div>
-              <h3 class="fw-bold mb-3" style="font-size: var(--text-xl); color: var(--text-primary);">
-                Cộng đồng
-              </h3>
-              <p class="text-secondary" style="font-size: var(--text-base);">
-                Thảo luận, chia sẻ kinh nghiệm và giải đáp thắc mắc.
-              </p>
-              <div class="mt-4">
-                <span class="badge badge-rare">
-                  <i class="bi bi-chat-dots-fill"></i>
-                  Tham gia
+              <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <span class="badge badge-epic" style="font-size: var(--text-base); padding: var(--space-2) var(--space-4);">
+                  <i class="bi bi-arrow-right"></i>
+                  Xem thống kê
                 </span>
               </div>
             </div>
@@ -250,33 +255,49 @@
 
   <!-- Statistics Section -->
   <section style="margin-bottom: var(--space-12);">
-    <div class="row g-4 text-center">
+    <div class="row g-4">
       <div class="col-md-3 col-6">
         <div class="card" style="padding: var(--space-4);">
-          <div class="stat-icon" style="color: var(--primary-600);">📚</div>
-          <div class="stat-value" style="color: var(--primary-600);">1000+</div>
-          <div class="stat-label">Bài giảng</div>
+          <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-book-fill" style="font-size: var(--text-4xl); color: var(--primary-600);"></i>
+            <div>
+              <div class="stat-value" style="color: var(--primary-600);">1000+</div>
+              <div class="stat-label">Bài giảng</div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="col-md-3 col-6">
         <div class="card" style="padding: var(--space-4);">
-          <div class="stat-icon" style="color: var(--success-600);">📝</div>
-          <div class="stat-value" style="color: var(--success-600);">500+</div>
-          <div class="stat-label">Đề thi</div>
+          <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-file-earmark-text-fill" style="font-size: var(--text-4xl); color: var(--success-600);"></i>
+            <div>
+              <div class="stat-value" style="color: var(--success-600);">500+</div>
+              <div class="stat-label">Đề thi</div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="col-md-3 col-6">
         <div class="card" style="padding: var(--space-4);">
-          <div class="stat-icon" style="color: var(--accent-600);">👥</div>
-          <div class="stat-value" style="color: var(--accent-600);">10K+</div>
-          <div class="stat-label">Học sinh</div>
+          <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-people-fill" style="font-size: var(--text-4xl); color: var(--accent-600);"></i>
+            <div>
+              <div class="stat-value" style="color: var(--accent-600);">10K+</div>
+              <div class="stat-label">Học sinh</div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="col-md-3 col-6">
         <div class="card" style="padding: var(--space-4);">
-          <div class="stat-icon" style="color: var(--warning-600);">⭐</div>
-          <div class="stat-value" style="color: var(--warning-600);">4.8/5</div>
-          <div class="stat-label">Đánh giá</div>
+          <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-star-fill" style="font-size: var(--text-4xl); color: var(--warning-600);"></i>
+            <div>
+              <div class="stat-value" style="color: var(--warning-600);">4.8/5</div>
+              <div class="stat-label">Đánh giá</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
