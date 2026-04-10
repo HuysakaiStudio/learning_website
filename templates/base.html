@@ -48,6 +48,7 @@
 
   <!-- Accessibility -->
   <link rel="stylesheet" href="{% static 'css/accessibility.css' %}?v={{ CACHE_VERSION }}">
+  <link rel="stylesheet" href="{% static 'css/practice-mode.css' %}?v={{ CACHE_VERSION }}">
 
   <script src="{% static 'js/dark-mode.js' %}?v={{ CACHE_VERSION }}"></script>
 
@@ -98,6 +99,117 @@
 
     .toast.success {
       background: #34a853;
+    }
+
+    /* Floating Action Button */
+    .fab-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+    }
+
+    .fab-main {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .fab-main:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+    }
+
+    .fab-main.active {
+      transform: rotate(45deg);
+    }
+
+    .fab-menu {
+      position: absolute;
+      bottom: 70px;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .fab-menu.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0);
+    }
+
+    .fab-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      background: white;
+      color: #1e40af;
+      border-radius: 28px;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s;
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .fab-item:hover {
+      background: #3b82f6;
+      color: white;
+      transform: translateX(-4px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .fab-item i {
+      font-size: 18px;
+    }
+
+    body.dark-mode .fab-main {
+      background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+    }
+
+    body.dark-mode .fab-item {
+      background: var(--dm-bg-card);
+      color: var(--dm-text-primary);
+    }
+
+    body.dark-mode .fab-item:hover {
+      background: var(--dm-primary);
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .fab-container {
+        bottom: 80px;
+        right: 16px;
+      }
+
+      .fab-main {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+      }
+
+      .fab-item {
+        padding: 10px 16px;
+        font-size: 13px;
+      }
     }
   </style>
 </head>
@@ -192,6 +304,10 @@
               <li><a class="dropdown-item" href="/de-thi/lich-su/"><i class="bi bi-clock-history me-2"></i>Lịch sử</a></li>
               <li><a class="dropdown-item" href="/leaderboard/achievements/"><i class="bi bi-trophy me-2"></i>Thành tích</a></li>
               <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'studio:dashboard' %}"><i class="bi bi-palette me-2"></i>Studio</a></li>
+              <li><a class="dropdown-item" href="{% url 'kien_thuc:tao_bai_viet' %}"><i class="bi bi-pencil-square me-2"></i>Tạo bài viết</a></li>
+              <li><a class="dropdown-item" href="{% url 'kien_thuc:tao_flashcard_set' %}"><i class="bi bi-lightning-fill me-2"></i>Tạo flashcard</a></li>
+              <li><hr class="dropdown-divider"></li>
               {% if user.is_staff %}
               <li><a class="dropdown-item" href="/admin/"><i class="bi bi-shield-fill-check me-2"></i>Admin</a></li>
               <li><hr class="dropdown-divider"></li>
@@ -211,6 +327,21 @@
         <!-- Mobile: User Profile/Login at bottom of menu -->
         <div class="d-lg-none mt-3 pt-3 border-top">
           {% if user.is_authenticated %}
+          <!-- Mobile: Quick Actions -->
+          <div class="px-3 mb-3">
+            <div class="d-grid gap-2">
+              <a href="{% url 'studio:dashboard' %}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-palette me-2"></i>Studio
+              </a>
+              <a href="{% url 'kien_thuc:tao_bai_viet' %}" class="btn btn-sm btn-outline-success">
+                <i class="bi bi-pencil-square me-2"></i>Tạo bài viết
+              </a>
+              <a href="{% url 'kien_thuc:tao_flashcard_set' %}" class="btn btn-sm btn-outline-warning">
+                <i class="bi bi-lightning-fill me-2"></i>Tạo flashcard
+              </a>
+            </div>
+          </div>
+
           <div class="d-flex align-items-center justify-content-between px-3 py-2">
             <a href="{% url 'nguoi_dung:profile' %}" class="d-flex align-items-center text-decoration-none">
               {% if user.profile.avatar %}
@@ -239,6 +370,33 @@
   <main id="main-content" class="main-content">
     {% block content %}{% endblock %}
   </main>
+
+  <!-- Floating Action Button for Create Content -->
+  {% if user.is_authenticated %}
+  <div class="fab-container">
+    <button class="fab-main" id="fab-main" aria-label="Tạo nội dung">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+    <div class="fab-menu" id="fab-menu">
+      <a href="{% url 'kien_thuc:tao_bai_viet' %}" class="fab-item" title="Tạo bài viết">
+        <i class="bi bi-pencil-square"></i>
+        <span>Bài viết</span>
+      </a>
+      <a href="{% url 'kien_thuc:tao_flashcard_set' %}" class="fab-item" title="Tạo flashcard">
+        <i class="bi bi-lightning-fill"></i>
+        <span>Flashcard</span>
+      </a>
+      <a href="{% url 'de_thi:tao_de_thi' %}" class="fab-item" title="Tạo đề thi">
+        <i class="bi bi-file-earmark-text"></i>
+        <span>Đề thi</span>
+      </a>
+      <a href="{% url 'studio:dashboard' %}" class="fab-item" title="Studio">
+        <i class="bi bi-palette"></i>
+        <span>Studio</span>
+      </a>
+    </div>
+  </div>
+  {% endif %}
 
   <footer class="bg-light py-4 mt-5" role="contentinfo">
     <div class="container text-center">
@@ -371,6 +529,25 @@
           closeModal();
         }
       });
+
+      // Floating Action Button
+      const fabMain = document.getElementById('fab-main');
+      const fabMenu = document.getElementById('fab-menu');
+
+      if (fabMain && fabMenu) {
+        fabMain.addEventListener('click', function() {
+          fabMenu.classList.toggle('active');
+          fabMain.classList.toggle('active');
+        });
+
+        // Close FAB menu when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!fabMain.contains(e.target) && !fabMenu.contains(e.target)) {
+            fabMenu.classList.remove('active');
+            fabMain.classList.remove('active');
+          }
+        });
+      }
     });
   </script>
 

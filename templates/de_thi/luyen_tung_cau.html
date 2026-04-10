@@ -2,189 +2,102 @@
 {% block title %}{{ cau_hoi.de_thi.ten }} - Câu {{ so_thu_tu }}{% endblock %}
 
 {% block content %}
-<style>
-  @keyframes slideIn {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  @keyframes scaleIn {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-  
-  .feedback-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.3s ease-out;
-  }
-  
-  .feedback-overlay.show {
-    display: flex;
-  }
-  
-  .feedback-card {
-    background: white;
-    border-radius: 16px;
-    padding: 32px;
-    max-width: 600px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    animation: scaleIn 0.3s ease-out;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  }
-  
-  .result-icon {
-    font-size: 64px;
-    text-align: center;
-    margin-bottom: 16px;
-  }
-  
-  .result-text {
-    font-size: 28px;
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 24px;
-  }
-  
-  .result-correct {
-    color: #34a853;
-  }
-  
-  .result-incorrect {
-    color: #ea4335;
-  }
-  
-  .answer-section {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-  }
-  
-  .explanation-section {
-    background: #f0f6ff;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 24px;
-  }
-</style>
-
 <!-- Header cố định với thanh tiến độ -->
-<div style="position:sticky;top:0;background:white;z-index:100;
-            border-bottom:1px solid #eee;padding:12px 0;margin-bottom:24px">
-  <div style="max-width:960px;margin:0 auto;padding:0 16px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+<div class="practice-header">
+  <div class="container-md">
+    <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
-        <strong style="font-size:15px">{{ session.de_thi.ten }}</strong>
-        <span style="color:#888;font-size:13px;margin-left:12px">
+        <strong class="text-base">{{ session.de_thi.ten }}</strong>
+        <span class="text-sm text-secondary ms-3">
           Câu {{ so_thu_tu }} / {{ tong_cau }}
         </span>
       </div>
-      <span style="background:#e8f5e9;color:#34a853;padding:4px 12px;
-                   border-radius:20px;font-size:13px">🎯 Luyện từng câu</span>
+      <span class="badge badge-success">
+        <i class="bi bi-bullseye"></i>
+        Luyện từng câu
+      </span>
     </div>
-    
+
     <!-- Progress bar -->
-    <div style="background:#e8f0fe;border-radius:999px;overflow:hidden;height:8px">
-      <div style="width:{{ tien_do }}%;height:100%;background:#1a73e8;transition:width 0.3s;"></div>
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" style="width:{{ tien_do }}%"></div>
     </div>
-    <div style="text-align:right;margin-top:4px;font-size:12px;color:#666">
+    <div class="text-end mt-1 text-xs text-secondary">
       {{ tien_do }}% hoàn thành
     </div>
   </div>
 </div>
 
 <!-- Câu hỏi -->
-<div style="max-width:760px;margin:0 auto;animation:slideIn 0.5s ease-out">
-  <div style="background:white;border-radius:12px;padding:32px;
-              box-shadow:0 2px 8px rgba(0,0,0,0.08)">
-    
+<div class="container-sm animate-slide-in-up">
+  <div class="card p-6">
+
     <!-- Nhãn loại câu -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-      <span style="background:#f0f0f0;color:#555;padding:4px 12px;
-                   border-radius:20px;font-size:13px;font-weight:500">
+    <div class="d-flex align-items-center gap-2 mb-4">
+      <span class="badge badge-common">
         Câu {{ so_thu_tu }}
       </span>
       {% if cau_hoi.loai == 'tn' %}
-      <span style="background:#e8f0fe;color:#1a73e8;padding:4px 12px;
-                   border-radius:20px;font-size:13px">📝 Trắc nghiệm</span>
+      <span class="badge badge-rare">
+        <i class="bi bi-pencil-square"></i>
+        Trắc nghiệm
+      </span>
       {% elif cau_hoi.loai == 'ds' %}
-      <span style="background:#fce8e8;color:#ea4335;padding:4px 12px;
-                   border-radius:20px;font-size:13px">✅ Đúng/Sai</span>
+      <span class="badge badge-epic">
+        <i class="bi bi-check-circle"></i>
+        Đúng/Sai
+      </span>
       {% elif cau_hoi.loai == 'dien' %}
-      <span style="background:#e6f4ea;color:#34a853;padding:4px 12px;
-                   border-radius:20px;font-size:13px">🔢 Điền số</span>
+      <span class="badge badge-legendary">
+        <i class="bi bi-calculator"></i>
+        Điền số
+      </span>
       {% endif %}
     </div>
-    
+
     <!-- Nội dung câu hỏi -->
-    <div style="font-size:18px;line-height:1.8;margin-bottom:28px;color:#333">
+    <div class="text-lg mb-5 text-primary">
       {{ cau_hoi.noi_dung|linebreaks }}
     </div>
     
     <!-- Form trả lời -->
     <form id="answer-form">
       {% csrf_token %}
-      
+
       <!-- Trắc nghiệm ABCD -->
       {% if cau_hoi.loai == 'tn' %}
-      <div style="display:grid;grid-template-columns:1fr;gap:12px">
+      <div class="d-grid gap-3">
         {% for label, text in cau_hoi.choices %}
-          <label style="border:2px solid #e8e8e8;border-radius:12px;padding:16px 20px;
-                        cursor:pointer;display:flex;align-items:center;gap:14px;
-                        transition:all 0.2s" class="choice-option">
-            <input type="radio" name="chon" value="{{ label }}" 
-                   style="display:none" class="radio-choice">
-            <span style="width:32px;height:32px;border-radius:50%;border:2px solid #ddd;
-                         display:flex;align-items:center;justify-content:center;
-                         font-weight:600;font-size:14px;flex-shrink:0" 
-                  class="choice-letter">{{ label }}</span>
-            <span style="font-size:16px;flex:1">{{ text }}</span>
+          <label class="choice-option">
+            <input type="radio" name="chon" value="{{ label }}" class="radio-choice d-none">
+            <span class="choice-letter">{{ label }}</span>
+            <span class="flex-grow-1 text-base">{{ text }}</span>
           </label>
         {% endfor %}
       </div>
       
       <!-- Đúng/Sai -->
       {% elif cau_hoi.loai == 'ds' %}
-      <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="d-flex flex-column gap-3">
         {% for item in 'abcd'|make_list %}
-        <div style="border:2px solid #e8e8e8;border-radius:12px;padding:16px 20px">
-          <div style="font-size:16px;margin-bottom:12px;font-weight:500">
+        <div class="card p-4">
+          <div class="text-base mb-3 fw-medium">
             <strong>{{ item|upper }})</strong>
             {% if item == 'a' %}{{ cau_hoi.y_a }}
             {% elif item == 'b' %}{{ cau_hoi.y_b }}
             {% elif item == 'c' %}{{ cau_hoi.y_c }}
             {% elif item == 'd' %}{{ cau_hoi.y_d }}{% endif %}
           </div>
-          <div style="display:flex;gap:12px">
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;
-                          padding:8px 20px;border:2px solid #e8e8e8;border-radius:10px;
-                          font-size:15px;transition:all 0.2s;flex:1;justify-content:center" 
-                   class="ds-option">
-              <input type="radio" name="chon_{{ item }}" value="true" 
-                     style="display:none" class="radio-ds">
-              ✅ Đúng
+          <div class="d-flex gap-3">
+            <label class="ds-option flex-fill">
+              <input type="radio" name="chon_{{ item }}" value="true" class="radio-ds d-none">
+              <i class="bi bi-check-circle"></i>
+              Đúng
             </label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;
-                          padding:8px 20px;border:2px solid #e8e8e8;border-radius:10px;
-                          font-size:15px;transition:all 0.2s;flex:1;justify-content:center" 
-                   class="ds-option">
-              <input type="radio" name="chon_{{ item }}" value="false" 
-                     style="display:none" class="radio-ds">
-              ❌ Sai
+            <label class="ds-option flex-fill">
+              <input type="radio" name="chon_{{ item }}" value="false" class="radio-ds d-none">
+              <i class="bi bi-x-circle"></i>
+              Sai
             </label>
           </div>
         </div>
@@ -193,24 +106,19 @@
       
       <!-- Điền số -->
       {% elif cau_hoi.loai == 'dien' %}
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <label style="font-size:15px;color:#555;font-weight:500">Nhập đáp án của bạn:</label>
+      <div class="d-flex flex-column gap-3">
+        <label class="text-sm text-secondary fw-medium">Nhập đáp án của bạn:</label>
         <input type="number" step="any" name="so_dien" id="so_dien"
                placeholder="Nhập số..."
-               style="padding:14px 20px;border:2px solid #e8e8e8;border-radius:10px;
-                      font-size:18px;width:100%;outline:none;transition:border-color 0.2s"
-               onfocus="this.style.borderColor='#1a73e8'"
-               onblur="this.style.borderColor='#e8e8e8'">
+               class="form-control form-control-lg">
       </div>
       {% endif %}
-      
+
       <!-- Nút kiểm tra -->
-      <div style="margin-top:32px">
-        <button type="submit" id="submit-btn"
-                style="width:100%;padding:16px;background:#1a73e8;color:white;
-                       border:none;border-radius:10px;font-size:17px;
-                       font-weight:600;cursor:pointer;transition:background 0.2s">
-          ✓ Kiểm tra đáp án
+      <div class="mt-6">
+        <button type="submit" id="submit-btn" class="btn btn-primary btn-lg w-100">
+          <i class="bi bi-check-lg"></i>
+          Kiểm tra đáp án
         </button>
       </div>
     </form>
@@ -220,24 +128,27 @@
 <!-- Feedback Overlay -->
 <div id="feedback-overlay" class="feedback-overlay">
   <div class="feedback-card">
-    <div class="result-icon" id="result-icon">✅</div>
+    <div class="result-icon" id="result-icon">
+      <i class="bi bi-check-circle-fill"></i>
+    </div>
     <div class="result-text" id="result-text">Chính xác!</div>
-    
+
     <div class="answer-section">
-      <div style="font-weight:600;margin-bottom:8px;color:#555">Đáp án đúng:</div>
-      <div id="correct-answer" style="font-size:16px;color:#333"></div>
+      <div class="fw-semibold mb-2 text-secondary">Đáp án đúng:</div>
+      <div id="correct-answer" class="text-base text-primary"></div>
     </div>
-    
+
     <div class="explanation-section" id="explanation-section">
-      <div style="font-weight:600;margin-bottom:8px;color:#1a73e8">💡 Giải thích:</div>
-      <div id="explanation-text" style="font-size:15px;line-height:1.7;color:#333"></div>
+      <div class="fw-semibold mb-2 text-primary">
+        <i class="bi bi-lightbulb-fill"></i>
+        Giải thích:
+      </div>
+      <div id="explanation-text" class="text-sm text-primary"></div>
     </div>
-    
-    <button id="next-btn"
-            style="width:100%;padding:16px;background:#34a853;color:white;
-                   border:none;border-radius:10px;font-size:17px;
-                   font-weight:600;cursor:pointer;transition:background 0.2s">
-      → Câu tiếp theo
+
+    <button id="next-btn" class="btn btn-success btn-lg w-100">
+      <i class="bi bi-arrow-right"></i>
+      Câu tiếp theo
     </button>
   </div>
 </div>
@@ -300,8 +211,7 @@ form.addEventListener('submit', async (e) => {
   
   // Disable form
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Đang kiểm tra...';
-  submitBtn.style.background = '#999';
+  submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang kiểm tra...';
   
   // Gather form data
   const formData = new FormData(form);
@@ -323,30 +233,28 @@ form.addEventListener('submit', async (e) => {
     } else {
       alert('Có lỗi xảy ra: ' + (data.error || 'Unknown error'));
       submitBtn.disabled = false;
-      submitBtn.textContent = '✓ Kiểm tra đáp án';
-      submitBtn.style.background = '#1a73e8';
+      submitBtn.innerHTML = '<i class="bi bi-check-lg"></i> Kiểm tra đáp án';
     }
   } catch (error) {
     console.error('Error:', error);
     alert('Có lỗi xảy ra khi gửi câu trả lời!');
     submitBtn.disabled = false;
-    submitBtn.textContent = '✓ Kiểm tra đáp án';
-    submitBtn.style.background = '#1a73e8';
+    submitBtn.innerHTML = '<i class="bi bi-check-lg"></i> Kiểm tra đáp án';
   }
 });
 
 function showFeedback(data) {
   // Update icon and text
   if (data.dung) {
-    resultIcon.textContent = '✅';
+    resultIcon.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
     resultText.textContent = 'Chính xác!';
     resultText.className = 'result-text result-correct';
   } else {
-    resultIcon.textContent = '❌';
+    resultIcon.innerHTML = '<i class="bi bi-x-circle-fill text-error"></i>';
     resultText.textContent = 'Chưa đúng';
     resultText.className = 'result-text result-incorrect';
   }
-  
+
   // Update correct answer
   const loaiCau = '{{ cau_hoi.loai }}';
   if (loaiCau === 'tn') {
@@ -354,16 +262,15 @@ function showFeedback(data) {
   } else if (loaiCau === 'dien') {
     correctAnswerDiv.textContent = data.dap_an_dung;
   } else if (loaiCau === 'ds') {
-    let html = '<table style="width:100%;border-collapse:collapse">';
-    html += '<tr style="background:#f8f8f8"><th style="padding:8px;text-align:left">Ý</th><th style="padding:8px">Đáp án</th></tr>';
+    let html = '<table class="table table-sm"><thead><tr><th>Ý</th><th class="text-center">Đáp án</th></tr></thead><tbody>';
     ['a', 'b', 'c', 'd'].forEach(item => {
       const isCorrect = data.dap_an_dung[item];
-      html += `<tr><td style="padding:8px">${item.toUpperCase()}</td><td style="padding:8px;text-align:center">${isCorrect ? '✅ Đúng' : '❌ Sai'}</td></tr>`;
+      html += `<tr><td>${item.toUpperCase()}</td><td class="text-center">${isCorrect ? '<i class="bi bi-check-circle-fill text-success"></i> Đúng' : '<i class="bi bi-x-circle-fill text-error"></i> Sai'}</td></tr>`;
     });
-    html += '</table>';
+    html += '</tbody></table>';
     correctAnswerDiv.innerHTML = html;
   }
-  
+
   // Update explanation
   if (data.giai_thich && data.giai_thich.trim()) {
     explanationText.textContent = data.giai_thich;
@@ -371,16 +278,16 @@ function showFeedback(data) {
   } else {
     explanationSection.style.display = 'none';
   }
-  
+
   // Update next button
   if (data.is_last) {
-    nextBtn.textContent = '🎉 Xem kết quả';
+    nextBtn.innerHTML = '<i class="bi bi-trophy-fill"></i> Xem kết quả';
     nextBtn.onclick = () => window.location.href = data.next_url;
   } else {
-    nextBtn.textContent = '→ Câu tiếp theo';
+    nextBtn.innerHTML = '<i class="bi bi-arrow-right"></i> Câu tiếp theo';
     nextBtn.onclick = () => window.location.reload();
   }
-  
+
   // Show overlay
   feedbackOverlay.classList.add('show');
 }
