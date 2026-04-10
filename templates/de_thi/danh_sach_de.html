@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 {% block title %}Đề thi — Ôn Thi THPTQG{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/skeleton-loaders.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="mb-4">
   <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
@@ -40,7 +45,34 @@
 </div>
 
 {% if page_obj %}
-<div class="content-grid">
+<div class="content-grid" id="exam-list">
+  <!-- Skeleton loaders (hidden by default, shown during loading) -->
+  <div class="skeleton-loaders" style="display: none;">
+    {% for i in "123456" %}
+    <div class="skeleton-exam-card">
+      <div class="skeleton-exam-header">
+        <div class="skeleton skeleton-exam-title"></div>
+      </div>
+      <div class="skeleton-exam-meta">
+        <div class="skeleton skeleton-exam-badge"></div>
+        <div class="skeleton skeleton-exam-badge"></div>
+        <div class="skeleton skeleton-exam-badge"></div>
+      </div>
+      <div class="skeleton-exam-description">
+        <div class="skeleton skeleton-text"></div>
+        <div class="skeleton skeleton-text"></div>
+        <div class="skeleton skeleton-text"></div>
+      </div>
+      <div class="skeleton-exam-actions">
+        <div class="skeleton skeleton-exam-button"></div>
+        <div class="skeleton skeleton-exam-button"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Actual content -->
+  <div class="exam-content">
   {% for de in page_obj %}
   <div class="content-card exam-card">
     <div class="d-flex justify-content-between align-items-start mb-3">
@@ -49,7 +81,7 @@
     </div>
     <h3 class="content-card-title">{{ de.ten }}</h3>
     <p class="content-card-description">{{ de.mo_ta|truncatewords:12 }}</p>
-    
+
     <div class="card-stats">
       <div class="stat-item">
         <span class="stat-value">{{ de.tong_cau }}</span>
@@ -60,7 +92,7 @@
         <span class="stat-label">lượt thi</span>
       </div>
     </div>
-    
+
     <div class="mb-3">
         {% if de.creator %}
             <a href="{% url 'nguoi_dung:user_profile' de.creator.username %}" class="small text-decoration-none text-muted">
@@ -82,6 +114,7 @@
     </div>
   </div>
   {% endfor %}
+  </div>
 </div>
 {% include 'includes/pagination.html' %}
 {% else %}

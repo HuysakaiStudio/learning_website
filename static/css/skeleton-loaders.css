@@ -1,0 +1,397 @@
+/* Skeleton Loaders for Better Perceived Performance */
+
+/* Base skeleton styles */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 0%,
+    var(--bg-tertiary) 50%,
+    var(--bg-secondary) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Card skeleton */
+.skeleton-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 16px;
+}
+
+.skeleton-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.skeleton-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.skeleton-card-title {
+  flex: 1;
+}
+
+.skeleton-title {
+  height: 20px;
+  width: 70%;
+  margin-bottom: 8px;
+}
+
+.skeleton-subtitle {
+  height: 14px;
+  width: 40%;
+}
+
+.skeleton-text {
+  height: 14px;
+  margin-bottom: 8px;
+}
+
+.skeleton-text:last-child {
+  margin-bottom: 0;
+  width: 80%;
+}
+
+.skeleton-button {
+  height: 36px;
+  width: 100px;
+  margin-top: 12px;
+}
+
+/* Exam card skeleton */
+.skeleton-exam-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+}
+
+.skeleton-exam-header {
+  margin-bottom: 16px;
+}
+
+.skeleton-exam-title {
+  height: 24px;
+  width: 60%;
+  margin-bottom: 12px;
+}
+
+.skeleton-exam-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.skeleton-exam-badge {
+  height: 20px;
+  width: 80px;
+}
+
+.skeleton-exam-description {
+  margin-bottom: 16px;
+}
+
+.skeleton-exam-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.skeleton-exam-button {
+  height: 40px;
+  flex: 1;
+}
+
+/* Flashcard skeleton */
+.skeleton-flashcard {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.skeleton-flashcard-content {
+  width: 100%;
+  max-width: 400px;
+}
+
+.skeleton-flashcard-text {
+  height: 18px;
+  margin-bottom: 12px;
+}
+
+.skeleton-flashcard-text.large {
+  height: 24px;
+  width: 80%;
+  margin: 0 auto 16px;
+}
+
+/* Leaderboard skeleton */
+.skeleton-leaderboard-item {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.skeleton-rank {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+}
+
+.skeleton-leaderboard-info {
+  flex: 1;
+}
+
+.skeleton-leaderboard-name {
+  height: 18px;
+  width: 150px;
+  margin-bottom: 8px;
+}
+
+.skeleton-leaderboard-score {
+  height: 14px;
+  width: 100px;
+}
+
+.skeleton-leaderboard-badge {
+  width: 60px;
+  height: 24px;
+  border-radius: 12px;
+}
+
+/* Table skeleton */
+.skeleton-table {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.skeleton-table-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.skeleton-table-row:last-child {
+  border-bottom: none;
+}
+
+.skeleton-table-cell {
+  height: 16px;
+}
+
+.skeleton-table-cell.small {
+  width: 60px;
+}
+
+.skeleton-table-cell.medium {
+  width: 120px;
+}
+
+.skeleton-table-cell.large {
+  flex: 1;
+}
+
+/* List skeleton */
+.skeleton-list {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.skeleton-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.skeleton-list-item:last-child {
+  border-bottom: none;
+}
+
+.skeleton-list-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+}
+
+.skeleton-list-text {
+  flex: 1;
+  height: 16px;
+}
+
+/* Grid skeleton */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* Profile skeleton */
+.skeleton-profile {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.skeleton-profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+}
+
+.skeleton-profile-name {
+  height: 24px;
+  width: 200px;
+  margin: 0 auto 12px;
+}
+
+.skeleton-profile-bio {
+  height: 16px;
+  width: 300px;
+  margin: 0 auto 8px;
+}
+
+.skeleton-profile-stats {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 24px;
+}
+
+.skeleton-profile-stat {
+  text-align: center;
+}
+
+.skeleton-stat-value {
+  height: 28px;
+  width: 60px;
+  margin: 0 auto 8px;
+}
+
+.skeleton-stat-label {
+  height: 14px;
+  width: 80px;
+  margin: 0 auto;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .skeleton-card {
+    padding: 16px;
+  }
+
+  .skeleton-exam-card {
+    padding: 20px;
+  }
+
+  .skeleton-flashcard {
+    padding: 24px;
+    min-height: 250px;
+  }
+
+  .skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .skeleton-exam-meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .skeleton-exam-actions {
+    flex-direction: column;
+  }
+
+  .skeleton-profile-stats {
+    gap: 20px;
+  }
+}
+
+/* Dark mode support */
+body.dark-mode .skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 0%,
+    var(--bg-secondary) 50%,
+    var(--bg-tertiary) 100%
+  );
+  background-size: 200% 100%;
+}
+
+body.dark-mode .skeleton-card,
+body.dark-mode .skeleton-exam-card,
+body.dark-mode .skeleton-flashcard,
+body.dark-mode .skeleton-leaderboard-item,
+body.dark-mode .skeleton-table,
+body.dark-mode .skeleton-list,
+body.dark-mode .skeleton-profile {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+}
+
+body.dark-mode .skeleton-table-row,
+body.dark-mode .skeleton-list-item {
+  border-bottom-color: var(--border-light);
+}
+
+/* Utility classes */
+.skeleton-container {
+  padding: 20px;
+}
+
+.skeleton-hide {
+  display: none;
+}
+
+/* Fade in animation when content loads */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.content-loaded {
+  animation: fadeIn 0.3s ease-in;
+}

@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Flashcards{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/skeleton-loaders.css' %}">
+{% endblock %}
 
 {% block content %}
 <style>
@@ -212,7 +217,28 @@
 
   <!-- Flashcard Grid -->
   {% if page_obj %}
-  <div class="content-grid">
+  <div class="content-grid" id="flashcard-list">
+    <!-- Skeleton loaders (hidden by default) -->
+    <div class="skeleton-loaders" style="display: none;">
+      {% for i in "123456" %}
+      <div class="skeleton-card">
+        <div class="skeleton-card-header">
+          <div class="skeleton skeleton-avatar"></div>
+          <div class="skeleton-card-title">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-subtitle"></div>
+          </div>
+        </div>
+        <div class="skeleton skeleton-text"></div>
+        <div class="skeleton skeleton-text"></div>
+        <div class="skeleton skeleton-text"></div>
+        <div class="skeleton skeleton-button"></div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Actual content -->
+    <div class="flashcard-content">
     {% for fs in page_obj %}
     <div class="content-card flashcard-card">
       <div class="d-flex justify-content-between align-items-start mb-3">
@@ -223,7 +249,7 @@
       {% if fs.mo_ta %}
       <p class="content-card-description">{{ fs.mo_ta|truncatewords:12 }}</p>
       {% endif %}
-      
+
       <div class="card-stats">
         <div class="stat-item">
           <span class="stat-value">{{ fs.so_luong_the }}</span>
@@ -234,7 +260,7 @@
           <span class="stat-label">lượt xem</span>
         </div>
       </div>
-      
+
       <div class="mb-3">
           {% if fs.creator %}
               <a href="{% url 'nguoi_dung:user_profile' fs.creator.username %}" class="small text-decoration-none text-muted">
@@ -259,6 +285,7 @@
       </div>
     </div>
     {% endfor %}
+    </div>
   </div>
   {% include 'includes/pagination.html' %}
   {% else %}
