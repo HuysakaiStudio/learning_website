@@ -5,6 +5,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/exam-taking.css' %}">
 <link rel="stylesheet" href="{% static 'css/question-palette.css' %}">
+<link rel="stylesheet" href="{% static 'css/review-modal.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -400,34 +401,120 @@ setInterval(() => daChay++, 1000);
 
 // ── Nộp bài ──────────────────────────────────────────
 function nopBai() {
+  // Show review mode instead of submitting directly
+  showReviewMode();
+}
+
+function showReviewMode() {
   const chuaLam = [];
+  const daLam = [];
+
   {% for cau in cau_hoi_list %}
     {% if cau.loai == 'tn' %}
-      if (!document.querySelector('input[name="cau_{{ cau.id }}"]:checked')) {
-        chuaLam.push('Câu {{ forloop.counter }}');
+      if (document.querySelector('input[name="cau_{{ cau.id }}"]:checked')) {
+        daLam.push({{ forloop.counter }});
+      } else {
+        chuaLam.push({{ forloop.counter }});
       }
     {% elif cau.loai == 'ds' %}
       const ds_a = document.querySelector('input[name="cau_{{ cau.id }}_a"]:checked');
       const ds_b = document.querySelector('input[name="cau_{{ cau.id }}_b"]:checked');
       const ds_c = document.querySelector('input[name="cau_{{ cau.id }}_c"]:checked');
       const ds_d = document.querySelector('input[name="cau_{{ cau.id }}_d"]:checked');
-      if (!ds_a || !ds_b || !ds_c || !ds_d) {
-        chuaLam.push('Câu {{ forloop.counter }}');
+      if (ds_a && ds_b && ds_c && ds_d) {
+        daLam.push({{ forloop.counter }});
+      } else {
+        chuaLam.push({{ forloop.counter }});
       }
     {% elif cau.loai == 'dien' %}
-      if (!document.querySelector('input[name="cau_{{ cau.id }}"]').value.trim()) {
-        chuaLam.push('Câu {{ forloop.counter }}');
+      if (document.querySelector('input[name="cau_{{ cau.id }}"]').value.trim()) {
+        daLam.push({{ forloop.counter }});
+      } else {
+        chuaLam.push({{ forloop.counter }});
       }
     {% endif %}
   {% endfor %}
 
-  if (chuaLam.length > 0) {
-    showToast('Bạn chưa làm: ' + chuaLam.join(', '), 'error');
-    const firstId = chuaLam[0].replace('Câu ', '');
-    document.getElementById('cau-' + firstId).scrollIntoView({ behavior: 'smooth' });
-    return;
-  }
+  // Create review modal
+  const modal = document.createElement('div');
+  modal.className = 'review-modal-overlay';
+  modal.innerHTML = `
+    <div class="review-modal">
+      <div class="review-header">
+        <h2 class="review-title">
+          <i class="bi bi-clipboard-check"></i>
+          Xem lại bài thi
+        </h2>
+        <button class="review-close" onclick="closeReviewMode()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
 
+      <div class="review-stats">
+        <div class="review-stat-card answered">
+          <div class="stat-icon">✅</div>
+          <div class="stat-content">
+            <div class="stat-value">${daLam.length}</div>
+            <div class="stat-label">Đã trả lời</div>
+          </div>
+        </div>
+        <div class="review-stat-card unanswered">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-content">
+            <div class="stat-value">${chuaLam.length}</div>
+            <div class="stat-label">Chưa trả lời</div>
+          </div>
+        </div>
+        <div class="review-stat-card marked">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-content">
+            <div class="stat-value">${markedQuestions.size}</div>
+            <div class="stat-label">Đánh dấu</div>
+          </div>
+        </div>
+      </div>
+
+      ${chuaLam.length > 0 ? `
+        <div class="review-warning">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div>
+            <strong>Bạn chưa trả lời ${chuaLam.length} câu:</strong>
+            <div class="unanswered-list">${chuaLam.map(n => `<span class="q-num">Câu ${n}</span>`).join(' ')}</div>
+          </div>
+        </div>
+      ` : ''}
+
+      <div class="review-actions">
+        <button class="btn-review-back" onclick="closeReviewMode()">
+          <i class="bi bi-arrow-left"></i>
+          Quay lại làm bài
+        </button>
+        <button class="btn-review-submit" onclick="finalSubmit()">
+          <i class="bi bi-check-circle-fill"></i>
+          Nộp bài cuối cùng
+        </button>
+      </div>
+
+      <div class="review-note">
+        💡 Mẹo: Nhấn "Quay lại" để kiểm tra lại câu trả lời
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  document.body.style.overflow = 'hidden';
+}
+
+function closeReviewMode() {
+  const modal = document.querySelector('.review-modal-overlay');
+  if (modal) {
+    modal.remove();
+    document.body.style.overflow = '';
+  }
+}
+
+function finalSubmit() {
+  closeReviewMode();
   document.getElementById('thoi_gian_lam').value = daChay;
   clearDraft();
   form.submit();
@@ -611,12 +698,105 @@ window.addEventListener('beforeunload', (e) => {
   }
 });
 
-// Re-render nopBai with MathJax
-const originalNopBai = nopBai;
-nopBai = function() {
+// Review mode before final submit
+function showReviewMode() {
+  const answered = questionMeta.filter(q => q.answered).length;
+  const unanswered = questionMeta.length - answered;
+  const marked = markedQuestions.size;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'review-modal-overlay';
+  overlay.id = 'review-overlay';
+
+  overlay.innerHTML = `
+    <div class="review-modal">
+      <div class="review-header">
+        <h3>📋 Xem lại bài thi</h3>
+        <p>Kiểm tra kỹ trước khi nộp bài cuối cùng</p>
+      </div>
+
+      <div class="review-stats">
+        <div class="review-stat-card answered">
+          <span class="review-stat-icon">✅</span>
+          <div class="review-stat-content">
+            <span class="review-stat-number">${answered}</span>
+            <span class="review-stat-label">Đã trả lời</span>
+          </div>
+        </div>
+
+        <div class="review-stat-card unanswered">
+          <span class="review-stat-icon">⚪</span>
+          <div class="review-stat-content">
+            <span class="review-stat-number">${unanswered}</span>
+            <span class="review-stat-label">Chưa trả lời</span>
+          </div>
+        </div>
+
+        <div class="review-stat-card marked">
+          <span class="review-stat-icon">⭐</span>
+          <div class="review-stat-content">
+            <span class="review-stat-number">${marked}</span>
+            <span class="review-stat-label">Đánh dấu</span>
+          </div>
+        </div>
+      </div>
+
+      ${unanswered > 0 ? `
+        <div class="review-warning">
+          <span class="review-warning-icon">⚠️</span>
+          <div class="review-warning-text">
+            <strong>Bạn còn ${unanswered} câu chưa trả lời</strong>
+            <p>Các câu chưa trả lời sẽ được tính là sai. Bạn có chắc muốn nộp bài?</p>
+          </div>
+        </div>
+      ` : ''}
+
+      <div class="review-actions">
+        <button class="btn-review-back" onclick="closeReviewMode()">
+          <i class="bi bi-arrow-left"></i>
+          Quay lại làm bài
+        </button>
+        <button class="btn-review-submit" onclick="finalSubmit()">
+          <i class="bi bi-check-circle"></i>
+          Nộp bài cuối cùng
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // Prevent body scroll
+  document.body.style.overflow = 'hidden';
+}
+
+function closeReviewMode() {
+  const overlay = document.getElementById('review-overlay');
+  if (overlay) {
+    overlay.remove();
+    document.body.style.overflow = '';
+  }
+}
+
+function finalSubmit() {
+  closeReviewMode();
   isSubmitting = true;
   renderMathJax();
-  originalNopBai();
+
+  // Original submit logic
+  if (confirm('Xác nhận nộp bài? Bạn không thể sửa sau khi nộp.')) {
+    document.getElementById('thoi_gian_lam').value = daChay;
+    clearDraft();
+    form.submit();
+  } else {
+    isSubmitting = false;
+  }
+}
+
+// Override nopBai to show review mode first
+const originalNopBai = nopBai;
+nopBai = function() {
+  showReviewMode();
 };
 
 setInterval(saveDraft, 30000);
