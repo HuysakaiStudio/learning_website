@@ -24,6 +24,15 @@
       <div class="card-body">
         <h2 class="h5">{{ bai.tieu_de }}</h2>
         <p class="text-muted mb-3">{{ bai.noi_dung|truncatewords:18 }}</p>
+
+        <div class="d-flex gap-3 mb-2">
+          <small class="text-muted">
+            <i class="bi bi-eye"></i> {{ bai.view_count }} lượt xem
+          </small>
+          <small class="text-muted">
+            <i class="bi bi-lightning-fill"></i> {{ bai.flashcard_count|default:0 }} bộ thẻ
+          </small>
+        </div>
       </div>
       <div class="card-footer bg-white border-0 pt-0">
         <small class="text-muted">Đăng bởi {{ bai.nguoi_dang.username|default:"Admin" }} · {{ bai.ngay_tao|date:'d/m/Y' }}</small>

@@ -22,7 +22,7 @@ class BaiViet(models.Model):
         ('published', 'Đã xuất bản'),
         ('rejected', 'Bị từ chối'),
     ]
-    
+
     mon = models.ForeignKey(Mon, on_delete=models.CASCADE, related_name='bai_viet')
     tieu_de = models.CharField(max_length=200)
     noi_dung = models.TextField()
@@ -33,6 +33,7 @@ class BaiViet(models.Model):
     moderation_note = models.TextField(blank=True, help_text='Ghi chú kiểm duyệt')
     moderated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='moderated_bai_viet')
     moderated_at = models.DateTimeField(null=True, blank=True)
+    view_count = models.IntegerField(default=0, help_text='Số lượt xem bài viết')
 
     class Meta:
         verbose_name = 'Bài viết'
@@ -65,7 +66,7 @@ class FlashcardSet(models.Model):
         ('published', 'Đã xuất bản'),
         ('rejected', 'Bị từ chối'),
     ]
-    
+
     mon = models.ForeignKey(Mon, on_delete=models.CASCADE, related_name='flashcard_sets')
     tieu_de = models.CharField(max_length=200)
     mo_ta = models.TextField(blank=True)
@@ -74,6 +75,7 @@ class FlashcardSet(models.Model):
     ngay_tao = models.DateTimeField(auto_now_add=True)
     ngay_cap_nhat = models.DateTimeField(auto_now=True)
     so_luong_the = models.IntegerField(default=0)
+    lan_xem = models.IntegerField(default=0, help_text='Số lượt xem bộ flashcard')
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     moderation_note = models.TextField(blank=True, help_text='Ghi chú kiểm duyệt')

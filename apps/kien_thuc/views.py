@@ -17,7 +17,9 @@ def danh_sach_mon(request):
 def bai_viet_theo_mon(request, mon_id):
     """Hiển thị danh sách bài viết của một môn học."""
     mon = get_object_or_404(Mon, id=mon_id)
-    bai_viet_list = mon.bai_viet.filter(status='published').order_by('thu_tu', 'ngay_tao')
+    bai_viet_list = mon.bai_viet.filter(status='published').annotate(
+        flashcard_count=Count('mon__flashcard_sets', distinct=True)
+    ).order_by('thu_tu', 'ngay_tao')
     return render(request, 'kien_thuc/bai_viet_theo_mon.html', {
         'mon': mon,
         'bai_viet_list': bai_viet_list
@@ -26,12 +28,16 @@ def bai_viet_theo_mon(request, mon_id):
 def chi_tiet_bai_viet(request, bai_id):
     """Hiển thị nội dung chi tiết của một bài viết."""
     bai = get_object_or_404(BaiViet, id=bai_id)
-    
+
     # Check permissions
     if bai.status != 'published' and not request.user.is_staff and bai.nguoi_dang != request.user:
         messages.error(request, 'Bạn không có quyền xem bài viết này.')
         return redirect('kien_thuc:danh_sach_mon')
-        
+
+    # Increment view count
+    bai.view_count += 1
+    bai.save(update_fields=['view_count'])
+
     return render(request, 'kien_thuc/chi_tiet_bai_viet.html', {'bai': bai})
 
 @login_required
@@ -168,6 +174,10 @@ def hoc_flashcard(request, flashcard_set_id):
     if flashcard_set.status != 'published' and not request.user.is_staff and flashcard_set.creator != request.user:
         messages.error(request, 'Bạn không có quyền xem bộ Flashcard này.')
         return redirect('kien_thuc:danh_sach_flashcard_sets')
+
+    # Increment view count
+    flashcard_set.lan_xem += 1
+    flashcard_set.save(update_fields=['lan_xem'])
 
     mode = request.GET.get('mode', 'study') # 'study' hoặc 'review'
 

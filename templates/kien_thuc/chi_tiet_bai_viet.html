@@ -19,7 +19,7 @@
   <h1 style="font-size:24px;margin-bottom:8px">{{ bai.tieu_de }}</h1>
   <p style="color:#888;font-size:13px;margin-bottom:24px;
             padding-bottom:24px;border-bottom:1px solid #eee">
-    {{ bai.mon.ten }} • Đăng bởi {{ bai.nguoi_dang.username|default:"Admin" }} • {{ bai.ngay_tao|date:"d/m/Y" }}
+    {{ bai.mon.ten }} • Đăng bởi {{ bai.nguoi_dang.username|default:"Admin" }} • {{ bai.ngay_tao|date:"d/m/Y" }} • <i class="bi bi-eye"></i> {{ bai.view_count }} lượt xem
   </p>
   <div style="line-height:1.8;font-size:16px" id="noi-dung-bai">{{ bai.noi_dung|linebreaks }}</div>
 </div>

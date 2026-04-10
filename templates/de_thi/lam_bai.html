@@ -193,7 +193,7 @@ const draftMessage = document.getElementById('draft-message');
 const examDraftKey = `exam_draft_{{ de.id }}_{{ che_do }}`;
 const questionMeta = [
   {% for cau in cau_hoi_list %}
-  { id: {{ cau.id }}, type: '{{ cau.loai }}' },
+  { id: {{ cau.id }}, type: '{{ cau.loai }}' }{% if not forloop.last %},{% endif %}
   {% endfor %}
 ];
 

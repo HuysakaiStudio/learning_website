@@ -88,7 +88,9 @@ def danh_sach_de(request):
     except (TypeError, ValueError):
         selected_mon_id = None
 
-    de_list = DeThi.objects.filter(an=False)
+    de_list = DeThi.objects.filter(an=False).annotate(
+        attempt_count=Count('ketqua', distinct=True)
+    )
     mon_list = Mon.objects.filter(de_thi__an=False).distinct()
 
     if search_q:
