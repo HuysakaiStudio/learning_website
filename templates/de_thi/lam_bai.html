@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="{% static 'css/exam-taking.css' %}">
 <link rel="stylesheet" href="{% static 'css/question-palette.css' %}">
 <link rel="stylesheet" href="{% static 'css/review-modal.css' %}">
+<link rel="stylesheet" href="{% static 'css/strict-warning.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -652,15 +653,48 @@ initPalette();
 
 // ── Strict Mode & Anti-cheat ────────────────────────
 let isSubmitting = false;
+let strictWarningShown = false;
+
+function showStrictWarning() {
+  if (strictWarningShown) return;
+  strictWarningShown = true;
+
+  const warningOverlay = document.createElement('div');
+  warningOverlay.className = 'strict-warning-overlay';
+  warningOverlay.innerHTML = `
+    <div class="strict-warning-modal">
+      <div class="strict-warning-icon">⚠️</div>
+      <h3>Cảnh báo chế độ thi thật</h3>
+      <p>Bạn đang ở chế độ <strong>Thi thật</strong>. Nếu bạn:</p>
+      <ul>
+        <li>Chuyển sang tab khác</li>
+        <li>Thoát khỏi cửa sổ trình duyệt</li>
+        <li>Mở ứng dụng khác</li>
+      </ul>
+      <p><strong>Bài thi sẽ tự động nộp ngay lập tức</strong> và được đánh dấu vi phạm.</p>
+      <button class="btn-strict-understood" onclick="closeStrictWarning()">Tôi đã hiểu</button>
+    </div>
+  `;
+  document.body.appendChild(warningOverlay);
+  document.body.style.overflow = 'hidden';
+}
+
+function closeStrictWarning() {
+  const overlay = document.querySelector('.strict-warning-overlay');
+  if (overlay) {
+    overlay.remove();
+    document.body.style.overflow = '';
+  }
+}
 
 function forceSubmit(reason) {
   if (isSubmitting) return;
   isSubmitting = true;
-  
+
   // Đánh dấu hành vi vi phạm (chuyển tab/thoát cửa sổ)
   document.getElementById('strict_violation').value = 'true';
   document.getElementById('thoi_gian_lam').value = daChay;
-  
+
   console.log('Strict auto-submit triggered:', reason);
   clearDraft();
   form.submit();
@@ -668,6 +702,9 @@ function forceSubmit(reason) {
 
 {% if che_do == 'thi_that' %}
 // ── Chế độ Thi thật: Bật giám sát nghiêm ngặt ──────
+// Show warning on page load
+setTimeout(showStrictWarning, 1000);
+
 function handleVisibilityChange() {
   if (document.visibilityState === 'hidden' && !isSubmitting) {
     forceSubmit('Vi phạm: Chuyển tab/Ẩn cửa sổ');
