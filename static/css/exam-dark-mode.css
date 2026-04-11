@@ -894,142 +894,142 @@ body.dark-mode .practice-progress-text {
   color: var(--dm-text-muted);
 }
 
-body.dark-mode .practice-question-card {
+body.dark-mode .kt-practice-question-card {
   background: var(--dm-bg-card);
   box-shadow: 0 2px 8px var(--dm-shadow);
 }
 
-body.dark-mode .practice-question-number {
+body.dark-mode .kt-practice-question-number {
   background: var(--dm-bg-hover);
   color: var(--dm-text-primary);
 }
 
-body.dark-mode .practice-question-type.multiple-choice {
+body.dark-mode .kt-practice-question-type.multiple-choice {
   background: rgba(107, 163, 255, 0.2);
   color: var(--dm-primary);
 }
 
-body.dark-mode .practice-question-type.true-false {
+body.dark-mode .kt-practice-question-type.true-false {
   background: rgba(239, 83, 80, 0.2);
   color: var(--dm-danger);
 }
 
-body.dark-mode .practice-question-type.fill-blank {
+body.dark-mode .kt-practice-question-type.fill-blank {
   background: rgba(76, 175, 80, 0.2);
   color: var(--dm-success);
 }
 
-body.dark-mode .practice-question-text {
+body.dark-mode .kt-practice-question-text {
   color: var(--dm-text-primary);
 }
 
-body.dark-mode .practice-choice-option {
+body.dark-mode .kt-practice-choice-option {
   border-color: var(--dm-border);
   background: var(--dm-bg-tertiary);
 }
 
-body.dark-mode .practice-choice-option:hover {
+body.dark-mode .kt-practice-choice-option:hover {
   border-color: var(--dm-primary);
   background: var(--dm-bg-hover);
 }
 
-body.dark-mode .practice-choice-option.selected {
+body.dark-mode .kt-practice-choice-option.selected {
   border-color: var(--dm-primary);
   background: rgba(107, 163, 255, 0.15);
 }
 
-body.dark-mode .practice-choice-letter {
+body.dark-mode .kt-practice-choice-letter {
   border-color: var(--dm-border);
   color: var(--dm-text-secondary);
 }
 
-body.dark-mode .practice-choice-option.selected .practice-choice-letter {
+body.dark-mode .kt-practice-choice-option.selected .kt-practice-choice-letter {
   border-color: var(--dm-primary);
   color: var(--dm-primary);
 }
 
-body.dark-mode .practice-choice-text {
+body.dark-mode .kt-practice-choice-text {
   color: var(--dm-text-primary);
 }
 
-body.dark-mode .practice-tf-item {
+body.dark-mode .kt-practice-tf-item {
   border-color: var(--dm-border);
 }
 
-body.dark-mode .practice-tf-statement {
+body.dark-mode .kt-practice-tf-statement {
   color: var(--dm-text-primary);
 }
 
-body.dark-mode .practice-tf-option {
+body.dark-mode .kt-practice-tf-option {
   border-color: var(--dm-border);
   background: var(--dm-bg-tertiary);
 }
 
-body.dark-mode .practice-tf-option:hover {
+body.dark-mode .kt-practice-tf-option:hover {
   border-color: var(--dm-primary);
   background: var(--dm-bg-hover);
 }
 
-body.dark-mode .practice-tf-option.selected {
+body.dark-mode .kt-practice-tf-option.selected {
   border-color: var(--dm-primary);
   background: rgba(107, 163, 255, 0.15);
 }
 
-body.dark-mode .practice-fill-label {
+body.dark-mode .kt-practice-fill-label {
   color: var(--dm-text-secondary);
 }
 
-body.dark-mode .practice-fill-input {
+body.dark-mode .kt-practice-fill-input {
   background: var(--dm-bg-tertiary);
   border-color: var(--dm-border);
   color: var(--dm-text-primary);
 }
 
-body.dark-mode .practice-fill-input:focus {
+body.dark-mode .kt-practice-fill-input:focus {
   border-color: var(--dm-primary);
 }
 
-body.dark-mode .practice-submit-btn {
+body.dark-mode .kt-practice-submit-btn {
   background: var(--dm-primary);
   color: #1a1d23;
 }
 
-body.dark-mode .practice-submit-btn:hover {
+body.dark-mode .kt-practice-submit-btn:hover {
   background: #5a95ff;
 }
 
-body.dark-mode .feedback-card {
+body.dark-mode .kt-feedback-card {
   background: var(--dm-bg-card);
 }
 
-body.dark-mode .answer-section {
+body.dark-mode .kt-answer-section {
   background: var(--dm-bg-tertiary);
 }
 
-body.dark-mode .answer-section-title {
+body.dark-mode .kt-answer-section-title {
   color: var(--dm-text-secondary);
 }
 
-body.dark-mode .answer-section-content {
+body.dark-mode .kt-answer-section-content {
   color: var(--dm-text-primary);
 }
 
-body.dark-mode .explanation-section {
+body.dark-mode .kt-explanation-section {
   background: rgba(107, 163, 255, 0.1);
 }
 
-body.dark-mode .explanation-title {
+body.dark-mode .kt-explanation-title {
   color: var(--dm-primary);
 }
 
-body.dark-mode .explanation-text {
+body.dark-mode .kt-explanation-text {
   color: var(--dm-text-primary);
 }
 
-body.dark-mode .feedback-next-btn {
+body.dark-mode .kt-feedback-next-btn {
   background: var(--dm-success);
 }
 
-body.dark-mode .feedback-next-btn:hover {
+body.dark-mode .kt-feedback-next-btn:hover {
   background: #2d8e47;
 }

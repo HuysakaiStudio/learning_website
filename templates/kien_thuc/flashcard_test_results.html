@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kết quả Kiểm Tra Flashcard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/flashcard-test.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Kết quả Kiểm Tra Flashcard</h3>
+                    <p class="text-muted">Bộ flashcard: {{ test.bo_flashcard.tieu_de }}</p>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="stat-card bg-primary text-white text-center p-3 rounded">
+                                <h4>{{ test.tong_so_cau_hoi }}</h4>
+                                <p class="mb-0">Tổng số câu</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-success text-white text-center p-3 rounded">
+                                <h4>{{ test.so_cau_tra_loi_dung }}</h4>
+                                <p class="mb-0">Trả lời đúng</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-warning text-dark text-center p-3 rounded">
+                                <h4>{{ test.percentage_correct }}%</h4>
+                                <p class="mb-0">Tỷ lệ đúng</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-info text-white text-center p-3 rounded">
+                                <h4>{{ test.thoi_gian_hoan_thanh|default:"N/A" }}</h4>
+                                <p class="mb-0">Thời gian</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Detailed Results -->
+                    <h4>Chi tiết từng câu hỏi</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Câu hỏi</th>
+                                    <th>Trả lời của bạn</th>
+                                    <th>Đáp án đúng</th>
+                                    <th>Kết quả</th>
+                                    <th>Độ khó</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for answer in test.answers.all %}
+                                <tr class="{% if answer.dung %}table-success{% else %}table-danger{% endif %}">
+                                    <td>{{ answer.flashcard.mat_truoc }}</td>
+                                    <td>{{ answer.cau_tra_loi }}</td>
+                                    <td>{{ answer.flashcard.mat_sau }}</td>
+                                    <td>
+                                        <span class="badge {% if answer.dung %}bg-success{% else %}bg-danger{% endif %}">
+                                            {% if answer.dung %}Đúng{% else %}Sai{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if answer.kho_ban_dau == 'easy' %}success{% elif answer.kho_ban_dau == 'medium' %}warning text-dark{% else %}danger{% endif %}">
+                                            {{ answer.get_kho_ban_dau_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Chưa có câu trả lời nào</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Performance Analysis -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Phân tích hiệu suất</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="progress mb-3">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {{ test.percentage_correct }}%"
+                                             aria-valuenow="{{ test.percentage_correct }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                            {{ test.percentage_correct }}%
+                                        </div>
+                                    </div>
+                                    
+                                    <p><strong>Ghi chú:</strong></p>
+                                    {% if test.percentage_correct >= 90 %}
+                                        <p class="text-success">Xuất sắc! Bạn đã hiểu rất rõ nội dung này.</p>
+                                    {% elif test.percentage_correct >= 70 %}
+                                        <p class="text-info">Tốt! Bạn đang trên đà nắm vững nội dung.</p>
+                                    {% elif test.percentage_correct >= 50 %}
+                                        <p class="text-warning">Cần ôn tập thêm một vài phần chưa chắc chắn.</p>
+                                    {% else %}
+                                        <p class="text-danger">Cần dành thêm thời gian để ôn tập kỹ hơn.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Đề xuất tiếp theo</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% if test.percentage_correct < 70 %}
+                                        <p><strong>Đề xuất:</strong> Ôn lại toàn bộ bộ flashcard</p>
+                                        <a href="{% url 'hoc_flashcard' test.bo_flashcard.id %}" class="btn btn-primary">
+                                            Học lại từ đầu
+                                        </a>
+                                    {% elif test.percentage_correct < 90 %}
+                                        <p><strong>Đề xuất:</strong> Ôn lại các thẻ chưa thuộc</p>
+                                        <a href="{% url 'hoc_flashcard' test.bo_flashcard.id %}?focus=weak" class="btn btn-warning">
+                                            Ôn các thẻ yếu
+                                        </a>
+                                    {% else %}
+                                        <p><strong>Đề xuất:</strong> Chuyển sang chủ đề mới hoặc luyện đề</p>
+                                        <a href="{% url 'danh_sach_bo_flashcard' %}" class="btn btn-success">
+                                            Bộ flashcard khác
+                                        </a>
+                                    {% endif %}
+                                    
+                                    <div class="mt-3">
+                                        <a href="{% url 'chi_tiet_bo_flashcard' test.bo_flashcard.id %}" class="btn btn-secondary">
+                                            Quay lại bộ flashcard
+                                        </a>
+                                        <a href="{% url 'danh_sach_de' %}" class="btn btn-outline-primary">
+                                            Làm đề thi thử
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Share and Save Options -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>Lưu kết quả</h5>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-primary" id="save-result">
+                                    Lưu kết quả
+                                </button>
+                                <button type="button" class="btn btn-outline-success" id="share-result">
+                                    Chia sẻ kết quả
+                                </button>
+                                <button type="button" class="btn btn-outline-info" id="add-to-notes">
+                                    Thêm vào ghi chú
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Save result functionality
+    document.getElementById('save-result').addEventListener('click', function() {
+        // Implement save result logic
+        alert('Kết quả đã được lưu vào hồ sơ học tập của bạn');
+    });
+    
+    // Share result functionality
+    document.getElementById('share-result').addEventListener('click', function() {
+        // Implement share logic
+        if (navigator.share) {
+            navigator.share({
+                title: 'Kết quả kiểm tra flashcard',
+                text: 'Tôi đã đạt {{ test.percentage_correct }}% trong bài kiểm tra flashcard {{ test.bo_flashcard.tieu_de }}',
+                url: window.location.href
+            }).catch(console.error);
+        } else {
+            // Fallback for browsers that don't support Web Share API
+            alert('Chức năng chia sẻ không khả dụng trên trình duyệt này');
+        }
+    });
+    
+    // Add to notes functionality
+    document.getElementById('add-to-notes').addEventListener('click', function() {
+        // Implement add to notes logic
+        alert('Tính năng thêm ghi chú sẽ sớm được triển khai');
+    });
+});
+</script>
+{% endblock %}

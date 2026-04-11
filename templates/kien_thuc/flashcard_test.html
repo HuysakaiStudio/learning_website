@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kiểm Tra Flashcard - {{ flashcard_set.tieu_de }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/flashcard-test.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 sidebar">
+            <div class="sidebar-sticky">
+                <h5>{{ flashcard_set.tieu_de }}</h5>
+                <div class="progress mb-3">
+                    <div class="progress-bar" role="progressbar" 
+                         style="width: {{ progress_percent }}%" 
+                         aria-valuenow="{{ progress_percent }}" 
+                         aria-valuemin="0" aria-valuemax="100">
+                        {{ progress_percent }}%
+                    </div>
+                </div>
+                <p class="text-muted">{{ current_card_index }} / {{ total_cards }}</p>
+                
+                <ul class="nav flex-column">
+                    {% for flashcard in flashcard_set.flashcards.all %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if flashcard.id == current_flashcard.id %}active{% endif %}" 
+                           href="{% url 'hoc_flashcard' flashcard_set.id %}?card={{ flashcard.id }}">
+                            {{ flashcard.mat_truoc|truncatechars:30 }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Kiểm Tra Flashcard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="hint-btn">
+                            Gợi ý
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="skip-btn">
+                            Bỏ qua
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flashcard Test Interface -->
+            <div class="flashcard-test-container">
+                <div class="flashcard-card" id="flashcard-card">
+                    <div class="flashcard-front">
+                        <h3>{{ current_flashcard.mat_truoc }}</h3>
+                        <p class="text-muted">Nhấp để lật thẻ</p>
+                    </div>
+                    <div class="flashcard-back" style="display: none;">
+                        <h3>{{ current_flashcard.mat_sau }}</h3>
+                        <form id="answer-form" method="post" action="{% url 'submit_flashcard_answer' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="flashcard_id" value="{{ current_flashcard.id }}">
+                            <input type="hidden" name="test_id" value="{{ test.id }}">
+                            
+                            <div class="form-group mt-3">
+                                <label for="user_answer">Câu trả lời của bạn:</label>
+                                <textarea class="form-control" id="user_answer" name="user_answer" rows="3" 
+                                          placeholder="Nhập câu trả lời của bạn..."></textarea>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <label class="d-block">Đánh giá độ khó:</label>
+                                <div class="btn-group" role="group">
+                                    <input type="radio" class="btn-check" name="difficulty" id="easy" value="easy">
+                                    <label class="btn btn-outline-success" for="easy">Dễ</label>
+                                    
+                                    <input type="radio" class="btn-check" name="difficulty" id="medium" value="medium" checked>
+                                    <label class="btn btn-outline-warning" for="medium">Trung bình</label>
+                                    
+                                    <input type="radio" class="btn-check" name="difficulty" id="hard" value="hard">
+                                    <label class="btn btn-outline-danger" for="hard">Khó</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary" id="submit-answer">
+                                    Gửi câu trả lời
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="next-card">
+                                    Thẻ tiếp theo
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Progress and Stats -->
+                <div class="flashcard-stats mt-4">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="stat-box bg-primary text-white p-3 rounded">
+                                <h5>{{ stats.total_cards }}</h5>
+                                <p class="mb-0">Tổng số thẻ</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-box bg-success text-white p-3 rounded">
+                                <h5>{{ stats.mastered_cards }}</h5>
+                                <p class="mb-0">Đã thuộc</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-box bg-warning text-dark p-3 rounded">
+                                <h5>{{ stats.learning_cards }}</h5>
+                                <p class="mb-0">Đang học</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-box bg-info text-white p-3 rounded">
+                                <h5>{{ stats.to_review }}</h5>
+                                <p class="mb-0">Cần ôn lại</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal for test completion -->
+<div class="modal fade" id="testCompletionModal" tabindex="-1" aria-labelledby="testCompletionLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="testCompletionLabel">Hoàn thành kiểm tra</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h4>Bạn đã hoàn thành kiểm tra flashcard!</h4>
+                <p>Kết quả:</p>
+                <ul>
+                    <li>Số lượng câu hỏi: {{ test.tong_so_cau_hoi }}</li>
+                    <li>Số câu trả lời đúng: {{ test.so_cau_tra_loi_dung }}</li>
+                    <li>Tỷ lệ đúng: {{ test.percentage_correct }}%</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <a href="{% url 'chi_tiet_bo_flashcard' flashcard_set.id %}" class="btn btn-primary">Quay lại bộ flashcard</a>
+                <a href="{% url 'hoc_flashcard' flashcard_set.id %}" class="btn btn-secondary">Tiếp tục học</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/flashcard-test.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const flashcardCard = document.getElementById('flashcard-card');
+    const flashcardFront = flashcardCard.querySelector('.flashcard-front');
+    const flashcardBack = flashcardCard.querySelector('.flashcard-back');
+    const submitForm = document.getElementById('answer-form');
+    const nextCardBtn = document.getElementById('next-card');
+    
+    // Flip flashcard on click
+    flashcardFront.addEventListener('click', function() {
+        flashcardFront.style.display = 'none';
+        flashcardBack.style.display = 'block';
+    });
+    
+    // Handle form submission
+    submitForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Collect form data
+        const formData = new FormData(submitForm);
+        
+        // Send AJAX request
+        fetch(submitForm.getAttribute('action'), {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update UI based on response
+                console.log('Answer submitted successfully');
+                
+                // Move to next card after delay
+                setTimeout(() => {
+                    window.location.href = data.next_card_url;
+                }, 1000);
+            } else {
+                alert('Có lỗi xảy ra khi gửi câu trả lời');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi gửi câu trả lời');
+        });
+    });
+    
+    // Next card button
+    nextCardBtn.addEventListener('click', function() {
+        // Get next card URL from data attribute or form
+        window.location.href = '{% url "hoc_flashcard" flashcard_set.id %}';
+    });
+    
+    // Hint button
+    document.getElementById('hint-btn').addEventListener('click', function() {
+        alert('Hiển thị gợi ý cho thẻ hiện tại');
+    });
+    
+    // Skip button
+    document.getElementById('skip-btn').addEventListener('click', function() {
+        // Logic to skip to next card
+        window.location.href = '{% url "hoc_flashcard" flashcard_set.id %}?skip=true';
+    });
+});
+</script>
+{% endblock %}

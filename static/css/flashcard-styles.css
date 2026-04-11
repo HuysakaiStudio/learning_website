@@ -1,0 +1,663 @@
+/**
+ * @file flashcard-styles.css
+ * @description Comprehensive CSS for flashcard functionality with scoped selectors to prevent conflicts
+ */
+
+/* ============================================
+   FLASHCARD COMPONENT STYLES - Scoped to prevent conflicts
+   ============================================ */
+
+/* Main flashcard container */
+.kt-flashcard-container {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.kt-flashcard-set-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: var(--text-primary, #333);
+}
+
+/* Flashcard card styles */
+.kt-flashcard-card {
+  perspective: 1500px;
+  height: 350px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.kt-flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.kt-flashcard-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.kt-flashcard-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border: 1px solid var(--border-light, #eee);
+}
+
+.kt-flashcard-front {
+  background: var(--bg-primary, white);
+  color: var(--text-primary, #333);
+}
+
+.kt-flashcard-back {
+  background: var(--bg-secondary, #f8f9fa);
+  color: var(--text-primary, #333);
+  transform: rotateY(180deg);
+}
+
+.kt-flashcard-content {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  text-align: center;
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+.kt-flashcard-hint {
+  margin-top: 15px;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #666);
+  font-style: italic;
+}
+
+/* Flashcard controls */
+.kt-flashcard-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.kt-flashcard-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  text-align: center;
+}
+
+.kt-flashcard-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.kt-btn-flip {
+  background: var(--primary-100, #e8f0fe);
+  color: var(--primary-700, #1a73e8);
+}
+
+.kt-btn-flip:hover {
+  background: var(--primary-200, #d2e3fc);
+}
+
+.kt-btn-again {
+  background: var(--error-100, #fce8e8);
+  color: var(--error-700, #ea4335);
+}
+
+.kt-btn-again:hover {
+  background: var(--error-200, #f8d4d4);
+}
+
+.kt-btn-hard {
+  background: var(--warning-100, #fef7e8);
+  color: var(--warning-700, #f57f17);
+}
+
+.kt-btn-hard:hover {
+  background: var(--warning-200, #fdebd0);
+}
+
+.kt-btn-good {
+  background: var(--success-100, #e6f4ea);
+  color: var(--success-700, #34a853);
+}
+
+.kt-btn-good:hover {
+  background: var(--success-200, #d1f0da);
+}
+
+.kt-btn-easy {
+  background: var(--info-100, #e8f0fe);
+  color: var(--info-700, #5c6ac4);
+}
+
+.kt-btn-easy:hover {
+  background: var(--info-200, #d1e0f0);
+}
+
+/* Progress bar for flashcards */
+.kt-progress-container {
+  margin: 20px 0;
+  background: var(--bg-secondary, #f1f3f4);
+  border-radius: 10px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.kt-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-500, #1a73e8), var(--primary-600, #1557b0));
+  transition: width 0.3s ease;
+  border-radius: 10px;
+}
+
+.kt-progress-text {
+  text-align: center;
+  margin-bottom: 10px;
+  color: var(--text-secondary, #666);
+  font-size: 0.875rem;
+}
+
+/* Flashcard navigation */
+.kt-flashcard-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.kt-nav-btn {
+  padding: 10px 20px;
+  background: var(--bg-secondary, #f1f3f4);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.kt-nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Flashcard stats */
+.kt-stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.kt-stat-item {
+  text-align: center;
+  padding: 15px;
+  background: var(--bg-secondary, #f8f9fa);
+  border-radius: 8px;
+}
+
+.kt-stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-600, #1a73e8);
+}
+
+.kt-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #666);
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+
+/* Study mode toggle */
+.kt-mode-toggle {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  gap: 10px;
+}
+
+.kt-mode-btn {
+  padding: 10px 20px;
+  border: 2px solid var(--border-light, #ddd);
+  background: white;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.kt-mode-btn.active {
+  border-color: var(--primary-600, #1a73e8);
+  background: var(--primary-50, #e8f0fe);
+  color: var(--primary-700, #1a73e8);
+}
+
+/* Bookmark button */
+.kt-bookmark-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-secondary, #999);
+  z-index: 10;
+}
+
+.kt-bookmark-btn.bookmarked {
+  color: var(--warning-600, #f57f17);
+}
+
+/* Completion screen */
+.kt-completion-screen {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.kt-completion-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.kt-completion-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.kt-completion-message {
+  color: var(--text-secondary, #666);
+  margin-bottom: 20px;
+}
+
+/* ============================================
+   PRACTICE MODE STYLES - Scoped to prevent conflicts
+   ============================================ */
+
+.kt-practice-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.kt-practice-header {
+  position: sticky;
+  top: 0;
+  background: var(--surface-primary, white);
+  z-index: 100;
+  border-bottom: 1px solid var(--border-primary, #eee);
+  padding: 1rem 0;
+  margin-bottom: 1.5rem;
+}
+
+.kt-progress-bar-container {
+  background: var(--primary-100, #e8f0fe);
+  border-radius: var(--radius-full, 50px);
+  overflow: hidden;
+  height: 8px;
+}
+
+.kt-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-500, #1a73e8), var(--primary-600, #1557b0));
+  transition: width 0.3s ease;
+}
+
+/* Choice Options (Multiple Choice) */
+.kt-choice-option {
+  border: 2px solid var(--border-primary, #ddd);
+  border-radius: var(--radius-lg, 8px);
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.kt-choice-option:hover {
+  border-color: var(--primary-400, #5e9aea);
+  background: var(--primary-50, #e8f0fe);
+}
+
+.kt-choice-option.selected {
+  border-color: var(--primary-600, #1a73e8);
+  background: var(--primary-50, #e8f0fe);
+}
+
+.kt-choice-letter {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full, 50%);
+  border: 2px solid var(--neutral-300, #ccc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-semibold, 600);
+  font-size: var(--text-sm, 0.875rem);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.kt-choice-option.selected .kt-choice-letter {
+  border-color: var(--primary-600, #1a73e8);
+  background: var(--primary-600, #1a73e8);
+  color: white;
+}
+
+/* True/False Options */
+.kt-ds-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem 1.25rem;
+  border: 2px solid var(--border-primary, #ddd);
+  border-radius: var(--radius-lg, 8px);
+  font-size: var(--text-sm, 0.875rem);
+  transition: all 0.2s ease;
+  justify-content: center;
+}
+
+.kt-ds-option:hover {
+  border-color: var(--primary-400, #5e9aea);
+  background: var(--primary-50, #e8f0fe);
+}
+
+.kt-ds-option.selected {
+  border-color: var(--primary-600, #1a73e8);
+  background: var(--primary-50, #e8f0fe);
+  font-weight: var(--font-semibold, 600);
+}
+
+/* Feedback Overlay */
+.kt-feedback-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  animation: ktFadeIn 0.3s ease-out;
+}
+
+.kt-feedback-overlay.show {
+  display: flex;
+}
+
+.kt-feedback-card {
+  background: var(--surface-primary, white);
+  border-radius: var(--radius-xl, 12px);
+  padding: 2rem;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: ktScaleIn 0.3s ease-out;
+  box-shadow: var(--shadow-2xl, 0 25px 50px -12px rgba(0, 0, 0, 0.25));
+}
+
+@keyframes ktScaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes ktFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.kt-result-icon {
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.kt-result-text {
+  font-size: 1.875rem;
+  font-weight: var(--font-semibold, 600);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.kt-result-correct {
+  color: var(--success-600, #34a853);
+}
+
+.kt-result-incorrect {
+  color: var(--error-600, #ea4335);
+}
+
+.kt-answer-section {
+  background: var(--neutral-100, #f1f3f4);
+  border-radius: var(--radius-lg, 8px);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.kt-explanation-section {
+  background: var(--primary-50, #e8f0fe);
+  border-radius: var(--radius-lg, 8px);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ============================================
+   DARK MODE SUPPORT FOR FLASHCARDS
+   ============================================ */
+
+body.dark-mode .kt-flashcard-container {
+  color: var(--dm-text-primary, #e8eaed);
+}
+
+body.dark-mode .kt-flashcard-front {
+  background: var(--dm-bg-card, #292a2d);
+  color: var(--dm-text-primary, #e8eaed);
+}
+
+body.dark-mode .kt-flashcard-back {
+  background: var(--dm-bg-tertiary, #35363a);
+  color: var(--dm-text-primary, #e8eaed);
+}
+
+body.dark-mode .kt-flashcard-face {
+  border-color: var(--dm-border, #3c4043);
+}
+
+body.dark-mode .kt-btn-flip {
+  background: rgba(107, 163, 255, 0.2);
+  color: var(--dm-primary, #8ab4f8);
+}
+
+body.dark-mode .kt-btn-flip:hover {
+  background: rgba(107, 163, 255, 0.3);
+}
+
+body.dark-mode .kt-btn-again {
+  background: rgba(239, 83, 80, 0.2);
+  color: var(--dm-danger, #f28b82);
+}
+
+body.dark-mode .kt-btn-again:hover {
+  background: rgba(239, 83, 80, 0.3);
+}
+
+body.dark-mode .kt-btn-hard {
+  background: rgba(251, 140, 0, 0.2);
+  color: #ff6f00;
+}
+
+body.dark-mode .kt-btn-hard:hover {
+  background: rgba(251, 140, 0, 0.3);
+}
+
+body.dark-mode .kt-btn-good {
+  background: rgba(76, 175, 80, 0.2);
+  color: var(--dm-success, #81c995);
+}
+
+body.dark-mode .kt-btn-good:hover {
+  background: rgba(76, 175, 80, 0.3);
+}
+
+body.dark-mode .kt-btn-easy {
+  background: rgba(41, 182, 246, 0.2);
+  color: var(--dm-info, #81c995);
+}
+
+body.dark-mode .kt-btn-easy:hover {
+  background: rgba(41, 182, 246, 0.3);
+}
+
+body.dark-mode .kt-progress-container {
+  background: var(--dm-bg-tertiary, #35363a);
+}
+
+body.dark-mode .kt-stat-item {
+  background: var(--dm-bg-tertiary, #35363a);
+}
+
+body.dark-mode .kt-practice-header {
+  background: var(--dm-bg-secondary, #292a2d);
+  border-bottom-color: var(--dm-border, #3c4043);
+}
+
+body.dark-mode .kt-choice-option {
+  border-color: var(--dm-border, #3c4043);
+}
+
+body.dark-mode .kt-choice-option:hover {
+  border-color: var(--dm-primary, #8ab4f8);
+  background: var(--dm-bg-hover, #3c4043);
+}
+
+body.dark-mode .kt-choice-option.selected {
+  border-color: var(--dm-primary, #8ab4f8);
+  background: var(--dm-bg-hover, #3c4043);
+}
+
+body.dark-mode .kt-ds-option {
+  border-color: var(--dm-border, #3c4043);
+}
+
+body.dark-mode .kt-ds-option:hover {
+  border-color: var(--dm-primary, #8ab4f8);
+  background: var(--dm-bg-hover, #3c4043);
+}
+
+body.dark-mode .kt-ds-option.selected {
+  border-color: var(--dm-primary, #8ab4f8);
+  background: var(--dm-bg-hover, #3c4043);
+}
+
+body.dark-mode .kt-feedback-card {
+  background: var(--dm-bg-card, #292a2d);
+}
+
+body.dark-mode .kt-answer-section {
+  background: var(--dm-bg-tertiary, #35363a);
+}
+
+body.dark-mode .kt-explanation-section {
+  background: var(--dm-bg-tertiary, #35363a);
+}
+
+/* ============================================
+   RESPONSIVE ADAPTATIONS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .kt-flashcard-container {
+    padding: 10px;
+  }
+
+  .kt-flashcard-card {
+    height: 300px;
+  }
+
+  .kt-flashcard-content {
+    font-size: 1.1rem;
+  }
+
+  .kt-flashcard-controls {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .kt-flashcard-btn {
+    width: 100%;
+    max-width: 250px;
+  }
+
+  .kt-stats-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .kt-feedback-card {
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  .kt-result-icon {
+    font-size: 2.5rem;
+  }
+
+  .kt-result-text {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .kt-flashcard-card {
+    height: 250px;
+  }
+
+  .kt-flashcard-content {
+    font-size: 1rem;
+    padding: 0 15px;
+  }
+
+  .kt-flashcard-controls {
+    gap: 8px;
+  }
+
+  .kt-flashcard-btn {
+    padding: 8px 16px;
+    min-width: 80px;
+    font-size: 0.875rem;
+  }
+}

@@ -49,12 +49,20 @@ class LeaderboardEntry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='leaderboard_entries')
     leaderboard = models.ForeignKey(Leaderboard, on_delete=models.CASCADE, related_name='entries')
     score = models.FloatField(default=0)
+    total_score = models.FloatField(db_index=True, help_text='Total accumulated score', default=0)
     rank = models.IntegerField(default=0)
     
     # Metadata
     exams_completed = models.IntegerField(default=0)
     flashcards_learned = models.IntegerField(default=0)
     total_time_minutes = models.IntegerField(default=0)
+    
+    # Flashcard-related fields
+    flashcard_avg_score = models.FloatField(default=0.0, help_text='Average score for flashcard learning')
+    flashcard_total_cards = models.IntegerField(default=0, help_text='Total number of flashcards studied')
+    last_flashcard_study = models.DateTimeField(blank=True, null=True, help_text='Last time user studied flashcards')
+    weekly_flashcard_count = models.IntegerField(default=0, help_text='Number of flashcards studied this week')
+    flashcard_streak = models.IntegerField(default=0, help_text='Current flashcard study streak')
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

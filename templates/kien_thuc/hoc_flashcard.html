@@ -3,14 +3,19 @@
 
 {% block content %}
 <!-- Cache version: {{ cache_version }} -->
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/flashcard-styles.css' %}">
+{% endblock %}
 <style>
-  .study-container {
+  /* Additional specific styles that complement the new flashcard-styles.css */
+  .kt-flashcard-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 16px;
   }
 
-  .study-header {
+  .kt-study-header {
     background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
     color: white;
     padding: 24px;
@@ -18,27 +23,27 @@
     margin-bottom: 24px;
   }
 
-  body.dark-mode .study-header {
+  body.dark-mode .kt-study-header {
     background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
   }
 
-  .study-header h1 {
+  .kt-study-header h1 {
     margin: 0 0 8px 0;
     font-size: 24px;
   }
 
-  .progress-container {
+  .kt-progress-container {
     width: 100%;
     margin-top: 16px;
   }
 
-  .progress-info {
+  .kt-progress-info {
     font-size: 13px;
     opacity: 0.9;
     margin-bottom: 8px;
   }
 
-  .progress-bar {
+  .kt-progress-bar {
     height: 8px !important;
     background: rgba(255,255,255,0.3) !important;
     border-radius: 4px;
@@ -48,11 +53,11 @@
     display: block !important;
   }
 
-  body.dark-mode .progress-bar {
+  body.dark-mode .kt-progress-bar {
     background: rgba(255,255,255,0.2) !important;
   }
 
-  .progress-fill {
+  .kt-progress-fill {
     height: 100% !important;
     background: linear-gradient(90deg, #fbbf24, #f59e0b) !important;
     transition: width 0.3s;
@@ -64,12 +69,12 @@
     left: 0;
   }
 
-  body.dark-mode .progress-fill {
+  body.dark-mode .kt-progress-fill {
     background: linear-gradient(90deg, #fbbf24, #f59e0b) !important;
     box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
   }
 
-  .card-container {
+  .kt-card-container {
     background: transparent;
     padding: 0;
     box-shadow: none;
@@ -83,7 +88,7 @@
     perspective: 1000px;
   }
 
-  .flip-card {
+  .kt-flashcard-card {
     width: 100%;
     max-width: 600px;
     height: 300px;
@@ -93,11 +98,11 @@
     cursor: pointer;
   }
 
-  .flip-card.flipped {
+  .kt-flashcard-card.flipped {
     transform: rotateY(180deg);
   }
 
-  .card-face {
+  .kt-card-face {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -114,27 +119,27 @@
     line-height: 1.5;
   }
 
-  .card-front {
+  .kt-card-front {
     background: white;
     color: #333;
     border: 2px solid #e0e0e0;
   }
 
-  .card-back {
+  .kt-card-back {
     background: #f8f9fa;
     color: #333;
     transform: rotateY(180deg);
     border: 2px solid #1a73e8;
   }
 
-  .hint-text {
+  .kt-hint-text {
     font-size: 13px;
     color: #999;
     margin-top: 16px;
     font-weight: normal;
   }
 
-  .controls {
+  .kt-flashcard-controls {
     display: flex;
     gap: 12px;
     justify-content: center;
@@ -142,7 +147,7 @@
     flex-wrap: wrap;
   }
 
-  .btn {
+  .kt-flashcard-btn {
     padding: 12px 24px;
     border: none;
     border-radius: 8px;
@@ -152,59 +157,59 @@
     transition: all 0.2s;
   }
 
-  .btn-flip {
+  .kt-btn-flip {
     background: #f0f0f0;
     color: #333;
   }
 
-  .btn-flip:hover {
+  .kt-btn-flip:hover {
     background: #e0e0e0;
   }
 
-  .btn-again {
+  .kt-btn-again {
     background: #ea4335;
     color: white;
   }
 
-  .btn-again:hover {
+  .kt-btn-again:hover {
     background: #d32f2f;
   }
 
-  .btn-hard {
+  .kt-btn-hard {
     background: #fbbc04;
     color: white;
   }
 
-  .btn-hard:hover {
+  .kt-btn-hard:hover {
     background: #f57f17;
   }
 
-  .btn-good {
+  .kt-btn-good {
     background: #34a853;
     color: white;
   }
 
-  .btn-good:hover {
+  .kt-btn-good:hover {
     background: #1e8e3e;
   }
 
-  .btn-easy {
+  .kt-btn-easy {
     background: #1a73e8;
     color: white;
   }
 
-  .btn-easy:hover {
+  .kt-btn-easy:hover {
     background: #0d47a1;
   }
 
-  .stats-summary {
+  .kt-stats-summary {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     margin-bottom: 24px;
   }
 
-  .stat-box {
+  .kt-stat-box {
     background: white;
     padding: 16px;
     border-radius: 8px;
@@ -212,19 +217,19 @@
     text-align: center;
   }
 
-  .stat-value {
+  .kt-stat-value {
     font-size: 20px;
     font-weight: 700;
     color: #1a73e8;
   }
 
-  .stat-label {
+  .kt-stat-label {
     font-size: 12px;
     color: #999;
     margin-top: 4px;
   }
 
-  .completion-message {
+  .kt-completion-message {
     background: #e6f4ea;
     border-left: 4px solid #34a853;
     padding: 20px;
@@ -273,7 +278,7 @@
   }
 
   /* Session Stats */
-  .session-stats {
+  .kt-session-stats {
     background: white;
     border-radius: 12px;
     padding: 16px;
@@ -281,45 +286,45 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
 
-  body.dark-mode .session-stats {
+  body.dark-mode .kt-session-stats {
     background: var(--dm-bg-card);
     box-shadow: 0 2px 8px var(--dm-shadow);
   }
 
-  .session-stats-grid {
+  .kt-session-stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     text-align: center;
   }
 
-  .session-stat {
+  .kt-session-stat {
     padding: 8px;
   }
 
-  .session-stat-value {
+  .kt-session-stat-value {
     font-size: 20px;
     font-weight: 700;
     color: #3b82f6;
   }
 
-  body.dark-mode .session-stat-value {
+  body.dark-mode .kt-session-stat-value {
     color: var(--dm-primary);
   }
 
-  .session-stat-label {
+  .kt-session-stat-label {
     font-size: 11px;
     color: #666;
   }
 
-  body.dark-mode .session-stat-label {
+  body.dark-mode .kt-session-stat-label {
     color: var(--dm-text-secondary);
-  }
-    margin-top: 4px;
   }
 
   /* Mode Toggle */
-  .mode-toggle {
+
+  /* Mode Toggle */
+  .kt-mode-toggle {
     display: flex;
     gap: 8px;
     background: rgba(255,255,255,0.2);
@@ -328,7 +333,7 @@
     margin-top: 12px;
   }
 
-  .mode-btn {
+  .kt-mode-btn {
     flex: 1;
     padding: 8px 16px;
     border: none;
@@ -340,18 +345,18 @@
     transition: all 0.2s;
   }
 
-  .mode-btn.active {
+  .kt-mode-btn.active {
     background: white;
     color: #1a73e8;
     font-weight: 600;
   }
 
-  .mode-btn:hover:not(.active) {
+  .kt-mode-btn:hover:not(.active) {
     background: rgba(255,255,255,0.1);
   }
 
   /* Bookmark Button */
-  .bookmark-btn {
+  .kt-bookmark-btn {
     position: absolute;
     top: 16px;
     right: 16px;
@@ -369,18 +374,18 @@
     z-index: 10;
   }
 
-  .bookmark-btn:hover {
+  .kt-bookmark-btn:hover {
     transform: scale(1.1);
     border-color: #fbbc04;
   }
 
-  .bookmark-btn.bookmarked {
+  .kt-bookmark-btn.bookmarked {
     background: #fbbc04;
     border-color: #fbbc04;
   }
 
   @media (max-width: 768px) {
-    .session-stats-grid {
+    .kt-session-stats-grid {
       grid-template-columns: repeat(2, 1fr);
     }
     
@@ -402,91 +407,91 @@
   <span class="toast-message" id="toast-message">Đã lưu</span>
 </div>
 
-<div class="study-container">
-    <div class="study-header">
+<div class="kt-flashcard-container">
+    <div class="kt-study-header">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h1>📚 {{ flashcard_set.tieu_de }}</h1>
       </div>
       
       <!-- Mode Toggle -->
-      <div class="mode-toggle">
-        <button class="mode-btn {% if mode != 'review' %}active{% endif %}" onclick="window.location.href='{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=study'">
+      <div class="kt-mode-toggle">
+        <button class="kt-mode-btn {% if mode != 'review' %}active{% endif %}" onclick="window.location.href='{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=study'">
           🔍 Lướt thẻ
         </button>
-        <button class="mode-btn {% if mode == 'review' %}active{% endif %}" onclick="window.location.href='{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=review'">
+        <button class="kt-mode-btn {% if mode == 'review' %}active{% endif %}" onclick="window.location.href='{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=review'">
           📝 Học tập
         </button>
-        <button class="mode-btn" onclick="shuffleCards()">
+        <button class="kt-mode-btn" onclick="shuffleCards()">
           🔀 Xáo trộn
         </button>
-        <button class="mode-btn" onclick="filterUnlearned()">
+        <button class="kt-mode-btn" onclick="filterUnlearned()">
           🎯 Chưa thuộc
         </button>
       </div>
       
-      <div class="progress-container">
-        <div class="progress-info">
+      <div class="kt-progress-container">
+        <div class="kt-progress-info">
           <span id="current-card">0</span> / <span id="total-cards">{{ tong_so }}</span>
           (<span id="learned-count">{{ da_thuoc }}</span> đã thuộc)
         </div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        <div class="kt-progress-bar">
+          <div class="kt-progress-fill" id="progress-fill" style="width: 0%"></div>
         </div>
       </div>
     </div>
 
     <!-- Session Statistics -->
-    <div class="session-stats">
-      <div class="session-stats-grid">
-        <div class="session-stat">
-          <div class="session-stat-value" id="cards-viewed">0</div>
-          <div class="session-stat-label">Đã xem</div>
+    <div class="kt-stats-container">
+      <div class="kt-session-stats-grid">
+        <div class="kt-session-stat">
+          <div class="kt-session-stat-value" id="cards-viewed">0</div>
+          <div class="kt-session-stat-label">Đã xem</div>
         </div>
-        <div class="session-stat">
-          <div class="session-stat-value" id="session-time">00:00</div>
-          <div class="session-stat-label">Thời gian</div>
+        <div class="kt-session-stat">
+          <div class="kt-session-stat-value" id="session-time">00:00</div>
+          <div class="kt-session-stat-label">Thời gian</div>
         </div>
-        <div class="session-stat">
-          <div class="session-stat-value" id="cards-per-min">0</div>
-          <div class="session-stat-label">Thẻ/phút</div>
+        <div class="kt-session-stat">
+          <div class="kt-session-stat-value" id="cards-per-min">0</div>
+          <div class="kt-session-stat-label">Thẻ/phút</div>
         </div>
-        <div class="session-stat">
-          <div class="session-stat-value" id="session-learned">0</div>
-          <div class="session-stat-label">Đã thuộc</div>
+        <div class="kt-session-stat">
+          <div class="kt-session-stat-value" id="session-learned">0</div>
+          <div class="kt-session-stat-label">Đã thuộc</div>
         </div>
       </div>
     </div>
 
   <!-- Statistics Overlay -->
     <div id="study-area">
-    <div class="card-container">
-      <div class="flip-card" id="flip-card">
-        <button class="bookmark-btn" id="bookmark-btn" onclick="toggleBookmark(event)" title="Đánh dấu thẻ này">
+    <div class="kt-card-container">
+      <div class="kt-flashcard-card" id="flip-card">
+        <button class="kt-bookmark-btn" id="bookmark-btn" onclick="toggleBookmark(event)" title="Đánh dấu thẻ này">
           ⭐
         </button>
-        <div class="card-face card-front" id="card-front"></div>
-        <div class="card-face card-back" id="card-back"></div>
+        <div class="kt-card-face kt-card-front" id="card-front"></div>
+        <div class="kt-card-face kt-card-back" id="card-back"></div>
       </div>
-      <div class="hint-text">👆 Nhấp vào thẻ để lật mặt sau • ⭐ Đánh dấu thẻ quan trọng</div>
+      <div class="kt-hint-text">👆 Nhấp vào thẻ để lật mặt sau • ⭐ Đánh dấu thẻ quan trọng</div>
     </div>
 
-    <div class="controls" id="review-controls">
-      <div class="mode-switch">
+    <div class="kt-flashcard-controls" id="review-controls">
+      <div class="kt-mode-switch">
         {% if mode == 'review' %}
-          <a href="{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=study" class="btn btn-flip">Chuyển sang Lướt thẻ</a>
+          <a href="{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=study" class="kt-flashcard-btn kt-btn-flip">Chuyển sang Lướt thẻ</a>
         {% else %}
-          <a href="{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=review" class="btn btn-good">Chuyển sang Học tập</a>
+          <a href="{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=review" class="kt-flashcard-btn kt-btn-good">Chuyển sang Học tập</a>
         {% endif %}
       </div>
       {% if mode == 'study' %}
-        <button class="btn btn-flip" onclick="moveCard(-1)">⬅️ Trước</button>
-        <button class="btn btn-flip" onclick="moveCard(1)">Sau ➡️</button>
+        <button class="kt-flashcard-btn kt-btn-flip" onclick="moveCard(-1)">⬅️ Trước</button>
+        <button class="kt-flashcard-btn kt-btn-flip" onclick="moveCard(1)">Sau ➡️</button>
       {% endif %}
-      <button class="btn btn-flip" onclick="toggleFlip()">🔄 Lật</button>
+      <button class="kt-flashcard-btn kt-btn-flip" onclick="toggleFlip()">🔄 Lật</button>
 
       {% if mode == 'review' %}
-        <button class="btn btn-again" onclick="submitReview(false)">Đang học</button>
-        <button class="btn btn-good" onclick="submitReview(true)">Đã thuộc</button>
+        <button class="kt-flashcard-btn kt-btn-again" onclick="submitReview(false)">Đang học</button>
+        <button class="kt-flashcard-btn kt-btn-good" onclick="submitReview(true)">Đã thuộc</button>
       {% endif %}
     </div>
 
@@ -497,7 +502,7 @@
   </div>
 
   <div id="completion-area" style="display: none;">
-    <div class="completion-message">
+    <div class="kt-completion-message">
       ✨ Bạn đã xem qua hết các thẻ!
     </div>
     <div style="text-align: center; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 500px; margin: 0 auto;">

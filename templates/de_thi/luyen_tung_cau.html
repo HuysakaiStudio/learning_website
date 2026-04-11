@@ -3,7 +3,7 @@
 
 {% block content %}
 <!-- Header cố định với thanh tiến độ -->
-<div class="practice-header">
+<div class="kt-practice-header">
   <div class="container-md">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
@@ -19,8 +19,8 @@
     </div>
 
     <!-- Progress bar -->
-    <div class="progress-bar-container">
-      <div class="progress-bar-fill" style="width:{{ tien_do }}%"></div>
+    <div class="kt-progress-bar-container">
+      <div class="kt-progress-bar-fill" style="width:{{ tien_do }}%"></div>
     </div>
     <div class="text-end mt-1 text-xs text-secondary">
       {{ tien_do }}% hoàn thành
@@ -68,10 +68,10 @@
       {% if cau_hoi.loai == 'tn' %}
       <div class="d-grid gap-3">
         {% for label, text in cau_hoi.choices %}
-          <label class="choice-option">
+          <label class="kt-practice-choice-option">
             <input type="radio" name="chon" value="{{ label }}" class="radio-choice d-none">
-            <span class="choice-letter">{{ label }}</span>
-            <span class="flex-grow-1 text-base">{{ text }}</span>
+            <span class="kt-practice-choice-letter">{{ label }}</span>
+            <span class="kt-practice-choice-text flex-grow-1 text-base">{{ text }}</span>
           </label>
         {% endfor %}
       </div>
@@ -89,12 +89,12 @@
             {% elif item == 'd' %}{{ cau_hoi.y_d }}{% endif %}
           </div>
           <div class="d-flex gap-3">
-            <label class="ds-option flex-fill">
+            <label class="kt-practice-tf-option flex-fill">
               <input type="radio" name="chon_{{ item }}" value="true" class="radio-ds d-none">
               <i class="bi bi-check-circle"></i>
               Đúng
             </label>
-            <label class="ds-option flex-fill">
+            <label class="kt-practice-tf-option flex-fill">
               <input type="radio" name="chon_{{ item }}" value="false" class="radio-ds d-none">
               <i class="bi bi-x-circle"></i>
               Sai
@@ -116,7 +116,7 @@
 
       <!-- Nút kiểm tra -->
       <div class="mt-6">
-        <button type="submit" id="submit-btn" class="btn btn-primary btn-lg w-100">
+        <button type="submit" id="submit-btn" class="btn btn-primary btn-lg w-100 kt-submit-button">
           <i class="bi bi-check-lg"></i>
           Kiểm tra đáp án
         </button>
@@ -126,19 +126,19 @@
 </div>
 
 <!-- Feedback Overlay -->
-<div id="feedback-overlay" class="feedback-overlay">
-  <div class="feedback-card">
+<div id="feedback-overlay" class="kt-feedback-overlay">
+  <div class="kt-feedback-card">
     <div class="result-icon" id="result-icon">
       <i class="bi bi-check-circle-fill"></i>
     </div>
-    <div class="result-text" id="result-text">Chính xác!</div>
+    <div class="kt-result-text" id="result-text">Chính xác!</div>
 
-    <div class="answer-section">
+    <div class="kt-answer-section">
       <div class="fw-semibold mb-2 text-secondary">Đáp án đúng:</div>
       <div id="correct-answer" class="text-base text-primary"></div>
     </div>
 
-    <div class="explanation-section" id="explanation-section">
+    <div class="kt-explanation-section" id="explanation-section">
       <div class="fw-semibold mb-2 text-primary">
         <i class="bi bi-lightbulb-fill"></i>
         Giải thích:
@@ -165,22 +165,22 @@ const explanationText = document.getElementById('explanation-text');
 const nextBtn = document.getElementById('next-btn');
 
 // Highlight selected choice (Trắc nghiệm)
-document.querySelectorAll('.choice-option').forEach(label => {
+document.querySelectorAll('.kt-practice-choice-option').forEach(label => {
   label.addEventListener('click', function() {
     const name = this.querySelector('input').name;
     document.querySelectorAll(`input[name="${name}"]`).forEach(inp => {
-      inp.closest('.choice-option').classList.remove('selected');
+      inp.closest('.kt-practice-choice-option').classList.remove('selected');
     });
     this.classList.add('selected');
   });
 });
 
 // Highlight selected option (Đúng/Sai)
-document.querySelectorAll('.ds-option').forEach(label => {
+document.querySelectorAll('.kt-practice-tf-option').forEach(label => {
   label.addEventListener('click', function() {
     const name = this.querySelector('input').name;
     document.querySelectorAll(`input[name="${name}"]`).forEach(inp => {
-      inp.closest('.ds-option').classList.remove('selected');
+      inp.closest('.kt-practice-tf-option').classList.remove('selected');
     });
     this.classList.add('selected');
   });
@@ -248,11 +248,11 @@ function showFeedback(data) {
   if (data.dung) {
     resultIcon.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
     resultText.textContent = 'Chính xác!';
-    resultText.className = 'result-text result-correct';
+    resultText.className = 'kt-result-text result-correct';
   } else {
     resultIcon.innerHTML = '<i class="bi bi-x-circle-fill text-error"></i>';
     resultText.textContent = 'Chưa đúng';
-    resultText.className = 'result-text result-incorrect';
+    resultText.className = 'kt-result-text result-incorrect';
   }
 
   // Update correct answer

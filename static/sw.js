@@ -76,6 +76,8 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(handleImageRequest(request));
   } else if (isStaticAsset(request)) {
     event.respondWith(handleStaticRequest(request));
+  } else if (isAdminRequest(request) || isLeaderboardRequest(request)) {
+    event.respondWith(handlePageRequest(request));  // Admin and leaderboard pages should be treated as regular pages
   } else if (isAPIRequest(request)) {
     event.respondWith(handleAPIRequest(request));
   } else {
@@ -99,8 +101,18 @@ function isStaticAsset(request) {
 
 // Check if request is for API
 function isAPIRequest(request) {
-  return request.url.includes('/api/') || 
-         request.url.includes('/admin/');
+  return request.url.includes('/api/') &&
+         !request.url.includes('/admin/');  // Exclude admin URLs from API handling
+}
+
+// Check if request is for admin
+function isAdminRequest(request) {
+  return request.url.includes('/admin/');
+}
+
+// Check if request is for leaderboard
+function isLeaderboardRequest(request) {
+  return request.url.includes('/leaderboard/');
 }
 
 // Handle image requests - Cache first, then network
