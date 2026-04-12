@@ -34,110 +34,7 @@ async function initPWA() {
     }
   }
 
-  // Handle install prompt
-  setupInstallPrompt();
-  
-  // Setup offline detection
-  setupOfflineDetection();
-  
-  // Setup background sync
-  setupBackgroundSync();
-  
-  // Check if already installed
-  checkIfInstalled();
-}
 
-// Setup install prompt
-function setupInstallPrompt() {
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    showInstallButton();
-  });
-
-  window.addEventListener('appinstalled', () => {
-    console.log('[PWA] App installed');
-    deferredPrompt = null;
-    hideInstallButton();
-    showToast('Đã cài đặt ứng dụng thành công! 🎉', 'success');
-  });
-}
-
-// Show install button
-function showInstallButton() {
-  const installBtn = document.getElementById('pwa-install-btn');
-  if (installBtn) {
-    installBtn.style.display = 'block';
-    installBtn.addEventListener('click', promptInstall);
-  } else {
-    // Create floating install button
-    createFloatingInstallButton();
-  }
-}
-
-// Create floating install button
-function createFloatingInstallButton() {
-  const btn = document.createElement('button');
-  btn.id = 'pwa-install-floating';
-  btn.className = 'pwa-install-floating';
-  btn.innerHTML = `
-    <i class="bi bi-download"></i>
-    <span>Cài đặt App</span>
-  `;
-  btn.addEventListener('click', promptInstall);
-  document.body.appendChild(btn);
-  
-  // Auto hide after 10 seconds
-  setTimeout(() => {
-    btn.classList.add('hidden');
-  }, 10000);
-}
-
-// Prompt install
-async function promptInstall() {
-  if (!deferredPrompt) {
-    return;
-  }
-
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  console.log('[PWA] Install prompt outcome:', outcome);
-  
-  if (outcome === 'accepted') {
-    hideInstallButton();
-  }
-  
-  deferredPrompt = null;
-}
-
-// Hide install button
-function hideInstallButton() {
-  const installBtn = document.getElementById('pwa-install-btn');
-  if (installBtn) {
-    installBtn.style.display = 'none';
-  }
-  
-  const floatingBtn = document.getElementById('pwa-install-floating');
-  if (floatingBtn) {
-    floatingBtn.remove();
-  }
-}
-
-// Check if app is installed
-function checkIfInstalled() {
-  // Check if running in standalone mode
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                       window.navigator.standalone ||
-                       document.referrer.includes('android-app://');
-  
-  if (isStandalone) {
-    console.log('[PWA] Running in standalone mode');
-    document.body.classList.add('pwa-installed');
-    
-    // Hide install button if exists
-    hideInstallButton();
-  }
-}
 
 // Setup offline detection
 function setupOfflineDetection() {
@@ -326,32 +223,10 @@ function urlBase64ToUint8Array(base64String) {
   return outputArray;
 }
 
-// Add to home screen prompt for iOS
-function showIOSInstallPrompt() {
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
-  
-  if (isIOS && !isInStandaloneMode) {
-    const prompt = document.createElement('div');
-    prompt.className = 'ios-install-prompt';
-    prompt.innerHTML = `
-      <div class="ios-prompt-content">
-        <p>Cài đặt ứng dụng này trên iPhone:</p>
-        <ol>
-          <li>Nhấn nút <i class="bi bi-box-arrow-up"></i> Share</li>
-          <li>Chọn "Add to Home Screen"</li>
-        </ol>
-        <button onclick="this.parentElement.parentElement.remove()">Đóng</button>
-      </div>
-    `;
-    document.body.appendChild(prompt);
-  }
-}
 
 // Export functions for global use
 window.PWA = {
   requestNotificationPermission,
   subscribeToPush,
   updateApp,
-  showIOSInstallPrompt
-};
+};}

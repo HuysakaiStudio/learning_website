@@ -5,7 +5,7 @@
 <div class="row g-4">
     <!-- Cột bên trái: Thông tin cá nhân & Cập nhật -->
     <div class="col-lg-4">
-        <div class="card shadow-sm border-0 sticky-top" style="top: 100px;">
+        <div class="card shadow-sm border-0">
             <div class="card-body text-center p-4">
                 <div class="profile-avatar-container mx-auto">
                     {% if profile.avatar %}
@@ -57,22 +57,34 @@
         {% if is_own_profile %}
         <div class="card mb-4 gamification-stats-card" style="padding: var(--space-6); color: white; border: none;">
             <div class="row g-4 align-items-center">
-                <div class="col-md-3 text-center">
+                <div class="col-6 col-md-3 text-center">
                     <div class="mb-2" style="font-size: var(--text-5xl);">🏆</div>
-                    <div class="fw-bold mb-1" style="font-size: var(--text-3xl);" id="user-level-display">Level 0</div>
-                    <div style="font-size: var(--text-sm); opacity: 0.9;">Cấp độ hiện tại</div>
+                    <div class="fw-bold mb-1" style="font-size: var(--text-3xl);" id="user-level-display">
+                        {% if gamification_data %}Level {{ gamification_data.level }}{% else %}Level 0{% endif %}
+                    </div>
+                    <div style="font-size: var(--text-sm); opacity: 0.9;" id="user-level-name">
+                        {% if gamification_data.level_progress.level_name %}
+                            {{ gamification_data.level_progress.level_name }}
+                        {% else %}
+                            Mầm Non
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="col-md-3 text-center">
+                <div class="col-6 col-md-3 text-center">
                     <div class="mb-2" style="font-size: var(--text-5xl);">⭐</div>
-                    <div class="fw-bold mb-1" style="font-size: var(--text-3xl);" id="user-xp-display">0 XP</div>
+                    <div class="fw-bold mb-1" style="font-size: var(--text-3xl);" id="user-xp-display">
+                        {% if gamification_data %}{{ gamification_data.xp }} XP{% else %}0 XP{% endif %}
+                    </div>
                     <div style="font-size: var(--text-sm); opacity: 0.9;">Kinh nghiệm</div>
                 </div>
-                <div class="col-md-3 text-center">
+                <div class="col-6 col-md-3 text-center">
                     <div class="mb-2" style="font-size: var(--text-5xl);">🔥</div>
-                    <div class="fw-bold mb-1" style="font-size: var(--text-3xl);" id="user-streak-display">0</div>
+                    <div class="fw-bold mb-1" style="font-size: var(--text-3xl);" id="user-streak-display">
+                        {% if gamification_data %}{{ gamification_data.current_streak }}{% else %}0{% endif %}
+                    </div>
                     <div style="font-size: var(--text-sm); opacity: 0.9;">Ngày liên tiếp</div>
                 </div>
-                <div class="col-md-3 text-center">
+                <div class="col-6 col-md-3 text-center">
                     <div class="mb-2" style="font-size: var(--text-5xl);">🎯</div>
                     <div class="fw-bold mb-1" style="font-size: var(--text-3xl);">{{ analytics.tong_bai_lam|default:0 }}</div>
                     <div style="font-size: var(--text-sm); opacity: 0.9;">Bài thi hoàn thành</div>
@@ -82,10 +94,18 @@
             <div class="mt-4">
                 <div class="d-flex justify-content-between mb-2" style="font-size: var(--text-sm);">
                     <span>Tiến độ lên cấp</span>
-                    <span id="xp-progress-text">0 / 100 XP</span>
+                    <span id="xp-progress-text">
+                        {% if gamification_data.level_progress %}
+                            {{ gamification_data.level_progress.xp_in_current_level|default:0 }} / {{ gamification_data.level_progress.xp_needed_for_next_level|default:100 }} XP
+                        {% else %}
+                            0 / 100 XP
+                        {% endif %}
+                    </span>
                 </div>
                 <div class="progress">
-                    <div id="xp-progress-bar" class="progress-bar" style="width: 0%; background: linear-gradient(90deg, rgba(255,255,255,0.8), rgba(255,255,255,1));"></div>
+                    <div id="xp-progress-bar" class="progress-bar"
+                         style="width: {% if gamification_data.level_progress %}{{ gamification_data.level_progress.progress_percent|default:0}}{% else %}0{% endif %}%; background: linear-gradient(90deg, #4ade80, #22c55e); height: 20px;">
+                    </div>
                 </div>
             </div>
         </div>
@@ -291,12 +311,20 @@ document.addEventListener('DOMContentLoaded', function() {
     if (xpDisplay) xpDisplay.textContent = `${xp} XP`;
     if (streakDisplay) streakDisplay.textContent = streak;
     
-    // Calculate XP progress to next level
-    const currentLevelXP = Math.pow(level * 100, 1.5);
-    const nextLevelXP = Math.pow((level + 1) * 100, 1.5);
-    const xpInCurrentLevel = xp - currentLevelXP;
-    const xpNeededForNextLevel = nextLevelXP - currentLevelXP;
-    const progressPercent = Math.min(100, (xpInCurrentLevel / xpNeededForNextLevel) * 100);
+    // Update level name display
+    const levelNameDisplay = document.getElementById('user-level-name');
+    {% if gamification_data.level_progress.level_name %}
+        if (levelNameDisplay) {
+            levelNameDisplay.textContent = '{{ gamification_data.level_progress.level_name }}';
+        }
+    {% endif %}
+    
+    // Use the accurate progress data from the backend
+    // The backend now provides accurate progress information
+    {% if gamification_data.level_progress %}
+    const xpInCurrentLevel = parseInt('{{ gamification_data.level_progress.xp_in_current_level|default:0 }}');
+    const xpNeededForNextLevel = parseInt('{{ gamification_data.level_progress.xp_needed_for_next_level|default:100 }}');
+    const progressPercent = parseFloat('{{ gamification_data.level_progress.progress_percent|default:0|stringformat:"f" }}'.replace(',', '.'));
     
     // Update progress bar
     const progressBar = document.getElementById('xp-progress-bar');
@@ -307,8 +335,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (progressText) {
-        progressText.textContent = `${Math.floor(xpInCurrentLevel)} / ${Math.floor(xpNeededForNextLevel)} XP`;
+        progressText.textContent = `${xpInCurrentLevel} / ${xpNeededForNextLevel} XP`;
     }
+    {% endif %}
     
     // Also update window.gamification for other scripts
     if (!window.gamification) {

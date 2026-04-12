@@ -194,6 +194,72 @@
       right: -50px;
     }
   }
+
+  /* Dark mode styles for notification widget */
+  body.dark-mode .notification-bell-icon {
+    color: var(--dm-text-secondary);
+  }
+
+  body.dark-mode .notification-bell:hover .notification-bell-icon {
+    color: var(--dm-primary);
+  }
+
+  body.dark-mode .notification-dropdown {
+    background: var(--dm-bg-card);
+    box-shadow: 0 8px 24px var(--dm-shadow);
+  }
+
+  body.dark-mode .notification-dropdown-header {
+    border-bottom: 1px solid var(--dm-border);
+  }
+
+  body.dark-mode .notification-dropdown-title {
+    color: var(--dm-text-primary);
+  }
+
+  body.dark-mode .notification-dropdown-btn {
+    color: var(--dm-primary);
+  }
+
+  body.dark-mode .notification-dropdown-btn:hover {
+    background: var(--dm-bg-hover);
+  }
+
+  body.dark-mode .notification-dropdown-item {
+    border-bottom: 1px solid var(--dm-border);
+  }
+
+  body.dark-mode .notification-dropdown-item:hover {
+    background: var(--dm-bg-hover);
+  }
+
+  body.dark-mode .notification-dropdown-item.unread {
+    background: rgba(59, 130, 246, 0.1);
+  }
+
+  body.dark-mode .notification-item-title {
+    color: var(--dm-text-primary);
+  }
+
+  body.dark-mode .notification-item-message {
+    color: var(--dm-text-secondary);
+  }
+
+  body.dark-mode .notification-item-time {
+    color: var(--dm-text-tertiary);
+  }
+
+  body.dark-mode .notification-empty {
+    color: var(--dm-text-tertiary);
+  }
+
+  body.dark-mode .notification-view-all {
+    color: var(--dm-primary);
+  }
+
+  body.dark-mode .notification-dropdown-footer {
+    border-top: 1px solid var(--dm-border);
+  }
 </style>
 
 {% if user.is_authenticated %}
@@ -224,165 +290,287 @@
 </div>
 
 <script>
-// Notification Bell Widget
-(function() {
+// Improved Notification Bell Widget with error handling
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if elements exist before initializing
   const bell = document.getElementById('notificationBell');
   const dropdown = document.getElementById('notificationDropdown');
   const badge = document.getElementById('notificationBadge');
   const list = document.getElementById('notificationList');
-  
-  // Toggle dropdown
+
+  // Exit early if required elements are not found
+  if (!bell || !dropdown || !badge || !list) {
+    console.warn('Notification widget: Required elements not found');
+    return;
+  }
+
+  // Check if already initialized to prevent duplicate event listeners
+  if (bell.dataset.notificationInitialized === 'true') {
+    return;
+  }
+  bell.dataset.notificationInitialized = 'true';
+
+  // Toggle dropdown with proper error handling
   bell.addEventListener('click', function(e) {
-    e.stopPropagation();
-    dropdown.classList.toggle('show');
-    if (dropdown.classList.contains('show')) {
-      loadNotifications();
+    try {
+      e.stopPropagation();
+      // Check if dropdown is already visible, if so, hide it
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      } else {
+        dropdown.classList.add('show');
+        loadNotifications();
+      }
+    } catch (error) {
+      console.error('Error toggling notification dropdown:', error);
     }
   });
   
-  // Close when clicking outside
+  // Close when clicking outside with error handling
   document.addEventListener('click', function(e) {
-    if (!bell.contains(e.target)) {
-      dropdown.classList.remove('show');
+    try {
+      if (!bell.contains(e.target)) {
+        dropdown.classList.remove('show');
+      }
+    } catch (error) {
+      console.error('Error handling outside click:', error);
     }
   });
   
-  // Load notifications
+  // Load notifications with error handling
   function loadNotifications() {
-    fetch('{% url "notifications:api_recent" %}')
-      .then(response => response.json())
-      .then(data => {
-        if (data.notifications.length === 0) {
+    try {
+      fetch('{% url "notifications:api_recent" %}')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data && data.notifications && Array.isArray(data.notifications)) {
+            if (data.notifications.length === 0) {
+              list.innerHTML = `
+                <div class="notification-empty">
+                  <div class="notification-empty-icon">🔔</div>
+                  <div>Không có thông báo mới</div>
+                </div>
+              `;
+            } else {
+              list.innerHTML = data.notifications.map(notif => `
+                <div class="notification-dropdown-item ${notif.is_read ? '' : 'unread'}"
+                     onclick="handleNotificationClick('${notif.action_url || ''}', ${notif.id})">
+                  <div class="notification-item-header">
+                    <span class="notification-item-icon">${getNotificationIcon(notif.type)}</span>
+                    <div class="notification-item-content">
+                      <div class="notification-item-title">${notif.title || 'Thông báo'}</div>
+                      <div class="notification-item-message">${notif.message || ''}</div>
+                      <div class="notification-item-time">${formatTime(notif.created_at)}</div>
+                    </div>
+                  </div>
+                </div>
+              `).join('');
+            }
+          } else {
+            list.innerHTML = `
+              <div class="notification-empty">
+                <div>Không có dữ liệu thông báo</div>
+              </div>
+            `;
+          }
+        })
+        .catch(error => {
+          console.error('Error loading notifications:', error);
           list.innerHTML = `
             <div class="notification-empty">
-              <div class="notification-empty-icon">🔔</div>
-              <div>Không có thông báo mới</div>
+              <div>Lỗi tải thông báo</div>
             </div>
           `;
-        } else {
-          list.innerHTML = data.notifications.map(notif => `
-            <div class="notification-dropdown-item ${notif.is_read ? '' : 'unread'}" 
-                 onclick="handleNotificationClick('${notif.action_url}', ${notif.id})">
-              <div class="notification-item-header">
-                <span class="notification-item-icon">${getNotificationIcon(notif.type)}</span>
-                <div class="notification-item-content">
-                  <div class="notification-item-title">${notif.title}</div>
-                  <div class="notification-item-message">${notif.message}</div>
-                  <div class="notification-item-time">${formatTime(notif.created_at)}</div>
-                </div>
-              </div>
-            </div>
-          `).join('');
-        }
-      })
-      .catch(error => {
-        console.error('Error loading notifications:', error);
-        list.innerHTML = `
-          <div class="notification-empty">
-            <div>Lỗi tải thông báo</div>
-          </div>
-        `;
-      });
-  }
-  
-  // Update unread count
-  function updateUnreadCount() {
-    fetch('{% url "notifications:api_unread_count" %}')
-      .then(response => response.json())
-      .then(data => {
-        if (data.count > 0) {
-          badge.textContent = data.count > 99 ? '99+' : data.count;
-          badge.style.display = 'flex';
-        } else {
-          badge.style.display = 'none';
-        }
-      })
-      .catch(error => console.error('Error updating count:', error));
-  }
-  
-  // Handle notification click
-  window.handleNotificationClick = function(url, id) {
-    // Mark as read
-    fetch(`/notifications/${id}/read/`, {
-      method: 'POST',
-      headers: {
-        'X-CSRFToken': getCookie('csrftoken'),
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    }).then(() => {
-      updateUnreadCount();
-      if (url) {
-        window.location.href = url;
-      }
-    });
-  };
-  
-  // Mark all as read
-  window.markAllAsRead = function() {
-    fetch('{% url "notifications:mark_all_as_read" %}', {
-      method: 'POST',
-      headers: {
-        'X-CSRFToken': getCookie('csrftoken'),
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    }).then(() => {
-      updateUnreadCount();
-      loadNotifications();
-    });
-  };
-  
-  // Close dropdown
-  window.closeNotifications = function() {
-    dropdown.classList.remove('show');
-  };
-  
-  // Get notification icon
-  function getNotificationIcon(type) {
-    const icons = {
-      'achievement': '🏆',
-      'leaderboard': '📊',
-      'exam_result': '📝',
-      'forum_reply': '💬',
-      'flashcard_milestone': '⭐',
-      'study_reminder': '📚',
-      'badge': '🎖️',
-      'system': '🔔'
-    };
-    return icons[type] || '🔔';
-  }
-  
-  // Format time
-  function formatTime(isoString) {
-    const date = new Date(isoString);
-    const now = new Date();
-    const diff = Math.floor((now - date) / 1000); // seconds
-    
-    if (diff < 60) return 'Vừa xong';
-    if (diff < 3600) return Math.floor(diff / 60) + ' phút trước';
-    if (diff < 86400) return Math.floor(diff / 3600) + ' giờ trước';
-    if (diff < 604800) return Math.floor(diff / 86400) + ' ngày trước';
-    return date.toLocaleDateString('vi-VN');
-  }
-  
-  // Get CSRF token
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
+        });
+    } catch (error) {
+      console.error('Error in loadNotifications function:', error);
+      list.innerHTML = `
+        <div class="notification-empty">
+          <div>Lỗi hệ thống</div>
+        </div>
+      `;
     }
-    return cookieValue;
   }
   
-  // Initial load and periodic refresh
-  updateUnreadCount();
-  setInterval(updateUnreadCount, 30000); // Every 30 seconds
-})();
+  // Update unread count with error handling
+  function updateUnreadCount() {
+    try {
+      fetch('{% url "notifications:api_unread_count" %}')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data && typeof data.count === 'number') {
+            if (data.count > 0) {
+              badge.textContent = data.count > 99 ? '99+' : data.count;
+              badge.style.display = 'flex';
+            } else {
+              badge.style.display = 'none';
+            }
+          }
+        })
+        .catch(error => console.error('Error updating count:', error));
+    } catch (error) {
+      console.error('Error in updateUnreadCount function:', error);
+    }
+  }
+  
+  // Handle notification click with error handling
+  window.handleNotificationClick = function(url, id) {
+    try {
+      // Mark as read
+      fetch(`/notifications/${id}/read/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      }).then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      }).then(() => {
+        updateUnreadCount();
+        if (url) {
+          window.location.href = url;
+        }
+      }).catch(error => {
+        console.error('Error marking notification as read:', error);
+        // Still update the count in case the request succeeded but response had issues
+        updateUnreadCount();
+        if (url) {
+          window.location.href = url;
+        }
+      });
+    } catch (error) {
+      console.error('Error in handleNotificationClick:', error);
+    }
+  };
+  
+  // Mark all as read with error handling
+  window.markAllAsRead = function() {
+    try {
+      fetch('{% url "notifications:mark_all_as_read" %}', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      }).then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      }).then(() => {
+        updateUnreadCount();
+        loadNotifications();
+      }).catch(error => {
+        console.error('Error marking all as read:', error);
+        // Still try to update the UI in case the request succeeded but response had issues
+        updateUnreadCount();
+        loadNotifications();
+      });
+    } catch (error) {
+      console.error('Error in markAllAsRead:', error);
+    }
+  };
+  
+  // Close dropdown with error handling
+  window.closeNotifications = function() {
+    try {
+      dropdown.classList.remove('show');
+    } catch (error) {
+      console.error('Error closing notifications:', error);
+    }
+  };
+  
+  // Get notification icon with error handling
+  function getNotificationIcon(type) {
+    try {
+      const icons = {
+        'achievement': '🏆',
+        'leaderboard': '📊',
+        'exam_result': '📝',
+        'forum_reply': '💬',
+        'flashcard_milestone': '⭐',
+        'study_reminder': '📚',
+        'badge': '🎖️',
+        'system': '🔔'
+      };
+      return icons[type] || '🔔';
+    } catch (error) {
+      console.error('Error getting notification icon:', error);
+      return '🔔';
+    }
+  }
+  
+  // Format time with error handling
+  function formatTime(isoString) {
+    try {
+      const date = new Date(isoString);
+      const now = new Date();
+      const diff = Math.floor((now - date) / 1000); // seconds
+
+      if (isNaN(date.getTime())) {
+        return 'Không rõ thời gian';
+      }
+
+      if (diff < 60) return 'Vừa xong';
+      if (diff < 3600) return Math.floor(diff / 60) + ' phút trước';
+      if (diff < 86400) return Math.floor(diff / 3600) + ' giờ trước';
+      if (diff < 604800) return Math.floor(diff / 86400) + ' ngày trước';
+      return date.toLocaleDateString('vi-VN');
+    } catch (error) {
+      console.error('Error formatting time:', error);
+      return 'Không rõ';
+    }
+  }
+  
+  // Get CSRF token with error handling
+  function getCookie(name) {
+    try {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    } catch (error) {
+      console.error('Error getting cookie:', error);
+      return null;
+    }
+  }
+  
+  // Initial load and periodic refresh with error handling
+  try {
+    updateUnreadCount();
+    // Refresh every 30 seconds
+    const intervalId = setInterval(updateUnreadCount, 30000);
+    
+    // Clear interval when page is unloaded to prevent memory leaks
+    window.addEventListener('beforeunload', function() {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    });
+  } catch (error) {
+    console.error('Error in initialization:', error);
+  }
+});
 </script>
 {% endif %}

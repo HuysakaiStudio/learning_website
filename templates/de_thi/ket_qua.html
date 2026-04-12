@@ -58,7 +58,7 @@
 
     <!-- Stats Grid -->
     <div class="row g-3 mb-5">
-      <div class="col-4">
+      <div class="col-12 col-sm-4">
         <div class="stat-card">
           <div class="stat-value text-primary">
             {{ kq.tong_cau }}
@@ -68,7 +68,7 @@
           </div>
         </div>
       </div>
-      <div class="col-4">
+      <div class="col-12 col-sm-4">
         <div class="stat-card stat-card-success">
           <div class="stat-value text-success">
             {% widthratio kq.diem 10 kq.tong_cau %}
@@ -78,14 +78,10 @@
           </div>
         </div>
       </div>
-      <div class="col-4">
+      <div class="col-12 col-sm-4">
         <div class="stat-card stat-card-primary">
           <div class="stat-value text-primary">
-            {% if kq.thoi_gian_lam >= 60 %}
-              {{ kq.thoi_gian_lam|divisibleby:60 }}p
-            {% else %}
-              {{ kq.thoi_gian_lam }}s
-            {% endif %}
+            {{ kq.thoi_gian_lam }}s
           </div>
           <div class="stat-label text-primary">
             Thời gian
@@ -94,16 +90,35 @@
       </div>
     </div>
 
+    <!-- Hidden data container for JavaScript -->
+    <div id="exam-data"
+         data-xp-reward-json="{{ xp_reward|safe }}"
+         data-score="{{ kq.diem|floatformat:2 }}"
+         data-xp-gained="{{ xp_reward.xp_gained|default:0 }}"
+         data-new-level="{{ xp_reward.new_level|default:0 }}"
+         data-leveled-up="{{ xp_reward.leveled_up|yesno:"true,false"|lower }}"
+         data-level-name="{{ xp_reward.level_progress.level_name|default:'' }}"
+         style="display: none;"></div>
+
     <!-- XP Reward Display -->
-    <div class="alert alert-success d-flex align-items-center justify-content-center gap-2 mb-4">
-      <i class="bi bi-star-fill text-xl"></i>
-      <span class="fw-semibold">Bạn nhận được <span id="exam-xp">20</span> XP!</span>
-    </div>
+    {% if xp_reward %}
+      {% if xp_reward.xp_gained > 0 %}
+        <div class="alert alert-success d-flex align-items-center justify-content-center gap-2 mb-4">
+          <i class="bi bi-star-fill text-xl"></i>
+          <span class="fw-semibold">Bạn nhận được <span id="exam-xp">{{ xp_reward.xp_gained }}</span> XP! {{ xp_reward.reason }}</span>
+        </div>
+      {% elif xp_reward.no_xp_reason %}
+        <div class="alert alert-info d-flex align-items-center justify-content-center gap-2 mb-4">
+          <i class="bi bi-info-circle-fill text-xl"></i>
+          <span class="fw-semibold">{{ xp_reward.no_xp_reason }}</span>
+        </div>
+      {% endif %}
+    {% endif %}
 
     <!-- Action Buttons -->
-    <div class="d-flex flex-column gap-3">
+    <div class="action-buttons d-flex flex-column gap-3">
       {% if kq.diem > 6 %}
-        <a href="/de-thi/ket-qua/{{ kq.id }}/dap-an/" class="btn btn-primary btn-lg">
+        <a href="{% url 'de_thi:xem_dap_an' kq_id=kq.id %}" class="btn btn-primary btn-lg">
           <i class="bi bi-file-text-fill"></i>
           Xem đáp án chi tiết
         </a>
@@ -181,29 +196,35 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // Calculate XP based on score
-  const score = {{ kq.diem }};
-  let xp = 20; // Base XP
+  // Retrieve data from hidden HTML element
+  const examDataEl = document.getElementById('exam-data');
+  const xpGained = parseInt(examDataEl.getAttribute('data-xp-gained')) || 0;
+  const newLevel = parseInt(examDataEl.getAttribute('data-new-level')) || 0;
+  const leveledUp = examDataEl.getAttribute('data-leveled-up') === 'true';
+  const score = parseFloat(examDataEl.getAttribute('data-score')) || 0;
   
-  if (score >= 10) {
-    xp = 50; // Perfect score
-  } else if (score >= 8) {
-    xp = 40; // Excellent
-  } else if (score >= 6.5) {
-    xp = 30; // Good
+  // Update XP display if data exists
+  if (xpGained > 0) {
+    const examXpElement = document.getElementById('exam-xp');
+    if (examXpElement) {
+      examXpElement.textContent = xpGained;
+    }
+    
+    // Show level up if applicable
+    if (leveledUp) {
+      const levelName = examDataEl.getAttribute('data-level-name');
+      
+      setTimeout(() => {
+        // Trigger confetti or celebration animation for level up
+        console.log(`🎉 Congratulations! You've reached level ${newLevel}${levelName ? ` (${levelName})` : ''}!`);
+        
+        // Show level up notification
+        alert(`Chúc mừng bạn đã lên cấp ${newLevel}${levelName ? ` - ${levelName}` : ''}!`);
+      }, 1000);
+    }
   }
   
-  // Update XP display
-  document.getElementById('exam-xp').textContent = xp;
-  
-  // Award XP through gamification system
-  if (window.gamification) {
-    setTimeout(() => {
-      window.gamification.addXP(xp, 'Hoàn thành bài thi');
-    }, 500);
-  }
-  
-  // Show level up if applicable
+  // Show excellent score celebration
   if (score >= 8) {
     setTimeout(() => {
       // Trigger confetti or celebration animation

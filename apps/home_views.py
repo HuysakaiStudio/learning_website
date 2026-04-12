@@ -26,11 +26,15 @@ def home_view(request):
         context['current_streak'] = gamification.current_streak
         context['exam_count'] = exam_count
         
+        # Use the enhanced level progress method for better UI display
+        level_progress = gamification.get_enhanced_level_progress()
+        
         # Also keep the nested structure for JavaScript
         context['gamification_data'] = {
             'xp': gamification.xp,
             'level': gamification.level,
             'current_streak': gamification.current_streak,
+            'level_progress': level_progress
         }
     
     return render(request, 'home.html', context)

@@ -20,4 +20,9 @@ urlpatterns = [
     path('flashcard/<int:set_id>/export/<str:format>/', views.export_flashcards, name='export_flashcards'),
     path('flashcard/share/<uuid:uuid>/', views.share_flashcards, name='share_flashcards'),
     path('api/flashcard/progress/', views.api_flashcard_progress, name='api_flashcard_progress'),
+    
+    # Flashcard Test URLs
+    path('flashcard/<int:flashcard_set_id>/test/', views.start_flashcard_test, name='start_flashcard_test'),
+    path('api/flashcard/test/answer/', views.submit_flashcard_test_answer, name='submit_flashcard_test_answer'),
+    path('flashcard/test/<int:test_id>/finish/', views.finish_flashcard_test, name='finish_flashcard_test'),
 ]

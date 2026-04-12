@@ -3,8 +3,8 @@
 
 {% block content %}
 <div class="row">
-  <div class="col-md-3">
-    <div class="bg-white rounded-4 shadow-sm p-3 sticky-top" style="top: 80px;">
+  <div class="col-12 col-md-3">
+    <div class="bg-white rounded-4 shadow-sm p-3 mb-4" style="margin-bottom: 1rem;">
       <h5 class="fw-bold px-2 mb-3">Studio</h5>
       <div class="list-group list-group-flush border-0">
         <a href="{% url 'studio:dashboard' %}" class="list-group-item list-group-item-action border-0 rounded-2 fw-500 mb-1 active bg-primary text-white">
@@ -28,17 +28,17 @@
       </div>
     </div>
   </div>
-  <div class="col-md-9">
+  <div class="col-12 col-md-9">
     <h3 class="fw-bold mb-4">Bảng điều khiển kênh</h3>
     
     <div class="row g-4 mb-5">
-      <div class="col-md-6">
+      <div class="col-12 col-md-6">
         <div class="bg-white rounded-4 shadow-sm p-4 h-100 border-start border-primary border-4 text-center">
           <h1 class="display-4 fw-bold text-primary">{{ articles_count }}</h1>
           <p class="text-muted fw-500 mb-0">Bài viết đã tạo</p>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-12 col-md-6">
         <div class="bg-white rounded-4 shadow-sm p-4 h-100 border-start border-warning border-4 text-center">
           <h1 class="display-4 fw-bold text-warning">{{ flashcards_count }}</h1>
           <p class="text-muted fw-500 mb-0">Bộ Flashcard đã tạo</p>

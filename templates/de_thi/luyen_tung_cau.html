@@ -231,9 +231,18 @@ form.addEventListener('submit', async (e) => {
     if (data.success) {
       showFeedback(data);
     } else {
-      alert('Có lỗi xảy ra: ' + (data.error || 'Unknown error'));
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '<i class="bi bi-check-lg"></i> Kiểm tra đáp án';
+      // Check if it's a "no more questions" scenario with redirect
+      if (data.redirect_url) {
+        // Redirect to results page
+        window.location.href = data.redirect_url;
+      } else if (data.error === 'Session already completed') {
+        // If session is already completed, redirect to results
+        window.location.href = '{% url "de_thi:ket_qua" session.ket_qua.id %}';
+      } else {
+        alert('Có lỗi xảy ra: ' + (data.error || 'Unknown error'));
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="bi bi-check-lg"></i> Kiểm tra đáp án';
+      }
     }
   } catch (error) {
     console.error('Error:', error);

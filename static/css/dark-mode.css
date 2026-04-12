@@ -591,9 +591,11 @@ body.dark-mode .flashcard {
   border-color: var(--dm-border) !important;
   box-shadow: 0 4px 12px var(--dm-shadow) !important;
 }
-
-body.dark-mode .flashcard-front,
-body.dark-mode .flashcard-back {
+body.dark-mode .kt-card-front,
+body.dark-mode .kt-card-back,
+body.dark-mode .kt-test-card-front,
+body.dark-mode .kt-test-card-back,
+body.dark-mode .kt-test-stat-box{
   background: var(--dm-bg-card) !important;
   color: var(--dm-text-primary) !important;
 }

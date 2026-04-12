@@ -5,7 +5,7 @@ from django.views.decorators.http import require_POST
 from django.urls import reverse
 from django.contrib import messages
 from django.utils import timezone
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Q
 from apps.kien_thuc.models import Mon
 from .models import (DeThi, CauHoi, KetQua, TraLoi, UserAnalytics, SubjectPerformance, QuestionDifficulty,
                      ForumPost, ForumComment, ForumReply, PostVote, PracticeSession)
@@ -41,6 +41,22 @@ def them_cau_hoi(request, de_id):
     if request.method == 'POST':
         # Tùy thuộc vào loại câu hỏi mà chọn form tương ứng
         loai = request.POST.get('loai')
+        
+        # Kiểm tra kỹ loại câu hỏi để đảm bảo chính xác
+        if loai not in ['tn', 'ds', 'dien']:
+            messages.error(request, 'Loại câu hỏi không hợp lệ.')
+            # Mặc định là TracNghiemForm nếu không có dữ liệu POST
+            cau_hoi_list = de.cau_hoi.all().order_by('id')
+            return render(request, 'de_thi/them_cau_hoi.html', {
+                'de': de,
+                'form_tn': TracNghiemForm(),
+                'form_ds': DungSaiForm(),
+                'form_dien': DienSoForm(),
+                'cau_hoi_list': cau_hoi_list,
+                'loai': 'tn'
+            })
+
+        # Tạo form dựa trên loại câu hỏi
         if loai == 'tn':
             form = TracNghiemForm(request.POST)
         elif loai == 'ds':
@@ -61,11 +77,41 @@ def them_cau_hoi(request, de_id):
             
             messages.success(request, 'Câu hỏi đã được thêm!')
             return redirect('de_thi:them_cau_hoi', de_id=de.id)
-        elif form:
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+        else:
+            if form:
+                # Log lỗi cụ thể để debug
+                print(f"Form errors: {form.errors}")
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+                else:
+                    # Hiển thị lỗi cụ thể
+                    error_messages = []
+                    for field, errors in form.errors.items():
+                        field_name = form.fields[field].label if field in form.fields else field
+                        error_messages.append(f"{field_name}: {', '.join(errors)}")
+                    messages.error(request, f'Có lỗi trong thông tin câu hỏi: {"; ".join(error_messages)}')
             else:
-                messages.error(request, 'Có lỗi trong thông tin câu hỏi. Vui lòng kiểm tra và thử lại.')
+                messages.error(request, 'Loại câu hỏi không được hỗ trợ.')
+                
+            # Trả về form với dữ liệu đã nhập để người dùng có thể sửa
+            cau_hoi_list = de.cau_hoi.all().order_by('id')
+            context = {
+                'de': de,
+                'form_tn': TracNghiemForm(),
+                'form_ds': DungSaiForm(),
+                'form_dien': DienSoForm(),
+                'cau_hoi_list': cau_hoi_list,
+                'loai': loai
+            }
+            # Đảm bảo form bị lỗi được giữ lại để hiển thị lỗi
+            if loai == 'tn':
+                context['form_tn'] = TracNghiemForm(request.POST)
+            elif loai == 'ds':
+                context['form_ds'] = DungSaiForm(request.POST)
+            elif loai == 'dien':
+                context['form_dien'] = DienSoForm(request.POST)
+                
+            return render(request, 'de_thi/them_cau_hoi.html', context)
     else:
         # Mặc định là TracNghiemForm nếu không có dữ liệu POST
         cau_hoi_list = de.cau_hoi.all().order_by('id')
@@ -132,8 +178,10 @@ def lich_su_lam_bai(request):
     mon_list = Mon.objects.filter(de_thi__ketqua__nguoi_dung=request.user).distinct()
 
     if not request.user.is_staff:
-        # Ẩn kết quả không có câu trả lời đối với người dùng bình thường
-        ket_qua_list = ket_qua_list.annotate(a_count=Count('tra_loi')).filter(a_count__gt=0)
+        # Ẩn kết quả không có câu trả lời đối với người dùng bình thường, ngoại trừ chế độ thi thật
+        ket_qua_list = ket_qua_list.annotate(a_count=Count('tra_loi')).filter(
+            Q(a_count__gt=0) | Q(che_do='thi_that')
+        )
 
     if selected_mon_id:
         ket_qua_list = ket_qua_list.filter(de_thi__mon_id=selected_mon_id)
@@ -165,6 +213,30 @@ def lam_bai(request, de_id):
         import logging
         logger = logging.getLogger(__name__)
         
+        # Allow users to retake exams after a reasonable time period
+        # Only prevent immediate duplicate submissions
+        from datetime import timedelta
+        from django.utils import timezone
+        
+        # Check for submissions made in the last 30 minutes to prevent accidental double submissions
+        recent_cutoff = timezone.now() - timedelta(minutes=30)
+        recent_same_mode_submissions = KetQua.objects.filter(
+            nguoi_dung=request.user,
+            de_thi=de,
+            che_do=che_do,
+            ngay_lam__gte=recent_cutoff
+        )
+        
+        if recent_same_mode_submissions.exists():
+            # If user submitted the same exam in the same mode recently, redirect to the latest submission
+            latest_submission = recent_same_mode_submissions.order_by('-ngay_lam').first()
+            if che_do == 'thi_that':
+                messages.info(request, 'Bạn vừa hoàn thành bài thi thật này, vui lòng chờ 30 phút để làm lại.')
+            else:
+                messages.info(request, 'Bạn vừa hoàn thành bài thi này, vui lòng chờ 30 phút để làm lại.')
+            return redirect('de_thi:ket_qua', kq_id=latest_submission.id)
+        # Allow new submissions if it's been more than 30 minutes since last attempt
+        
         # Ghi nhận hành vi nộp bài
         cheated = request.POST.get('strict_violation') == 'true'
         if cheated:
@@ -176,7 +248,7 @@ def lam_bai(request, de_id):
         # 3. Đây phải là lần đầu tiên thi thật HOẶC chưa từng xem đáp án trước đó của đề này
         from django.db.models import Q
         da_thi_that_hoac_xem_dap_an = KetQua.objects.filter(
-            nguoi_dung=request.user, 
+            nguoi_dung=request.user,
             de_thi=de
         ).filter(Q(che_do='thi_that') | Q(da_xem_dap_an=True)).exists()
 
@@ -188,7 +260,7 @@ def lam_bai(request, de_id):
             nguoi_dung=request.user,
             de_thi=de,
             tong_cau=cau_hoi_list.count(),
-            thoi_gian_lam=int(request.POST.get('thoi_gian_lam', 0)),
+            thoi_gian_lam=max(int(request.POST.get('thoi_gian_lam', 0)), 1),  # Ensure at least 1 second to avoid 0 time
             che_do=che_do,
             is_violated=cheated,
             is_official=is_official
@@ -197,55 +269,61 @@ def lam_bai(request, de_id):
         tong_diem = 0
         tong_cau = cau_hoi_list.count()
 
+        # Process answers with error handling to ensure KetQua is saved even if there are issues with individual answers
         for cau in cau_hoi_list:
-            tra_loi = TraLoi(ket_qua=ket_qua, cau_hoi=cau)
-            dung = False
-            diem = 0
+            try:
+                tra_loi = TraLoi(ket_qua=ket_qua, cau_hoi=cau)
+                dung = False
+                diem = 0
 
-            if cau.loai == 'tn':
-                chon = request.POST.get(f'cau_{cau.id}', '').strip().upper()
-                tra_loi.chon = chon
-                dung = (chon == cau.dap_an_dung.strip().upper())
-                diem = 1.0 if dung else 0.0
+                if cau.loai == 'tn':
+                    chon = request.POST.get(f'cau_{cau.id}', '').strip().upper()
+                    tra_loi.chon = chon
+                    dung = (chon == cau.dap_an_dung.strip().upper())
+                    diem = 1.0 if dung else 0.0
 
-            elif cau.loai == 'dien':
-                so_raw = request.POST.get(f'cau_{cau.id}', '').strip()
-                tra_loi.so_dien = so_raw
-                try:
-                    # So sánh số với sai số 0.001
-                    dung = abs(float(so_raw) - float(cau.dap_an_so)) < 0.001
-                except (ValueError, TypeError):
-                    dung = False
-                diem = 1.0 if dung else 0.0
+                elif cau.loai == 'dien':
+                    so_raw = request.POST.get(f'cau_{cau.id}', '').strip()
+                    tra_loi.so_dien = so_raw
+                    try:
+                        # So sánh số với sai số 0.001
+                        dung = abs(float(so_raw) - float(cau.dap_an_so)) < 0.001
+                    except (ValueError, TypeError):
+                        dung = False
+                    diem = 1.0 if dung else 0.0
 
-            elif cau.loai == 'ds':
-                # Đúng/Sai: 4 ý độc lập
-                chon_a = request.POST.get(f'cau_{cau.id}_a') == 'true'
-                chon_b = request.POST.get(f'cau_{cau.id}_b') == 'true'
-                chon_c = request.POST.get(f'cau_{cau.id}_c') == 'true'
-                chon_d = request.POST.get(f'cau_{cau.id}_d') == 'true'
-                
-                tra_loi.chon_a = chon_a
-                tra_loi.chon_b = chon_b
-                tra_loi.chon_c = chon_c
-                tra_loi.chon_d = chon_d
+                elif cau.loai == 'ds':
+                    # Đúng/Sai: 4 ý độc lập
+                    chon_a = request.POST.get(f'cau_{cau.id}_a') == 'true'
+                    chon_b = request.POST.get(f'cau_{cau.id}_b') == 'true'
+                    chon_c = request.POST.get(f'cau_{cau.id}_c') == 'true'
+                    chon_d = request.POST.get(f'cau_{cau.id}_d') == 'true'
+                    
+                    tra_loi.chon_a = chon_a
+                    tra_loi.chon_b = chon_b
+                    tra_loi.chon_c = chon_c
+                    tra_loi.chon_d = chon_d
 
-                so_dung = sum([
-                    chon_a == cau.dung_sai_a,
-                    chon_b == cau.dung_sai_b,
-                    chon_c == cau.dung_sai_c,
-                    chon_d == cau.dung_sai_d,
-                ])
-                
-                # Biểu điểm MOET 2025: 1 ý=0.1, 2 ý=0.25, 3 ý=0.5, 4 ý=1.0
-                diem_map = {0: 0.0, 1: 0.1, 2: 0.25, 3: 0.5, 4: 1.0}
-                diem = diem_map.get(so_dung, 0.0)
-                dung = (so_dung == 4)
+                    so_dung = sum([
+                        chon_a == cau.dung_sai_a,
+                        chon_b == cau.dung_sai_b,
+                        chon_c == cau.dung_sai_c,
+                        chon_d == cau.dung_sai_d,
+                    ])
+                    
+                    # Biểu điểm MOET 2025: 1 ý=0.1, 2 ý=0.25, 3 ý=0.5, 4 ý=1.0
+                    diem_map = {0: 0.0, 1: 0.1, 2: 0.25, 3: 0.5, 4: 1.0}
+                    diem = diem_map.get(so_dung, 0.0)
+                    dung = (so_dung == 4)
 
-            tra_loi.dung = dung
-            tra_loi.diem_duoc = diem
-            tra_loi.save()
-            tong_diem += diem
+                tra_loi.dung = dung
+                tra_loi.diem_duoc = diem
+                tra_loi.save()
+                tong_diem += diem
+            except Exception as e:
+                # Log the error but continue processing other questions
+                logger.error(f"Error processing answer for question {cau.id} in exam {ket_qua.id}: {str(e)}")
+                # Still continue with the loop
 
         # Quy về thang điểm 10.0 (Strict rounding)
         if tong_cau > 0:
@@ -292,22 +370,136 @@ def ket_qua(request, kq_id):
     
     xp_reward = None
     if kq.is_official and not kq.is_violated:
+        # XP should have been awarded via signals if this is official and not violated
+        user_gamification, created = UserGamification.objects.get_or_create(user=request.user)
+        
+        # Calculate XP that should have been gained based on score
         xp_amount, reason = get_exam_xp_reward(kq.diem)
         
-        # Get current gamification data to check if leveled up
-        gamification = UserGamification.objects.filter(user=request.user).first()
-        if gamification:
+        # Since XP was already awarded in signals, we just display the current state
+        # Check if user leveled up by comparing with previous state if available
+        xp_reward = {
+            'xp_gained': xp_amount,  # This is the XP that was awarded
+            'reason': reason,
+            'total_xp': user_gamification.xp,
+            'new_level': user_gamification.level,
+            'leveled_up': False,  # This would be determined by the add_xp method in signals
+            'level_progress': user_gamification.get_enhanced_level_progress()
+        }
+    elif kq.is_official and kq.is_violated:
+        # For official exams that were violated
+        xp_amount, reason = get_exam_xp_reward(kq.diem)
+        user_gamification, created = UserGamification.objects.get_or_create(user=request.user)
+        
+        xp_reward = {
+            'xp_gained': 0,  # No XP was awarded due to violation
+            'potential_xp': xp_amount,  # This is what could have been earned
+            'reason': reason,
+            'total_xp': user_gamification.xp,
+            'new_level': user_gamification.level,
+            'leveled_up': False,
+            'no_xp_reason': 'Bạn không nhận được XP vì vi phạm quy định',
+            'level_progress': user_gamification.get_enhanced_level_progress()
+        }
+    elif kq.che_do in ['luyen_tap', 'luyen_tung_cau']:
+        # For practice mode exams - check if they received XP
+        user_gamification, created = UserGamification.objects.get_or_create(user=request.user)
+        
+        # Calculate XP that could have been earned (using practice XP function)
+        from apps.nguoi_dung.xp_utils import get_practice_xp_reward
+        xp_amount, reason = get_practice_xp_reward(kq.diem)
+        
+        # Check if this attempt would have earned XP based on daily limit
+        from django.utils import timezone
+        from datetime import datetime
+        today = timezone.now().date()
+        
+        # Count how many times the user has earned XP for this exam today (BEFORE this attempt)
+        # Only count attempts that resulted in XP gain
+        xp_earned_today = KetQua.objects.filter(
+            nguoi_dung=request.user,
+            de_thi=kq.de_thi,
+            ngay_lam__date=today,
+            che_do=kq.che_do,
+            is_official=False  # Practice attempts
+        ).exclude(id=kq.id).count()  # Exclude current attempt
+        
+        if xp_earned_today < 5:
+            # User earned XP for this attempt
             xp_reward = {
                 'xp_gained': xp_amount,
+                'potential_xp': xp_amount,  # Same since we're using the practice function
                 'reason': reason,
-                'total_xp': gamification.xp,
-                'new_level': gamification.level,
-                'leveled_up': False  # We can't know for sure without storing it, but signal already handled it
+                'total_xp': user_gamification.xp,
+                'new_level': user_gamification.level,
+                'leveled_up': False,
+                'xp_reduced': True,  # Indicates this is reduced XP for practice
+                'level_progress': user_gamification.get_enhanced_level_progress()
             }
+        else:
+            # User has already earned XP 5 times today for this exam
+            xp_reward = {
+                'xp_gained': 0,  # No XP - already earned 5 times today
+                'potential_xp': xp_amount,  # This is what could have been earned
+                'reason': reason,
+                'total_xp': user_gamification.xp,
+                'new_level': user_gamification.level,
+                'leveled_up': False,
+                'no_xp_reason': 'Bạn đã đạt giới hạn XP hôm nay',
+                'level_progress': user_gamification.get_enhanced_level_progress()
+            }
+    elif kq.che_do == 'thi_that':
+        # For real exam attempts that are not official
+        xp_amount, reason = get_exam_xp_reward(kq.diem)
+        user_gamification, created = UserGamification.objects.get_or_create(user=request.user)
+        
+        xp_reward = {
+            'xp_gained': 0,  # No XP awarded for non-official real exams
+            'potential_xp': xp_amount,  # This is what could have been earned
+            'reason': reason,
+            'total_xp': user_gamification.xp,
+            'new_level': user_gamification.level,
+            'leveled_up': False,
+            'no_xp_reason': 'Không nhận được XP cho lần thi này'
+        }
+    else:
+        # For other non-official modes (practice, etc.)
+        xp_amount, reason = get_exam_xp_reward(kq.diem)
+        user_gamification, created = UserGamification.objects.get_or_create(user=request.user)
+        
+        xp_reward = {
+            'xp_gained': 0,  # No XP awarded
+            'potential_xp': xp_amount,  # This is what could have been earned
+            'reason': reason,
+            'total_xp': user_gamification.xp,
+            'new_level': user_gamification.level,
+            'leveled_up': False,
+            'no_xp_reason': 'Chế độ luyện tập không nhận XP'
+        }
+    
+    # Ensure xp_reward is JSON serializable
+    import json
+    if xp_reward:
+        # Create a new dictionary with only JSON-serializable values
+        json_safe_xp_reward = {}
+        for key, value in xp_reward.items():
+            if isinstance(value, (str, int, float, bool, type(None))):
+                json_safe_xp_reward[key] = value
+            else:
+                # Convert other types to string representation
+                json_safe_xp_reward[key] = str(value)
+        xp_reward = json_safe_xp_reward
+    
+    # Calculate additional stats
+    total_correct = kq.tra_loi.filter(dung=True).count()
+    total_questions = kq.tra_loi.count()
     
     return render(request, 'de_thi/ket_qua.html', {
         'kq': kq,
-        'xp_reward': xp_reward
+        'xp_reward': xp_reward,
+        'total_correct': total_correct,
+        'total_questions': total_questions,
+        'percentage_correct': (total_correct / total_questions * 100) if total_questions > 0 else 0
     })
 
 @login_required
@@ -1173,6 +1365,17 @@ def hien_thi_cau_hoi(request, session_id):
     
     cau_hoi_list = list(session.de_thi.cau_hoi.all().order_by('thu_tu', 'id'))
     
+    # Check if session is already completed
+    if session.da_hoan_thanh:
+        return redirect('de_thi:ket_qua', kq_id=session.ket_qua.id)
+    
+    # Check if there are no questions at all
+    if len(cau_hoi_list) == 0:
+        # Mark session as completed and redirect to results
+        session.da_hoan_thanh = True
+        session.save()
+        return redirect('de_thi:ket_qua', kq_id=session.ket_qua.id)
+    
     if session.cau_hien_tai >= len(cau_hoi_list):
         # All questions answered, finalize
         session.da_hoan_thanh = True
@@ -1214,10 +1417,37 @@ def submit_cau_tra_loi(request, session_id):
     try:
         session = get_object_or_404(PracticeSession, id=session_id, nguoi_dung=request.user)
         
+        # Continue with the rest of the function
+        
         cau_hoi_list = list(session.de_thi.cau_hoi.all().order_by('thu_tu', 'id'))
         
+        # Check if session is already completed
+        if session.da_hoan_thanh:
+            return JsonResponse({
+                'success': False,
+                'error': 'Session already completed',
+                'redirect_url': reverse('de_thi:ket_qua', args=[session.ket_qua.id])
+            }, status=400)
+        
+        # Check if there are no questions at all
+        if len(cau_hoi_list) == 0:
+            return JsonResponse({
+                'success': False,
+                'error': 'No questions available in this test'
+            }, status=400)
+        
+        # Check if current question index is beyond the question list
         if session.cau_hien_tai >= len(cau_hoi_list):
-            return JsonResponse({'success': False, 'error': 'No more questions'}, status=400)
+            # Mark session as completed if not already marked
+            if not session.da_hoan_thanh:
+                session.da_hoan_thanh = True
+                session.save()
+            
+            return JsonResponse({
+                'success': False,
+                'error': 'No more questions',
+                'redirect_url': reverse('de_thi:ket_qua', args=[session.ket_qua.id])
+            }, status=200)  # Return 200 to indicate successful completion
         
         cau_hoi = cau_hoi_list[session.cau_hien_tai]
         

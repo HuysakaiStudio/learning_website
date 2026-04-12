@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Chỉnh sửa câu hỏi{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/question-edit.css' %}">
+{% endblock %}
 {% block content %}
 <style>
     .form-container { max-width: 800px; margin: 40px auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }

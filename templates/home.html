@@ -43,7 +43,13 @@
                 <div id="user-level" class="stat-value">
                   {% if xp %}Level {{ level }}{% else %}Level 0{% endif %}
                 </div>
-                <div class="stat-label">Cấp độ</div>
+                <div id="user-level-name" class="stat-label">
+                  {% if gamification_data.level_progress.level_name %}
+                    {{ gamification_data.level_progress.level_name }}
+                  {% else %}
+                    Mầm Non
+                  {% endif %}
+                </div>
               </div>
             </div>
           </div>
@@ -88,6 +94,23 @@
           </div>
         </div>
       </div>
+      
+      <!-- XP Progress Bar -->
+      {% if gamification_data.level_progress %}
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold">Tiến độ lên cấp (Level {{ gamification_data.level }})</span>
+              <span id="xp-progress-text">{{ gamification_data.level_progress.xp_in_current_level|default:0 }} / {{ gamification_data.level_progress.xp_needed_for_next_level|default:100 }} XP</span>
+            </div>
+            <div class="progress">
+              <div id="xp-progress-bar" class="progress-bar bg-primary" style="width: {{ gamification_data.level_progress.progress_percent|default:0 }}%; height: 20px;" role="progressbar" aria-valuenow="{{ gamification_data.level_progress.progress_percent|default:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
     {% endif %}
   </div>
 </div>
@@ -254,54 +277,6 @@
   {% endif %}
 
   <!-- Statistics Section -->
-  <section style="margin-bottom: var(--space-12);">
-    <div class="row g-4">
-      <div class="col-md-3 col-6">
-        <div class="card" style="padding: var(--space-4);">
-          <div class="d-flex align-items-center gap-3">
-            <i class="bi bi-book-fill" style="font-size: var(--text-4xl); color: var(--primary-600);"></i>
-            <div>
-              <div class="stat-value" style="color: var(--primary-600);">1000+</div>
-              <div class="stat-label">Bài giảng</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6">
-        <div class="card" style="padding: var(--space-4);">
-          <div class="d-flex align-items-center gap-3">
-            <i class="bi bi-file-earmark-text-fill" style="font-size: var(--text-4xl); color: var(--success-600);"></i>
-            <div>
-              <div class="stat-value" style="color: var(--success-600);">500+</div>
-              <div class="stat-label">Đề thi</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6">
-        <div class="card" style="padding: var(--space-4);">
-          <div class="d-flex align-items-center gap-3">
-            <i class="bi bi-people-fill" style="font-size: var(--text-4xl); color: var(--accent-600);"></i>
-            <div>
-              <div class="stat-value" style="color: var(--accent-600);">10K+</div>
-              <div class="stat-label">Học sinh</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6">
-        <div class="card" style="padding: var(--space-4);">
-          <div class="d-flex align-items-center gap-3">
-            <i class="bi bi-star-fill" style="font-size: var(--text-4xl); color: var(--warning-600);"></i>
-            <div>
-              <div class="stat-value" style="color: var(--warning-600);">4.8/5</div>
-              <div class="stat-label">Đánh giá</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 </div>
 
 <script>
@@ -314,6 +289,31 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('lastHomeVisit', today);
     window.gamification.addXP(5, 'Đăng nhập hàng ngày');
   }
+  
+  // Update level name if gamification data is available
+  {% if gamification_data %}
+  const levelNameElement = document.getElementById('user-level-name');
+  if (levelNameElement && "{{ gamification_data.level_progress.level_name|escapejs }}") {
+    levelNameElement.textContent = "{{ gamification_data.level_progress.level_name|escapejs }}";
+  }
+  
+  // Update XP progress bar if available
+  const xpProgressBar = document.getElementById('xp-progress-bar');
+  const xpProgressText = document.getElementById('xp-progress-text');
+  {% if gamification_data.level_progress %}
+  const progressPercent = parseFloat('{{ gamification_data.level_progress.progress_percent|default:0|stringformat:"f" }}'.replace(',', '.'));
+  const xpInCurrentLevel = parseInt('{{ gamification_data.level_progress.xp_in_current_level|default:0 }}');
+  const xpNeededForNextLevel = parseInt('{{ gamification_data.level_progress.xp_needed_for_next_level|default:100 }}');
+  
+  if (xpProgressBar) {
+    xpProgressBar.style.width = progressPercent + '%';
+  }
+  
+  if (xpProgressText) {
+    xpProgressText.textContent = xpInCurrentLevel + ' / ' + xpNeededForNextLevel + ' XP';
+  }
+  {% endif %}
+  {% endif %}
 });
 </script>
 

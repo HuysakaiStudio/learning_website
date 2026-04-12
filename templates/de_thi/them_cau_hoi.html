@@ -471,15 +471,31 @@ function clearValidationError() {
 function validateQuestionForm() {
   clearValidationError();
   const loai = document.getElementById('id_loai').value;
-  const content = document.getElementById('id_noi_dung')?.value.trim();
+  
+  // Lấy form đang được hiển thị (chỉ kiểm tra các trường trong form hiện tại)
+  let visibleForm = null;
+  if (loai === 'tn') {
+    visibleForm = document.getElementById('form-tn');
+  } else if (loai === 'ds') {
+    visibleForm = document.getElementById('form-ds');
+  } else if (loai === 'dien') {
+    visibleForm = document.getElementById('form-dien');
+  }
+  
+  // Kiểm tra nội dung câu hỏi (luôn cần có)
+  const content = visibleForm.querySelector('#id_noi_dung')?.value.trim();
   if (!content) {
     setValidationError('Nội dung câu hỏi không được để trống.');
     return false;
   }
 
   if (loai === 'tn') {
-    const answers = ['id_dap_an_a', 'id_dap_an_b', 'id_dap_an_c', 'id_dap_an_d']
-      .map(id => document.getElementById(id)?.value.trim());
+    const answers = [
+      visibleForm.querySelector('#id_dap_an_a')?.value.trim(),
+      visibleForm.querySelector('#id_dap_an_b')?.value.trim(),
+      visibleForm.querySelector('#id_dap_an_c')?.value.trim(),
+      visibleForm.querySelector('#id_dap_an_d')?.value.trim()
+    ];
     if (answers.some(answer => !answer)) {
       setValidationError('Cả 4 đáp án A/B/C/D phải được nhập.');
       return false;
@@ -489,7 +505,7 @@ function validateQuestionForm() {
       setValidationError('Các đáp án trắc nghiệm không được trùng nhau.');
       return false;
     }
-    const correct = document.getElementById('id_dap_an_dung')?.value;
+    const correct = visibleForm.querySelector('#id_dap_an_dung')?.value;
     if (!correct) {
       setValidationError('Vui lòng chọn đáp án đúng.');
       return false;
@@ -497,8 +513,12 @@ function validateQuestionForm() {
   }
 
   if (loai === 'ds') {
-    const statements = ['id_y_a', 'id_y_b', 'id_y_c', 'id_y_d']
-      .map(id => document.getElementById(id)?.value.trim());
+    const statements = [
+      visibleForm.querySelector('#id_y_a')?.value.trim(),
+      visibleForm.querySelector('#id_y_b')?.value.trim(),
+      visibleForm.querySelector('#id_y_c')?.value.trim(),
+      visibleForm.querySelector('#id_y_d')?.value.trim()
+    ];
     if (statements.some(text => !text)) {
       setValidationError('Cả 4 ý đúng/sai phải có nội dung.');
       return false;
@@ -506,7 +526,7 @@ function validateQuestionForm() {
   }
 
   if (loai === 'dien') {
-    const numberField = document.getElementById('id_dap_an_so');
+    const numberField = visibleForm.querySelector('#id_dap_an_so');
     const value = numberField?.value.trim();
     if (!value) {
       setValidationError('Đáp án số không được để trống.');
@@ -536,11 +556,60 @@ form.addEventListener('submit', function(e) {
         return;
     }
     console.log("Submitting form...");
+    
+    // Lấy loại câu hỏi hiện tại
+    const loai = document.getElementById('id_loai').value;
+    
+    // Tạo FormData từ toàn bộ form nhưng sẽ lọc các trường không cần thiết
     const formData = new FormData(form);
+    
+    // Cập nhật loại câu hỏi để đảm bảo chính xác
+    formData.set('loai', loai);
+    
+    // Chỉ giữ các trường từ form đang được hiển thị
+    const allForms = document.querySelectorAll('.question-form');
+    allForms.forEach(questionForm => {
+        if (questionForm.style.display !== 'none') {
+            // Form này đang được hiển thị, giữ nguyên các trường
+        } else {
+            // Form này đang ẩn, xóa các trường của nó khỏi formData
+            // Chúng ta không thể xóa trực tiếp từ FormData nên sẽ tạo một FormData mới
+        }
+    });
+    
+    // Tạo FormData mới chỉ chứa các trường cần thiết
+    const filteredFormData = new FormData();
+    
+    // Thêm CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    filteredFormData.append('csrfmiddlewaretoken', csrfToken);
+    
+    // Thêm loại câu hỏi
+    filteredFormData.append('loai', loai);
+    
+    // Lấy form đang được hiển thị và chỉ thêm các trường từ form đó
+    let visibleForm = null;
+    if (loai === 'tn') {
+        visibleForm = document.getElementById('form-tn');
+    } else if (loai === 'ds') {
+        visibleForm = document.getElementById('form-ds');
+    } else if (loai === 'dien') {
+        visibleForm = document.getElementById('form-dien');
+    }
+    
+    if (visibleForm) {
+        // Thêm các trường từ form đang được hiển thị
+        const inputs = visibleForm.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if (!input.disabled && input.name) {
+                filteredFormData.append(input.name, input.value);
+            }
+        });
+    }
     
     fetch(window.location.href, {
         method: 'POST',
-        body: formData,
+        body: filteredFormData,
         headers: {
             'X-Requested-With': 'XMLHttpRequest'
         }
@@ -554,7 +623,7 @@ form.addEventListener('submit', function(e) {
         if (data.success) {
             alert('Câu hỏi đã được thêm!');
             form.reset();
-            toggleForms();
+            toggleForms(); // Đảm bảo form được reset đúng
         } else {
             let errorMsg = 'Có lỗi xảy ra: \n';
             for (const [field, messages] of Object.entries(data.errors)) {

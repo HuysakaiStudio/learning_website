@@ -2,7 +2,7 @@ import json
 import csv
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Mon, BaiViet, FlashcardSet, Flashcard, FlashcardProgress
+from .models import Mon, BaiViet, FlashcardSet, Flashcard, FlashcardProgress, FlashcardTest, FlashcardTestAnswer
 from .forms import FlashcardSetForm, FlashcardForm # Giả sử bạn đã có các form này
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -175,9 +175,18 @@ def hoc_flashcard(request, flashcard_set_id):
         messages.error(request, 'Bạn không có quyền xem bộ Flashcard này.')
         return redirect('kien_thuc:danh_sach_flashcard_sets')
 
-    # Increment view count
-    flashcard_set.lan_xem += 1
-    flashcard_set.save(update_fields=['lan_xem'])
+    # Implement view count with session-based limiting to prevent inflation
+    session_key = f'flashcard_view_{flashcard_set_id}_{request.session.session_key}'
+    last_view_time = request.session.get(session_key)
+    
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    # Only increment view count if it's been at least 5 minutes since last view
+    if not last_view_time or (timezone.now() - timezone.datetime.fromisoformat(last_view_time)).total_seconds() > 300:
+        flashcard_set.lan_xem += 1
+        flashcard_set.save(update_fields=['lan_xem'])
+        request.session[session_key] = timezone.now().isoformat()
 
     mode = request.GET.get('mode', 'study') # 'study' hoặc 'review'
 
@@ -335,3 +344,139 @@ def reset_flashcard_progress(request, set_id):
         messages.success(request, 'Đã đặt lại tiến độ bộ thẻ!')
         return redirect('kien_thuc:hoc_flashcard', flashcard_set_id=set_id)
     return redirect('kien_thuc:danh_sach_flashcard_sets')
+
+
+@login_required
+def start_flashcard_test(request, flashcard_set_id):
+    """
+    Bắt đầu một bài kiểm tra flashcard mới
+    """
+    flashcard_set = get_object_or_404(FlashcardSet, pk=flashcard_set_id)
+    
+    # Kiểm tra quyền truy cập
+    if flashcard_set.status != 'published' and not request.user.is_staff and flashcard_set.creator != request.user:
+        messages.error(request, 'Bạn không có quyền làm bài kiểm tra này.')
+        return redirect('kien_thuc:danh_sach_flashcard_sets')
+    
+    # Lấy tất cả flashcards trong bộ
+    flashcards = list(flashcard_set.flashcards.all())
+    
+    if not flashcards:
+        messages.error(request, 'Bộ flashcard này không có thẻ nào để kiểm tra.')
+        return redirect('kien_thuc:hoc_flashcard', flashcard_set_id=flashcard_set_id)
+    
+    # Tạo bài kiểm tra mới
+    test = FlashcardTest.objects.create(
+        nguoi_dung=request.user,
+        bo_flashcard=flashcard_set,
+        tong_so_cau_hoi=len(flashcards)
+    )
+    
+    # Trả về dữ liệu để khởi tạo bài kiểm tra
+    flashcard_data = []
+    for fc in flashcards:
+        flashcard_data.append({
+            'id': fc.id,
+            'mat_truoc': fc.mat_truoc,
+            'mat_sau': fc.mat_sau
+        })
+    
+    context = {
+        'test': test,
+        'flashcard_set': flashcard_set,
+        'flashcard_data_json': json.dumps(flashcard_data),
+        'total_questions': len(flashcards)
+    }
+    
+    return render(request, 'kien_thuc/flashcard_test.html', context)
+
+
+@login_required
+def submit_flashcard_test_answer(request):
+    """
+    Gửi câu trả lời cho một câu hỏi trong bài kiểm tra
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Phương thức không hợp lệ'})
+    
+    try:
+        data = json.loads(request.body)
+        test_id = data.get('test_id')
+        flashcard_id = data.get('flashcard_id')
+        is_correct = data.get('is_correct')
+        user_answer = data.get('user_answer', '')
+        response_time = data.get('response_time', 0)
+        
+        test = FlashcardTest.objects.get(id=test_id, nguoi_dung=request.user)
+        
+        # Kiểm tra xem câu hỏi này đã được trả lời chưa
+        existing_answer, created = FlashcardTestAnswer.objects.get_or_create(
+            bai_kiem_tra=test,
+            flashcard_id=flashcard_id,
+            defaults={
+                'cau_tra_loi': user_answer,
+                'dung': is_correct,
+                'thoi_gian_tra_loi_thuc_te': response_time
+            }
+        )
+        
+        if not created:
+            # Nếu đã tồn tại câu trả lời, cập nhật
+            existing_answer.cau_tra_loi = user_answer
+            existing_answer.dung = is_correct
+            existing_answer.thoi_gian_tra_loi_thuc_te = response_time
+            existing_answer.save()
+        
+        # Cập nhật số câu trả lời đúng trong bài kiểm tra
+        if is_correct:
+            test.so_cau_tra_loi_dung += 1
+            test.save()
+        
+        # Cập nhật điểm
+        test.cap_nhat_diem()
+        
+        return JsonResponse({
+            'success': True,
+            'correct_answers': test.so_cau_tra_loi_dung,
+            'total_questions': test.tong_so_cau_hoi,
+            'current_score': test.diem
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@login_required
+def finish_flashcard_test(request, test_id):
+    """
+    Kết thúc bài kiểm tra và hiển thị kết quả
+    """
+    test = get_object_or_404(FlashcardTest, id=test_id, nguoi_dung=request.user)
+    
+    # Đánh dấu là hoàn thành
+    test.hoan_thanh = True
+    test.thoi_gian_hoan_thanh = timezone.now()
+    test.save()
+    
+    # Tính điểm cuối cùng
+    test.cap_nhat_diem()
+    
+    # Lấy các câu trả lời để hiển thị kết quả chi tiết
+    answers = test.cac_cau_tra_loi.select_related('flashcard').all()
+    
+    context = {
+        'test': test,
+        'answers': answers
+    }
+    
+    return render(request, 'kien_thuc/flashcard_test_results.html', context)
+
+
+def api_reset_flashcard(request, set_id):
+    """
+    API endpoint để đặt lại tiến độ flashcard
+    """
+    if request.method == 'POST':
+        flashcard_set = get_object_or_404(FlashcardSet, pk=set_id)
+        FlashcardProgress.objects.filter(user=request.user, flashcard__flashcard_set=flashcard_set).delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})

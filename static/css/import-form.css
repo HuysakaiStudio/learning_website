@@ -173,33 +173,108 @@
 
 /* Dark Mode */
 body.dark-mode .import-container {
-  background: var(--dark-surface-primary);
+  background: var(--dm-bg-card);
+  color: var(--dm-text-primary);
 }
 
 body.dark-mode .info-box {
-  background: var(--dark-surface-secondary);
-  border-left-color: var(--accent-500);
+  background: var(--dm-bg-tertiary);
+  border-left-color: var(--dm-primary);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .info-box-title {
+  color: var(--dm-primary);
 }
 
 body.dark-mode .info-box code {
-  background: var(--dark-surface-primary);
+  background: var(--dm-bg-secondary);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .format-title {
+  color: var(--dm-text-primary);
 }
 
 body.dark-mode .format-section {
-  border-bottom-color: var(--dark-border-primary);
+  border-bottom-color: var(--dm-border);
+}
+
+body.dark-mode .form-group label {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .form-group input[type="text"],
+body.dark-mode .form-group select {
+  background: var(--dm-bg-tertiary);
+  border-color: var(--dm-border);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .form-group input[type="text"]:focus,
+body.dark-mode .form-group select:focus {
+  border-color: var(--dm-primary);
+  box-shadow: 0 0 0 3px rgba(107, 163, 255, 0.2);
+  background: var(--dm-bg-secondary);
 }
 
 body.dark-mode .drop-zone {
-  background: var(--dark-surface-secondary);
-  border-color: var(--accent-500);
+  background: var(--dm-bg-tertiary);
+  border-color: var(--dm-primary);
 }
 
 body.dark-mode .drop-zone:hover {
-  background: var(--dark-surface-primary);
+  border-color: var(--dm-primary);
+  background: var(--dm-bg-hover);
+}
+
+body.dark-mode .drop-zone-active {
+  border-color: var(--dm-success);
+  background: rgba(76, 175, 80, 0.1);
+}
+
+body.dark-mode .drop-zone-icon {
+  color: var(--dm-primary);
+}
+
+body.dark-mode .drop-zone-title {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .drop-zone-subtitle {
+  color: var(--dm-text-secondary);
+}
+
+body.dark-mode .file-name {
+  color: var(--dm-primary);
+}
+
+body.dark-mode .template-link {
+  background: var(--dm-bg-tertiary);
+  border-color: var(--dm-border);
+  color: var(--dm-primary);
+}
+
+body.dark-mode .template-link:hover {
+  background: var(--dm-bg-hover);
+  color: var(--dm-primary);
+}
+
+body.dark-mode .example-section {
+  border-top-color: var(--dm-border);
 }
 
 body.dark-mode .code-example {
-  background: var(--dark-surface-secondary);
+  background: var(--dm-bg-tertiary);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .text-primary {
+  color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .text-secondary {
+  color: var(--dm-text-secondary) !important;
 }
 
 /* Responsive */

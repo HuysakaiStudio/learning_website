@@ -90,7 +90,7 @@
   // Active link highlighting
   function highlightActiveLink() {
     const currentPath = window.location.pathname;
-    const navLinks = document.querySelectorAll('.navbar-nav .nav-link, .mobile-bottom-nav a');
+    const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
 
     navLinks.forEach(link => {
       const href = link.getAttribute('href');
@@ -147,7 +147,7 @@
 
   // Add haptic to all clickable elements
   function setupHapticFeedback() {
-    const clickables = document.querySelectorAll('.nav-link, .btn, .mobile-bottom-nav a');
+    const clickables = document.querySelectorAll('.nav-link, .btn');
     clickables.forEach(el => {
       el.addEventListener('click', hapticFeedback, { passive: true });
     });
@@ -160,7 +160,7 @@
       window.addEventListener('scroll', handleNavbarScroll, { passive: true });
       setupSwipeGestures();
       setupClickOutside();
-      createBottomNav();
+      // createBottomNav(); // Disabled mobile bottom navigation
       setupHapticFeedback();
       highlightActiveLink();
     }
@@ -171,7 +171,7 @@
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
         if (window.innerWidth <= 768) {
-          createBottomNav();
+          // createBottomNav(); // Disabled mobile bottom navigation
         } else {
           const bottomNav = document.querySelector('.mobile-bottom-nav');
           if (bottomNav) bottomNav.remove();

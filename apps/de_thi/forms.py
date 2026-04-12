@@ -57,55 +57,8 @@ class ImportDeThiForm(forms.Form):
         })
     )
 
-class TracNghiemForm(forms.ModelForm):
-    dap_an_dung = forms.ChoiceField(
-        choices=[('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')],
-        label='Đáp án đúng',
-        widget=forms.Select(attrs={
-            'style': 'width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;'
-        })
-    )
-    
-    class Meta:
-        model = CauHoi
-        fields = ['noi_dung', 'giai_thich', 'dap_an_a', 'dap_an_b', 'dap_an_c', 'dap_an_d', 'dap_an_dung']
-        labels = {
-            'noi_dung': 'Nội dung câu hỏi',
-            'giai_thich': 'Giải thích',
-            'dap_an_a': 'Đáp án A',
-            'dap_an_b': 'Đáp án B',
-            'dap_an_c': 'Đáp án C',
-            'dap_an_d': 'Đáp án D',
-            'dap_an_dung': 'Đáp án đúng',
-        }
-        widgets = {
-            'noi_dung': forms.Textarea(attrs={
-                'rows': 3,
-                'style': 'width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;',
-                'placeholder': 'Nhập nội dung câu hỏi'
-            }),
-            'giai_thich': forms.Textarea(attrs={
-                'rows': 2,
-                'style': 'width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;',
-                'placeholder': 'Nhập giải thích (tùy chọn)'
-            }),
-            'dap_an_a': forms.TextInput(attrs={
-                'style': 'width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;',
-                'placeholder': 'Nhập đáp án A'
-            }),
-            'dap_an_b': forms.TextInput(attrs={
-                'style': 'width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;',
-                'placeholder': 'Nhập đáp án B'
-            }),
-            'dap_an_c': forms.TextInput(attrs={
-                'style': 'width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;',
-                'placeholder': 'Nhập đáp án C'
-            }),
-            'dap_an_d': forms.TextInput(attrs={
-                'style': 'width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;',
-                'placeholder': 'Nhập đáp án D'
-            }),
-        }
+# Removed duplicate TracNghiemForm class (lines 60-108) to prevent conflicts
+# The second definition (TracNghiemForm starting at line 133) is the correct one to use
 
 class BulkAddQuestionsForm(forms.Form):
     LOAI_CAU_CHOICES = [

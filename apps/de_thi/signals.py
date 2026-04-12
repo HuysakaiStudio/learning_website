@@ -82,17 +82,51 @@ def award_exam_xp(ket_qua):
     Award XP based on exam score
     """
     from apps.nguoi_dung.xp_utils import award_xp, get_exam_xp_reward
+    from django.utils import timezone
+    from django.db.models import Count
+    from datetime import datetime
+    # KetQua is already imported at the top of the file
     
-    # Only award XP for official exams (not violated)
-    if not ket_qua.is_official or ket_qua.is_violated:
-        return
-    
-    # Get XP reward based on score
-    xp_amount, reason = get_exam_xp_reward(ket_qua.diem)
-    
-    # Award XP
-    result = award_xp(ket_qua.nguoi_dung, xp_amount, reason)
-    
-    if result and result.get('leveled_up'):
-        # User leveled up! Could send notification here
-        pass
+    # Determine XP reward based on exam type
+    # For official exams that are not violated, award full XP
+    if ket_qua.is_official and not ket_qua.is_violated:
+        xp_amount, reason = get_exam_xp_reward(ket_qua.diem)
+        # Award XP for official exams
+        result = award_xp(ket_qua.nguoi_dung, xp_amount, reason)
+        
+        if result and result.get('leveled_up'):
+            # User leveled up! Could send notification here
+            pass
+    # For practice modes, award XP only for first 5 attempts per day
+    elif ket_qua.che_do in ['luyen_tap', 'luyen_tung_cau']:
+        # Check if the user has already earned XP for this exam today (first 5 attempts)
+        today = timezone.now().date()
+        user = ket_qua.nguoi_dung
+        exam = ket_qua.de_thi
+        
+        # Count how many times the user has earned XP for this exam today (BEFORE this attempt)
+        # Only count attempts that resulted in XP gain
+        xp_earned_today = KetQua.objects.filter(
+            nguoi_dung=user,
+            de_thi=exam,
+            ngay_lam__date=today,
+            che_do=ket_qua.che_do,  # Same mode (practice or question-by-question)
+            is_official=False  # Practice attempts
+        ).exclude(id=ket_qua.id).count()  # Exclude current attempt
+        
+        # Only award XP for first 5 attempts per exam per day per mode
+        if xp_earned_today < 5:
+            # Reduced XP for practice modes
+            xp_amount, reason = get_exam_xp_reward(ket_qua.diem)
+            # Reduce XP by 50% for practice modes
+            xp_amount = max(1, int(xp_amount * 0.5))  # Minimum 1 XP
+            reason = f"Luyện tập - {reason}"
+            
+            # Award XP
+            result = award_xp(user, xp_amount, reason)
+            
+            if result and result.get('leveled_up'):
+                # User leveled up! Could send notification here
+                pass
+        # If user has already earned XP 5 times today, don't award XP but allow the attempt
+    # No XP for violated exams

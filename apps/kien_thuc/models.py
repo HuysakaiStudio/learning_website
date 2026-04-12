@@ -157,3 +157,58 @@ class FlashcardProgress(models.Model):
         """
         self.is_learned = is_learned
         self.save()
+
+
+# ════════════════════════════════════════════════════════════════
+# FLASHCARD TEST MODELS (NEW)
+# ════════════════════════════════════════════════════════════════
+
+class FlashcardTest(models.Model):
+    """
+    Bài kiểm tra flashcard - Theo dõi một phiên kiểm tra cụ thể
+    để đánh giá mức độ hiểu của người dùng với bộ flashcard
+    """
+    nguoi_dung = models.ForeignKey(User, on_delete=models.CASCADE)
+    bo_flashcard = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE)
+    ngay_tao = models.DateTimeField(auto_now_add=True)
+    tong_so_cau_hoi = models.IntegerField()
+    so_cau_tra_loi_dung = models.IntegerField(default=0)
+    diem = models.FloatField(default=0.0)  # Tính theo phần trăm
+    hoan_thanh = models.BooleanField(default=False)
+    thoi_gian_hoan_thanh = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Bài kiểm tra Flashcard'
+        verbose_name_plural = 'Bài kiểm tra Flashcard'
+        ordering = ['-ngay_tao']
+
+    def __str__(self):
+        return f'{self.nguoi_dung.username} - {self.bo_flashcard.tieu_de}'
+
+    def cap_nhat_diem(self):
+        """Cập nhật điểm dựa trên số câu trả lời đúng"""
+        if self.tong_so_cau_hoi > 0:
+            self.diem = (self.so_cau_tra_loi_dung / self.tong_so_cau_hoi) * 100
+        else:
+            self.diem = 0.0
+        self.save()
+
+
+class FlashcardTestAnswer(models.Model):
+    """
+    Câu trả lời trong bài kiểm tra flashcard
+    """
+    bai_kiem_tra = models.ForeignKey(FlashcardTest, on_delete=models.CASCADE, related_name='cac_cau_tra_loi')
+    flashcard = models.ForeignKey(Flashcard, on_delete=models.CASCADE)
+    cau_tra_loi = models.TextField()  # Câu trả lời của người dùng (nếu cần lưu)
+    dung = models.BooleanField()  # Đúng hay sai
+    thoi_gian_tra_loi = models.DateTimeField(auto_now_add=True)
+    thoi_gian_tra_loi_thuc_te = models.FloatField(null=True, blank=True)  # Thời gian trả lời (giây)
+
+    class Meta:
+        verbose_name = 'Câu trả lời kiểm tra Flashcard'
+        verbose_name_plural = 'Câu trả lời kiểm tra Flashcard'
+        unique_together = ('bai_kiem_tra', 'flashcard')
+
+    def __str__(self):
+        return f'{self.bai_kiem_tra.nguoi_dung.username} - {self.flashcard.id} - {"Đúng" if self.dung else "Sai"}'

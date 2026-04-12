@@ -20,7 +20,8 @@ def get_gamification_stats(request):
         gamification.level = gamification.calculate_level()
         gamification.save()
     
-    xp_progress = gamification.get_xp_for_next_level()
+    # Use the enhanced level progress method for better UI display
+    level_progress = gamification.get_enhanced_level_progress()
     
     return JsonResponse({
         'success': True,
@@ -30,7 +31,7 @@ def get_gamification_stats(request):
             'current_streak': gamification.current_streak,
             'longest_streak': gamification.longest_streak,
             'last_activity_date': gamification.last_activity_date.isoformat() if gamification.last_activity_date else None,
-            'xp_progress': xp_progress
+            'level_progress': level_progress
         }
     })
 
@@ -52,7 +53,7 @@ def add_xp(request):
             }, status=400)
         
         gamification, created = UserGamification.objects.get_or_create(user=request.user)
-        result = gamification.add_xp(amount, reason)
+        result = gamification.add_xp_with_overflow_handling(amount, reason)
         
         # Update streak
         gamification.update_streak()

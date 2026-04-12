@@ -44,34 +44,99 @@
   }
 
   .kt-progress-bar {
-    height: 8px !important;
-    background: rgba(255,255,255,0.3) !important;
+    height: 8px;
+    background: rgba(255,255,255,0.3);
     border-radius: 4px;
     overflow: hidden;
-    width: 100% !important;
+    width: 100%;
     position: relative;
-    display: block !important;
+    display: block;
+    border: 1px solid transparent; /* Ensure it takes up space */
   }
 
   body.dark-mode .kt-progress-bar {
-    background: rgba(255,255,255,0.2) !important;
+    background: rgba(255,255,255,0.2);
   }
 
   .kt-progress-fill {
-    height: 100% !important;
-    background: linear-gradient(90deg, #fbbf24, #f59e0b) !important;
-    transition: width 0.3s;
+    height: 100%;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    transition: width 0.3s ease;
     box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
     min-width: 2px;
     display: block !important;
     position: absolute;
     top: 0;
     left: 0;
+    z-index: 1; /* Ensure it appears on top */
+    border-radius: 4px; /* Match the container's border radius */
   }
 
   body.dark-mode .kt-progress-fill {
-    background: linear-gradient(90deg, #fbbf24, #f59e0b) !important;
-    box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
+  }
+  
+  /* Override external CSS that sets fixed height and background */
+  .kt-progress-container {
+    height: auto !important;
+    background: transparent !important;
+    margin: 16px 0 !important;
+    padding: 8px 0 !important;
+    overflow: visible !important;
+  }
+  
+  /* Simple progress info text styling - specific to this template */
+  .kt-progress-info {
+    justify-content: space-between !important;
+    font-size: 0.85rem !important;
+    color: white !important;
+    margin-bottom: 8px !important;
+  }
+  
+  body.dark-mode .kt-progress-info {
+    color: var(--dm-text-secondary, #9aa0a6) !important;
+  }
+  
+  /* Unique styles specific to this implementation - avoiding duplication */
+  /* Override external CSS with higher specificity where needed */
+  div.kt-progress-container .kt-progress-bar {
+    width: 100% !important;
+    position: relative !important;
+    display: block !important;
+    border: none !important;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2) !important;
+    height: 12px !important; /* Set appropriate height for just the bar */
+  }
+
+  body.dark-mode div.kt-progress-container .kt-progress-bar {
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3) !important;
+  }
+  
+  /* Custom progress fill styling - replacing external default */
+  div.kt-progress-container .kt-progress-bar .kt-progress-fill {
+    background: linear-gradient(90deg, #4ade80, #22c55e) !important;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.4) !important;
+    display: block !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 1 !important;
+    height: 100% !important;
+    /* Override external styles */
+    background-size: 20px 20px !important;
+  }
+
+  body.dark-mode div.kt-progress-container .kt-progress-bar .kt-progress-fill {
+    background: linear-gradient(90deg, #22c55e, #16a34a) !important;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.3) !important;
+  }
+  
+  /* Ensure visibility */
+  #progress-fill {
+    display: block !important;
+    visibility: visible !important;
   }
 
   .kt-card-container {
@@ -322,8 +387,6 @@
   }
 
   /* Mode Toggle */
-
-  /* Mode Toggle */
   .kt-mode-toggle {
     display: flex;
     gap: 8px;
@@ -331,6 +394,10 @@
     padding: 4px;
     border-radius: 8px;
     margin-top: 12px;
+  }
+
+  body.dark-mode .kt-mode-toggle {
+    background: var(--dm-bg-tertiary);
   }
 
   .kt-mode-btn {
@@ -345,14 +412,27 @@
     transition: all 0.2s;
   }
 
+  body.dark-mode .kt-mode-btn {
+    color: var(--dm-text-primary);
+  }
+
   .kt-mode-btn.active {
     background: white;
     color: #1a73e8;
     font-weight: 600;
   }
 
+  body.dark-mode .kt-mode-btn.active {
+    background: var(--dm-bg-primary);
+    color: var(--dm-primary);
+  }
+
   .kt-mode-btn:hover:not(.active) {
     background: rgba(255,255,255,0.1);
+  }
+
+  body.dark-mode .kt-mode-btn:hover:not(.active) {
+    background: var(--dm-bg-hover);
   }
 
   /* Bookmark Button */
@@ -374,14 +454,242 @@
     z-index: 10;
   }
 
+  body.dark-mode .kt-bookmark-btn {
+    background: var(--dm-bg-card);
+    border-color: var(--dm-border);
+    color: var(--dm-text-primary);
+  }
+
   .kt-bookmark-btn:hover {
     transform: scale(1.1);
     border-color: #fbbc04;
   }
 
+  body.dark-mode .kt-bookmark-btn:hover {
+    border-color: var(--dm-warning);
+    background: var(--dm-bg-hover);
+  }
+
   .kt-bookmark-btn.bookmarked {
     background: #fbbc04;
     border-color: #fbbc04;
+    color: black;
+  }
+
+  body.dark-mode .kt-bookmark-btn.bookmarked {
+    background: var(--dm-warning);
+    border-color: var(--dm-warning);
+    color: var(--dm-text-primary);
+  }
+
+  /* Flashcard faces */
+  .kt-card-front {
+    background: white;
+    color: #333;
+    border: 2px solid #e0e0e0;
+  }
+
+  body.dark-mode .kt-card-front {
+    background: var(--dm-bg-card);
+    color: var(--dm-text-primary);
+    border-color: var(--dm-border);
+  }
+
+  .kt-card-back {
+    background: #f8f9fa;
+    color: #333;
+    transform: rotateY(180deg);
+    border: 2px solid #1a73e8;
+  }
+
+  body.dark-mode .kt-card-back {
+    background: var(--dm-bg-card);
+    color: var(--dm-text-primary);
+    border-color: var(--dm-primary);
+  }
+
+  .kt-hint-text {
+    font-size: 13px;
+    color: #999;
+    margin-top: 16px;
+    font-weight: normal;
+  }
+
+  body.dark-mode .kt-hint-text {
+    color: var(--dm-text-secondary);
+  }
+
+  /* Flashcard Controls */
+  .kt-flashcard-controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .kt-flashcard-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  body.dark-mode .kt-flashcard-btn {
+    color: var(--dm-text-primary);
+  }
+
+  .kt-btn-flip {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  body.dark-mode .kt-btn-flip {
+    background: var(--dm-bg-tertiary);
+    color: var(--dm-text-primary);
+  }
+
+  .kt-btn-flip:hover {
+    background: #e0e0e0;
+  }
+
+  body.dark-mode .kt-btn-flip:hover {
+    background: var(--dm-bg-hover);
+  }
+
+  .kt-btn-again {
+    background: #ea4335;
+    color: white;
+  }
+
+  body.dark-mode .kt-btn-again {
+    background: var(--dm-danger);
+  }
+
+  .kt-btn-again:hover {
+    background: #d32f2f;
+  }
+
+  body.dark-mode .kt-btn-again:hover {
+    background: var(--dm-danger-hover);
+  }
+
+  .kt-btn-hard {
+    background: #fbbc04;
+    color: white;
+  }
+
+  body.dark-mode .kt-btn-hard {
+    background: var(--dm-warning);
+    color: var(--dm-text-primary);
+  }
+
+  .kt-btn-hard:hover {
+    background: #f57f17;
+  }
+
+  body.dark-mode .kt-btn-hard:hover {
+    background: var(--dm-warning-hover);
+  }
+
+  .kt-btn-good {
+    background: #34a853;
+    color: white;
+  }
+
+  body.dark-mode .kt-btn-good {
+    background: var(--dm-success);
+  }
+
+  .kt-btn-good:hover {
+    background: #1e8e3e;
+  }
+
+  body.dark-mode .kt-btn-good:hover {
+    background: var(--dm-success-hover);
+  }
+
+  .kt-btn-easy {
+    background: #1a73e8;
+    color: white;
+  }
+
+  body.dark-mode .kt-btn-easy {
+    background: var(--dm-primary);
+  }
+
+  .kt-btn-easy:hover {
+    background: #0d47a1;
+  }
+
+  body.dark-mode .kt-btn-easy:hover {
+    background: var(--dm-primary-hover);
+  }
+
+  /* Stats Box */
+  .kt-stat-box {
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    text-align: center;
+  }
+
+  body.dark-mode .kt-stat-box {
+    background: var(--dm-bg-card);
+    box-shadow: 0 2px 4px var(--dm-shadow);
+  }
+
+  .kt-stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a73e8;
+  }
+
+  body.dark-mode .kt-stat-value {
+    color: var(--dm-primary);
+  }
+
+  .kt-stat-label {
+    font-size: 12px;
+    color: #999;
+  }
+
+  body.dark-mode .kt-stat-label {
+    color: var(--dm-text-secondary);
+  }
+
+  /* Completion Message */
+  .kt-completion-message {
+    background: #e6f4ea;
+    border-left: 4px solid #34a853;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    color: #1e8e3e;
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  body.dark-mode .kt-completion-message {
+    background: rgba(52, 168, 83, 0.1);
+    border-left-color: var(--dm-success);
+    color: var(--dm-success);
+  }
+
+  /* Keyboard Hint */
+  .keyboard-hint {
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  body.dark-mode .keyboard-hint {
+    color: var(--dm-text-tertiary);
   }
 
   @media (max-width: 768px) {
@@ -426,6 +734,9 @@
         </button>
         <button class="kt-mode-btn" onclick="filterUnlearned()">
           🎯 Chưa thuộc
+        </button>
+        <button class="kt-mode-btn" onclick="window.location.href='{% url 'kien_thuc:start_flashcard_test' flashcard_set.id %}'">
+          📝 Kiểm tra
         </button>
       </div>
       
@@ -476,13 +787,11 @@
     </div>
 
     <div class="kt-flashcard-controls" id="review-controls">
-      <div class="kt-mode-switch">
-        {% if mode == 'review' %}
-          <a href="{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=study" class="kt-flashcard-btn kt-btn-flip">Chuyển sang Lướt thẻ</a>
-        {% else %}
-          <a href="{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=review" class="kt-flashcard-btn kt-btn-good">Chuyển sang Học tập</a>
-        {% endif %}
-      </div>
+      {% if mode == 'review' %}
+        <a href="{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=study" class="kt-flashcard-btn kt-btn-flip">Chuyển sang Lướt thẻ</a>
+      {% else %}
+        <a href="{% url 'kien_thuc:hoc_flashcard' flashcard_set.id %}?mode=review" class="kt-flashcard-btn kt-btn-good">Chuyển sang Học tập</a>
+      {% endif %}
       {% if mode == 'study' %}
         <button class="kt-flashcard-btn kt-btn-flip" onclick="moveCard(-1)">⬅️ Trước</button>
         <button class="kt-flashcard-btn kt-btn-flip" onclick="moveCard(1)">Sau ➡️</button>
@@ -490,8 +799,8 @@
       <button class="kt-flashcard-btn kt-btn-flip" onclick="toggleFlip()">🔄 Lật</button>
 
       {% if mode == 'review' %}
-        <button class="kt-flashcard-btn kt-btn-again" onclick="submitReview(false)">Đang học</button>
-        <button class="kt-flashcard-btn kt-btn-good" onclick="submitReview(true)">Đã thuộc</button>
+        <button class="kt-flashcard-btn kt-btn-again" onclick="submitReview(false)">❌ Sai</button>
+        <button class="kt-flashcard-btn kt-btn-good" onclick="submitReview(true)">✅ Đúng</button>
       {% endif %}
     </div>
 
@@ -554,6 +863,14 @@
 
     isFlipped = false;
     
+    // Update progress bar when showing a new card
+    updateProgressBar();
+    
+    // Update bookmark button state
+    updateBookmarkButton();
+    
+    // Mark card as viewed in session stats
+    sessionStats.cardsViewed.add(card.flashcard.id);
   }
 
   function moveCard(direction) {
@@ -686,6 +1003,54 @@
     }
   }
 
+  function checkKnowledge(isKnown) {
+    if (currentIndex >= flashcardData.length) return;
+    const card = flashcardData[currentIndex];
+
+    // Send to backend to record knowledge check
+    fetch('{% url "kien_thuc:api_flashcard_progress" %}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      body: JSON.stringify({
+        flashcard_id: card.flashcard.id,
+        is_learned: isKnown  // If user says they know it, mark as learned
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Update card data in both arrays
+        card.is_learned = isKnown;
+        const originalCard = originalFlashcardData.find(c => c.flashcard.id === card.flashcard.id);
+        if (originalCard) {
+          originalCard.is_learned = isKnown;
+        }
+
+        // Update global learned count
+        globalLearnedCount = data.da_thuoc;
+
+        // Update progress bar
+        updateProgressBar();
+
+        // Show toast
+        showToast(isKnown ? 'Đã đánh dấu là biết ✓' : 'Đã đánh dấu là chưa biết...', isKnown ? '✓' : '📝');
+
+        // Move to next card with animation
+        moveCard(1);
+      } else {
+        alert('Lỗi: ' + data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Even if API fails, still try to update progress bar with local data
+      updateProgressBar();
+    });
+  }
+
   function submitReview(isLearned) {
     if (currentIndex >= flashcardData.length) return;
     const card = flashcardData[currentIndex];
@@ -734,7 +1099,11 @@
         alert('Lỗi: ' + data.error);
       }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+      console.error('Error:', error);
+      // Even if API fails, still try to update progress bar with local data
+      updateProgressBar();
+    });
   }
 
   function showCompletion() {
@@ -787,12 +1156,30 @@
 
   // Update progress bar function
   function updateProgressBar() {
-    const progress = TOTAL_CARDS > 0 ? (globalLearnedCount / TOTAL_CARDS * 100) : 0;
+    // Ensure values are properly initialized
+    const currentTotalCards = TOTAL_CARDS || parseInt(document.getElementById('total-cards')?.textContent || 0);
+    const currentLearnedCount = globalLearnedCount || 0;
+    
+    console.log('DEBUG: updateProgressBar called with', {
+      TOTAL_CARDS: TOTAL_CARDS,
+      globalLearnedCount: globalLearnedCount,
+      currentTotalCards: currentTotalCards,
+      currentLearnedCount: currentLearnedCount
+    });
+    
+    const progress = currentTotalCards > 0 ? (currentLearnedCount / currentTotalCards * 100) : 0;
     const progressFill = document.getElementById('progress-fill');
 
     if (progressFill) {
+      // Add smooth transition effect
+      progressFill.style.transition = 'width 0.5s ease-in-out';
       progressFill.style.width = progress + '%';
-      console.log('Progress updated:', progress + '%', `(${globalLearnedCount}/${TOTAL_CARDS})`);
+      console.log('Progress updated:', progress + '%', `(${currentLearnedCount}/${currentTotalCards})`);
+      
+      // Ensure the progress bar is visible and has proper display
+      progressFill.style.display = 'block';
+      progressFill.style.visibility = 'visible';
+      progressFill.style.height = '100%';
     } else {
       console.error('progress-fill element not found!');
     }
@@ -801,9 +1188,12 @@
     const totalCards = document.getElementById('total-cards');
     const currentCard = document.getElementById('current-card');
 
-    if (learnedCount) learnedCount.textContent = globalLearnedCount;
-    if (totalCards) totalCards.textContent = TOTAL_CARDS;
-    if (currentCard) currentCard.textContent = Math.min(currentIndex + 1, flashcardData.length);
+    if (learnedCount) learnedCount.textContent = currentLearnedCount;
+    if (totalCards) totalCards.textContent = currentTotalCards;
+    if (currentCard) currentCard.textContent = Math.min(currentIndex + 1, flashcardData.length || 0);
+    
+    // Also update session stats
+    updateSessionStats();
   }
 
   // Initialize on page load - wait for DOM

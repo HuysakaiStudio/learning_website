@@ -131,13 +131,15 @@ def profile(request, username=None):
             gamification.level = gamification.calculate_level()
             gamification.save()
         
-        xp_progress = gamification.get_xp_for_next_level()
+        # Use the enhanced level progress method for better UI display
+        level_progress = gamification.get_enhanced_level_progress()
+        
         gamification_data = {
             'xp': gamification.xp,
             'level': gamification.level,
             'current_streak': gamification.current_streak,
             'longest_streak': gamification.longest_streak,
-            'xp_progress': xp_progress
+            'level_progress': level_progress
         }
         
     analytics = getattr(user, 'analytics', None)

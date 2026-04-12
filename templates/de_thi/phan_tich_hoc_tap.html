@@ -155,6 +155,83 @@
   .subject-link:hover {
     text-decoration: underline;
   }
+
+  /* Dark mode styles for analytics page */
+  body.dark-mode .analytics-header h1 {
+    color: var(--dm-text-primary);
+  }
+
+  body.dark-mode .analytics-header p {
+    color: var(--dm-text-secondary);
+  }
+
+  body.dark-mode .stat-card {
+    background: var(--dm-bg-card);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  body.dark-mode .stat-label {
+    color: var(--dm-text-secondary);
+  }
+
+  body.dark-mode .stat-value {
+    color: var(--dm-text-primary);
+  }
+
+  body.dark-mode .stat-unit {
+    color: var(--dm-text-tertiary);
+  }
+
+  body.dark-mode .chart-container {
+    background: var(--dm-bg-card);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  body.dark-mode .chart-title {
+    color: var(--dm-text-primary);
+  }
+
+  body.dark-mode .table-container {
+    background: var(--dm-bg-card);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  body.dark-mode .data-table thead {
+    background: var(--dm-bg-tertiary);
+    border-bottom: 2px solid var(--dm-border);
+  }
+
+  body.dark-mode .data-table th {
+    color: var(--dm-text-primary);
+  }
+
+  body.dark-mode .data-table td {
+    border-bottom: 1px solid var(--dm-border);
+    color: var(--dm-text-secondary);
+  }
+
+  body.dark-mode .data-table tbody tr:hover {
+    background: var(--dm-bg-hover);
+  }
+
+  body.dark-mode .subject-link {
+    color: var(--dm-primary);
+  }
+
+  body.dark-mode .difficulty-easy {
+    background: rgba(52, 168, 83, 0.2);
+    color: #67e571;
+  }
+
+  body.dark-mode .difficulty-medium {
+    background: rgba(251, 188, 4, 0.2);
+    color: #ffd966;
+  }
+
+  body.dark-mode .difficulty-hard {
+    background: rgba(234, 67, 53, 0.2);
+    color: #ff7f71;
+  }
 </style>
 
 <div class="analytics-container">

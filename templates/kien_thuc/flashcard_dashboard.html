@@ -1,6 +1,96 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    /* Dark mode styles for flashcard dashboard */
+    body.dark-mode .bg-info {
+        background-color: var(--dm-bg-tertiary) !important;
+        color: var(--dm-text-primary) !important;
+    }
+
+    body.dark-mode .bg-success {
+        background-color: var(--dm-bg-tertiary) !important;
+        color: var(--dm-text-primary) !important;
+    }
+
+    body.dark-mode .table {
+        color: var(--dm-text-primary);
+    }
+
+    body.dark-mode .table thead th {
+        background-color: var(--dm-bg-tertiary);
+        border-color: var(--dm-border);
+        color: var(--dm-text-primary);
+    }
+
+    body.dark-mode .table tbody tr {
+        border-color: var(--dm-border);
+    }
+
+    body.dark-mode .table tbody tr:hover {
+        background-color: var(--dm-bg-hover);
+    }
+
+    body.dark-mode .badge.bg-success {
+        background-color: var(--dm-success) !important;
+        color: var(--dm-text-primary) !important;
+    }
+
+    body.dark-mode .badge.bg-warning {
+        background-color: var(--dm-warning) !important;
+        color: var(--dm-text-primary) !important;
+    }
+
+    body.dark-mode .badge.bg-info {
+        background-color: var(--dm-primary) !important;
+        color: var(--dm-text-primary) !important;
+    }
+
+    body.dark-mode .progress {
+        background-color: var(--dm-bg-tertiary);
+    }
+
+    body.dark-mode .progress-bar {
+        background-color: var(--dm-primary);
+    }
+
+    body.dark-mode .progress-bar.bg-success {
+        background-color: var(--dm-success) !important;
+    }
+
+    body.dark-mode .alert.alert-info {
+        background-color: var(--dm-bg-tertiary);
+        border-color: var(--dm-border);
+        color: var(--dm-text-primary);
+    }
+
+    body.dark-mode .alert-link {
+        color: var(--dm-primary) !important;
+    }
+
+    body.dark-mode .card {
+        background-color: var(--dm-bg-card);
+        border: 1px solid var(--dm-border);
+        color: var(--dm-text-primary);
+    }
+
+    body.dark-mode h2, body.dark-mode h4 {
+        color: var(--dm-text-primary);
+    }
+
+    body.dark-mode hr {
+        border-color: var(--dm-border);
+    }
+
+    body.dark-mode a.text-decoration-none {
+        color: var(--dm-primary) !important;
+    }
+
+    body.dark-mode a.text-decoration-none:hover {
+        color: var(--dm-primary-hover) !important;
+    }
+</style>
+
 <div class="container mt-4">
     <h2>📊 Tiến độ học Flashcard</h2>
     <hr>

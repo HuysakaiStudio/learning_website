@@ -1,9 +1,14 @@
 # Environment variables
 .env
+.env.local
+.env.*.local
 
 # Virtual environment
 venv/
 env/
+ENV/
+.venv/
+env*/ 
 
 # Python cache
 __pycache__/
@@ -11,12 +16,17 @@ __pycache__/
 *$py.class
 *.so
 .Python
+*.pyc
+*.pyo
 
 # Django
 db.sqlite3
 db.sqlite3-journal
 staticfiles/
 media/
+*.log
+local_settings.py
+.DS_Store
 
 # IDE
 .vscode/
@@ -24,25 +34,230 @@ media/
 *.swp
 *.swo
 *~
+*.sublime-project
+*.sublime-workspace
+*.sln
+*.csproj
+*.user
+*.userosscache
+*.suo
 
 # OS
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Icon?
+.directory
+.Trashes
+*.nib
+*~
+.~lock.*
 
-# Roo
-.roo/skills
-.roo/cache/
+# Browser
+mtimes
+*~
 
-# Temporary files
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temp files
 temp_*.css
 temp_*.js
 *.tmp
+*.temp
+tmp/
 
 # Test files
 test_*.py
+test_*.js
+test_*.ts
+spec_*.py
+spec_*.js
+spec_*.ts
+*_test.py
+*_test.js
+*_test.ts
+*.test.py
+*.test.js
+*.test.ts
+tests/
+.pytest_cache/
 .coverage
 htmlcov/
+.nyc_output/
+coverage/
+
+# Documentation and plans
+docs/
+docs/**/*
+.plans/
+.plans/**/*
+plans/
+plans/**/*
+
+# Development and agent files
+.roo/
+.roo/**/*
+.references/
+.references/**/*
+AGENTS.md
+
+# Configuration and workflow files
+*.workflow
+workflows/
+workflows/**/*
+
+# Skills and automation
+skills/
+skills/**/*
+
+# Research and analysis
+research/
+research/**/*
+analysis/
+analysis/**/*
+
+# Archives
+090-Archive/
+090-Archive/**/*
+archive/
+archive/**/*
+
+# Templates
+templates/**/design-motion-spec.md
+templates/**/motion-spec.md
+
+# Temporary development files
+*.bak
+*.backup
+*.orig
+*.rej
+*~
 
 # Logs
 *.log
-.gstack/
+logs/
+logs/**/*
+
+# Compiled assets (but keep source)
+*.min.js
+*.min.css
+*.bundle.js
+dist/
+build/
+output/
+
+# Deployment temporary files
+*.deploy
+*.deployment
+
+# Editor-specific
+.vs/
+.vs/**/*
+*.swp
+*.swo
+
+# Git-related (avoid committing nested repos)
+.git/
+
+# Local configuration files
+config/local.*
+config/development.*
+config/test.*
+
+# Cache directories
+.cache/
+.cache/**/*
+.caches/
+.caches/**/*
+
+# Lock files
+*.lock
+package-lock.json  # Only if you're not using npm
+yarn.lock  # Only if you're not using yarn
+
+# Secrets and keys (even if not named exactly like this)
+secrets.json
+keys.json
+private.key
+secret.key
+
+# Database dumps
+*.sql
+*.dump
+*.dmp
+
+# User-specific files
+*.userprefs
+*.useroptions
+
+# Development-specific markdown files
+*.md.tmp
+*.tmp.md
+
+# Exclude all test and QA related directories and files
+**/test*/
+**/tests*/
+**/spec*/
+**/specs*/
+**/qa/
+**/QA/
+**/testing/
+**/e2e/
+**/integration/
+**/unit/
+**/functional/
+**/acceptance/
+**/features/
+**/step_definitions/
+
+# Exclude all development and research markdown files
+**/research/*.md
+**/analysis/*.md
+**/development/*.md
+**/dev/*.md
+**/experiment/*.md
+**/experiments/*.md
+**/prototype/*.md
+**/prototypes/*.md
+
+# Exclude specific test files mentioned in the project
+apps/**/*tests*.py
+apps/**/test*.py
+apps/**/*_test.py
+apps/**/tests.py
+
+# Exclude specific QA and test case files
+**/Test-Cases/**
+**/Test-Plans/**
+**/QA/**
+
+# Deployment and hosting files (keep these)
+Procfile
+runtime.txt
+render.yaml
+requirements.txt
+Dockerfile
+docker-compose.yml
+start_local.sh
+start_local.bat
+check_deploy.sh
+
+# Static files (these are typically generated and should be committed)
+static/
+static/**/*
+
+# Templates (these are part of the website content)
+templates/
+templates/**/*
+
+# Media avatars (these are part of the website content)
+avatars/
+avatars/**/*
+
+# Keep important deployment and configuration files
+config/
+config/**/*

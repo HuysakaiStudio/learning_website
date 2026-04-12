@@ -333,6 +333,150 @@
   color: #1a73e8;
 }
 
+/* Dark Mode Support */
+body.dark-mode .post-card,
+body.dark-mode .comment-card,
+body.dark-mode .new-comment-card,
+body.dark-mode .sidebar-card {
+  background: var(--dm-bg-card);
+  border-color: var(--dm-border);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .post-tags .tag {
+  background: rgba(107, 163, 255, 0.2);
+  color: var(--dm-primary);
+}
+
+body.dark-mode .post-tags .tag-success {
+  background: rgba(76, 175, 80, 0.2);
+  color: var(--dm-success);
+}
+
+body.dark-mode .post-heading {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .post-meta {
+  color: var(--dm-text-secondary);
+}
+
+body.dark-mode .post-meta a {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .post-meta a:hover {
+  color: var(--dm-primary);
+}
+
+body.dark-mode .vote-count {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .post-body {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .comment-card.best-answer {
+  border-color: var(--dm-success);
+  background: rgba(76, 175, 80, 0.1);
+}
+
+body.dark-mode .comment-header a,
+body.dark-mode .reply-header a {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .comment-header a:hover,
+body.dark-mode .reply-header a:hover {
+  color: var(--dm-primary);
+}
+
+body.dark-mode .badge-success {
+  background: var(--dm-success);
+  color: white;
+}
+
+body.dark-mode .comment-body,
+body.dark-mode .reply-body {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .replies-list {
+  border-left-color: var(--dm-border);
+}
+
+body.dark-mode .reply-card {
+  background: var(--dm-bg-tertiary);
+  border-color: var(--dm-border);
+}
+
+body.dark-mode .reply-meta {
+  color: var(--dm-text-muted);
+}
+
+body.dark-mode .comment-footer {
+  border-top-color: var(--dm-border);
+}
+
+body.dark-mode .reply-form {
+  background: var(--dm-bg-tertiary);
+}
+
+body.dark-mode .reply-form textarea {
+  background: var(--dm-bg-secondary);
+  border-color: var(--dm-border);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .new-comment-card .card-header {
+  background: var(--dm-bg-card);
+  border-bottom-color: var(--dm-border);
+}
+
+body.dark-mode .new-comment-card .card-header h5 {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .new-comment-card .form-label {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .new-comment-card textarea {
+  background: var(--dm-bg-secondary);
+  border-color: var(--dm-border);
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .new-comment-card .form-text {
+  color: var(--dm-text-muted);
+}
+
+body.dark-mode .sidebar-card h5 {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .sidebar-item {
+  border-bottom-color: var(--dm-border);
+}
+
+body.dark-mode .sidebar-item span {
+  color: var(--dm-text-secondary);
+}
+
+body.dark-mode .sidebar-item strong,
+body.dark-mode .sidebar-item a {
+  color: var(--dm-text-primary);
+}
+
+body.dark-mode .sidebar-item a:hover {
+  color: var(--dm-primary);
+}
+
+body.dark-mode .comments-section h5 {
+  color: var(--dm-text-primary);
+}
+
 /* Responsive Design */
 @media (max-width: 992px) {
   .sidebar-card {

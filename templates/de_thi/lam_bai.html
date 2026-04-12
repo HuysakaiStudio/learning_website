@@ -418,14 +418,16 @@ function showReviewMode() {
         chuaLam.push({{ forloop.counter }});
       }
     {% elif cau.loai == 'ds' %}
-      const ds_a = document.querySelector('input[name="cau_{{ cau.id }}_a"]:checked');
-      const ds_b = document.querySelector('input[name="cau_{{ cau.id }}_b"]:checked');
-      const ds_c = document.querySelector('input[name="cau_{{ cau.id }}_c"]:checked');
-      const ds_d = document.querySelector('input[name="cau_{{ cau.id }}_d"]:checked');
-      if (ds_a && ds_b && ds_c && ds_d) {
-        daLam.push({{ forloop.counter }});
-      } else {
-        chuaLam.push({{ forloop.counter }});
+      {
+        const ds_a = document.querySelector('input[name="cau_{{ cau.id }}_a"]:checked');
+        const ds_b = document.querySelector('input[name="cau_{{ cau.id }}_b"]:checked');
+        const ds_c = document.querySelector('input[name="cau_{{ cau.id }}_c"]:checked');
+        const ds_d = document.querySelector('input[name="cau_{{ cau.id }}_d"]:checked');
+        if (ds_a && ds_b && ds_c && ds_d) {
+          daLam.push({{ forloop.counter }});
+        } else {
+          chuaLam.push({{ forloop.counter }});
+        }
       }
     {% elif cau.loai == 'dien' %}
       if (document.querySelector('input[name="cau_{{ cau.id }}"]').value.trim()) {

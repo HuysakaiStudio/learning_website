@@ -10,6 +10,19 @@
   background: var(--surface-primary);
   max-width: 600px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Action Buttons */
+.action-buttons {
+  position: relative;
+  z-index: 10;
+}
+
+.action-buttons .btn {
+  position: relative;
+  z-index: 10;
 }
 
 .result-icon {
