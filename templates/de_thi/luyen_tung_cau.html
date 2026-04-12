@@ -300,5 +300,64 @@ function showFeedback(data) {
   // Show overlay
   feedbackOverlay.classList.add('show');
 }
+
+// Initialize MathJax when explanation is displayed
+function renderMathJax() {
+  if (window.MathJax) {
+    MathJax.typesetPromise && MathJax.typesetPromise();
+  }
+}
+
+// Call MathJax rendering when explanation is shown
+function showFeedback(data) {
+  // Update icon and text
+  if (data.dung) {
+    resultIcon.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
+    resultText.textContent = 'Chính xác!';
+    resultText.className = 'kt-result-text result-correct';
+  } else {
+    resultIcon.innerHTML = '<i class="bi bi-x-circle-fill text-error"></i>';
+    resultText.textContent = 'Chưa đúng';
+    resultText.className = 'kt-result-text result-incorrect';
+  }
+
+  // Update correct answer
+  const loaiCau = '{{ cau_hoi.loai }}';
+  if (loaiCau === 'tn') {
+    correctAnswerDiv.textContent = data.dap_an_dung;
+  } else if (loaiCau === 'dien') {
+    correctAnswerDiv.textContent = data.dap_an_dung;
+  } else if (loaiCau === 'ds') {
+    let html = '<table class="table table-sm"><thead><tr><th>Ý</th><th class="text-center">Đáp án</th></tr></thead><tbody>';
+    ['a', 'b', 'c', 'd'].forEach(item => {
+      const isCorrect = data.dap_an_dung[item];
+      html += `<tr><td>${item.toUpperCase()}</td><td class="text-center">${isCorrect ? '<i class="bi bi-check-circle-fill text-success"></i> Đúng' : '<i class="bi bi-x-circle-fill text-error"></i> Sai'}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    correctAnswerDiv.innerHTML = html;
+  }
+
+  // Update explanation
+  if (data.giai_thich && data.giai_thich.trim()) {
+    explanationText.innerHTML = data.giai_thich;
+    explanationSection.style.display = 'block';
+    // Render MathJax after setting the explanation
+    setTimeout(renderMathJax, 100);
+  } else {
+    explanationSection.style.display = 'none';
+  }
+
+  // Update next button
+  if (data.is_last) {
+    nextBtn.innerHTML = '<i class="bi bi-trophy-fill"></i> Xem kết quả';
+    nextBtn.onclick = () => window.location.href = data.next_url;
+  } else {
+    nextBtn.innerHTML = '<i class="bi bi-arrow-right"></i> Câu tiếp theo';
+    nextBtn.onclick = () => window.location.reload();
+  }
+
+  // Show overlay
+  feedbackOverlay.classList.add('show');
+}
 </script>
 {% endblock %}
