@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from apps.de_thi.models import KetQua
+from apps.de_thi.models import KetQua, UserAnalytics
 from apps.nguoi_dung.models import Badge, UserBadge
 
 @receiver(post_save, sender=KetQua)
@@ -9,6 +9,10 @@ def check_for_badges(sender, instance, created, **kwargs):
         return
 
     user = instance.nguoi_dung
+    
+    # Ensure UserAnalytics exists
+    analytics, created = UserAnalytics.objects.get_or_create(nguoi_dung=user)
+    
     total_exams = KetQua.objects.filter(nguoi_dung=user).count()
 
     # Define badge logic

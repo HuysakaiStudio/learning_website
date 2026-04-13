@@ -71,7 +71,7 @@
     box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
   }
 
-  .kt-test-card-container {
+  .kt-test-question-container {
     background: transparent;
     padding: 0;
     box-shadow: none;
@@ -82,51 +82,27 @@
     align-items: center;
     margin-bottom: 24px;
     position: relative;
-    perspective: 1000px;
   }
 
-  .kt-test-flashcard-card {
+  .kt-test-question-card {
     width: 100%;
     max-width: 600px;
-    height: 300px;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-  }
-
-  .kt-test-flashcard-card.flipped {
-    transform: rotateY(180deg);
-  }
-
-  .kt-test-card-face {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    text-align: center;
+    background: white;
+    color: #333;
+    border: 2px solid #e0e0e0;
     border-radius: 16px;
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    font-size: 24px;
+    padding: 30px;
+    text-align: center;
+    font-size: 20px;
     font-weight: 500;
     line-height: 1.5;
   }
 
-  .kt-test-card-front {
-    background: white;
-    color: #333;
-    border: 2px solid #e0e0e0;
-  }
-
-  .kt-test-card-back {
-    background: #f8f9fa;
-    color: #333;
-    transform: rotateY(180deg);
-    border: 2px solid #1a73e8;
+  body.dark-mode .kt-test-question-card {
+    background: #333;
+    color: #fff;
+    border: 2px solid #555;
   }
 
   .kt-test-hint-text {
@@ -138,47 +114,78 @@
 
   .kt-test-controls {
     display: flex;
+    flex-direction: column;
     gap: 12px;
-    justify-content: center;
     margin-top: 24px;
-    flex-wrap: wrap;
+    width: 100%;
   }
 
   .kt-test-btn {
-    padding: 12px 24px;
+    padding: 16px 24px;
     border: none;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    text-align: left;
+    width: 100%;
   }
 
-  .kt-test-btn-flip {
-    background: #f0f0f0;
+  .kt-test-choice-btn {
+    background: #f8f9fa;
     color: #333;
+    border: 1px solid #dee2e6;
   }
 
-  .kt-test-btn-flip:hover {
-    background: #e0e0e0;
+  .kt-test-choice-btn:hover {
+    background: #e9ecef;
   }
 
-  .kt-test-btn-incorrect {
-    background: #ea4335;
-    color: white;
+  body.dark-mode .kt-test-choice-btn {
+    background: #444;
+    color: #fff;
+    border: 1px solid #666;
   }
 
-  .kt-test-btn-incorrect:hover {
-    background: #d32f2f;
+  body.dark-mode .kt-test-choice-btn:hover {
+    background: #555;
   }
 
-  .kt-test-btn-correct {
-    background: #34a853;
-    color: white;
+  .kt-test-choice-btn.selected {
+    background: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
   }
 
-  .kt-test-btn-correct:hover {
-    background: #1e8e3e;
+  body.dark-mode .kt-test-choice-btn.selected {
+    background: #1a4a5a;
+    border-color: #155a6d;
+    color: #d1ecf1;
+  }
+
+  .kt-test-choice-btn.correct {
+    background: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+  }
+
+  body.dark-mode .kt-test-choice-btn.correct {
+    background: #1a5a33;
+    border-color: #156d45;
+    color: #d1f0d9;
+  }
+
+  .kt-test-choice-btn.incorrect {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+  }
+
+  body.dark-mode .kt-test-choice-btn.incorrect {
+    background: #5a1a27;
+    border-color: #6d1532;
+    color: #f0d1d5;
   }
 
   .kt-test-stats-summary {
@@ -301,22 +308,30 @@
   </div>
 
   <div id="test-area">
-    <div class="kt-test-card-container">
-      <div class="kt-test-flashcard-card" id="test-card">
-        <div class="kt-test-card-face kt-test-card-front" id="test-card-front"></div>
-        <div class="kt-test-card-face kt-test-card-back" id="test-card-back"></div>
+    <div class="kt-test-question-container">
+      <div class="kt-test-question-card" id="question-text">
+        Đang tải câu hỏi...
       </div>
-      <div class="kt-test-hint-text">👆 Nhấp vào thẻ để xem đáp án • Sau đó chọn đúng/sai</div>
+      <div class="kt-test-hint-text">👆 Chọn một trong các đáp án dưới đây</div>
     </div>
 
     <div class="kt-test-controls" id="test-controls">
-      <button class="kt-test-btn kt-test-btn-incorrect" onclick="markAnswer(false)">❌ Sai</button>
-      <button class="kt-test-btn kt-test-btn-correct" onclick="markAnswer(true)">✅ Đúng</button>
-      <button class="kt-test-btn kt-test-btn-flip" onclick="toggleFlip()">🔄 Lật thẻ</button>
+      <button class="kt-test-btn kt-test-choice-btn" data-choice-index="0" onclick="selectChoice(0)">
+        Đáp án A
+      </button>
+      <button class="kt-test-btn kt-test-choice-btn" data-choice-index="1" onclick="selectChoice(1)">
+        Đáp án B
+      </button>
+      <button class="kt-test-btn kt-test-choice-btn" data-choice-index="2" onclick="selectChoice(2)">
+        Đáp án C
+      </button>
+      <button class="kt-test-btn kt-test-choice-btn" data-choice-index="3" onclick="selectChoice(3)">
+        Đáp án D
+      </button>
     </div>
 
     <div class="kt-test-keyboard-hint" id="test-keyboard-hint">
-      💡 Phím tắt: Mũi tên trái=Sai, Mũi tên phải=Đúng, Space=Lật
+      💡 Phím tắt: 1=A, 2=B, 3=C, 4=D, Enter=Chọn
     </div>
   </div>
 
@@ -337,7 +352,8 @@
   // Test data from Django
   let flashcardData = JSON.parse('{{ flashcard_data_json|escapejs }}');
   let currentQuestionIndex = 0;
-  let isFlipped = false;
+  let selectedChoice = null;
+  let answered = false; // Track if the current question has been answered
   
   // Test statistics
   let testStats = {
@@ -355,32 +371,88 @@
     }
 
     currentQuestionIndex = index;
-    const card = flashcardData[index];
+    const question = flashcardData[index];
     
-    document.getElementById('test-card-front').innerHTML = card.mat_truoc;
-    document.getElementById('test-card-back').innerHTML = card.mat_sau;
-    document.getElementById('test-card').classList.remove('flipped');
-    document.getElementById('current-question').textContent = index + 1;
-
-    isFlipped = false;
-  }
-
-  function toggleFlip() {
-    const card = document.getElementById('test-card');
-    card.classList.toggle('flipped');
-    isFlipped = !isFlipped;
+    // Update question text
+    document.getElementById('question-text').innerHTML = question.question;
     
-    // Render MathJax if needed after flip
-    if (window.MathJax) {
-      MathJax.typesetPromise([document.getElementById('test-card-back')]).catch(err => console.log('MathJax error:', err));
+    // Update choice buttons
+    const choices = question.choices;
+    for (let i = 0; i < 4; i++) {
+      const choiceBtn = document.querySelector(`[data-choice-index="${i}"]`);
+      if (choiceBtn) {
+        if (i < choices.length) {
+          choiceBtn.innerHTML = choices[i].content;
+          choiceBtn.style.display = 'block';
+          // Reset button styles
+          choiceBtn.classList.remove('selected', 'correct', 'incorrect');
+        } else {
+          choiceBtn.style.display = 'none'; // Hide if there are fewer than 4 choices
+        }
+      }
     }
+    
+    // Update question counter
+    document.getElementById('current-question').textContent = index + 1;
+    
+    // Reset selection state
+    selectedChoice = null;
+    answered = false;
   }
 
-  function markAnswer(isCorrect) {
-    if (currentQuestionIndex >= flashcardData.length) return;
+  function selectChoice(choiceIndex) {
+    if (answered) return; // Prevent selecting after answering
     
-    const card = flashcardData[currentQuestionIndex];
-    const responseTime = (Date.now() - testStats.startTime) / 1000; // in seconds
+    const question = flashcardData[currentQuestionIndex];
+    const selectedBtn = document.querySelector(`[data-choice-index="${choiceIndex}"]`);
+    
+    // Deselect any previously selected button
+    document.querySelectorAll('.kt-test-choice-btn').forEach(btn => {
+      btn.classList.remove('selected');
+    });
+    
+    // Highlight the selected button
+    selectedBtn.classList.add('selected');
+    selectedChoice = choiceIndex;
+    
+    // Process the answer immediately
+    submitAnswer(choiceIndex);
+  }
+
+  function submitAnswer(choiceIndex) {
+    if (answered) return; // Prevent double submission
+    
+    answered = true;
+    const question = flashcardData[currentQuestionIndex];
+    const choices = question.choices;
+    const selectedChoiceData = choices[choiceIndex];
+    const isCorrect = selectedChoiceData.is_correct;
+    
+    // Get the correct answer button to highlight
+    let correctIndex = -1;
+    for (let i = 0; i < choices.length; i++) {
+      if (choices[i].is_correct) {
+        correctIndex = i;
+        break;
+      }
+    }
+    
+    // Update button states to show correct/incorrect
+    for (let i = 0; i < choices.length; i++) {
+      const btn = document.querySelector(`[data-choice-index="${i}"]`);
+      
+      if (i === choiceIndex) {
+        // The selected answer
+        if (isCorrect) {
+          btn.classList.add('correct');
+        } else {
+          btn.classList.add('incorrect');
+        }
+      } else if (i === correctIndex) {
+        // The correct answer (if different from selected)
+        btn.classList.add('correct');
+      }
+    }
     
     // Update stats
     if (isCorrect) {
@@ -388,8 +460,10 @@
     }
     
     // Record answer
+    const responseTime = (Date.now() - testStats.startTime) / 1000; // in seconds
     testStats.answers.push({
-      flashcard_id: card.id,
+      question_id: question.id,
+      selected_choice_id: selectedChoiceData.id,
       is_correct: isCorrect,
       response_time: responseTime
     });
@@ -403,9 +477,9 @@
       },
       body: JSON.stringify({
         test_id: testStats.testId,
-        flashcard_id: card.id,
+        flashcard_id: question.id,
         is_correct: isCorrect,
-        user_answer: '', // Could capture user's answer if needed
+        user_answer: selectedChoiceData.id, // Store the ID of the selected choice
         response_time: responseTime
       })
     })
@@ -415,10 +489,10 @@
         // Update UI
         updateTestStats();
         
-        // Move to next question
+        // Move to next question after delay to show result
         setTimeout(() => {
           showQuestion(currentQuestionIndex + 1);
-        }, 500);
+        }, 1500);
       } else {
         alert('Lỗi: ' + data.error);
       }
@@ -453,18 +527,22 @@
     const testArea = document.getElementById('test-area');
     if (!testArea || testArea.style.display === 'none') return;
 
-    if (e.key === ' ') {
+    // Number keys 1-4 for choices A-D
+    if (e.key >= '1' && e.key <= '4') {
       e.preventDefault();
-      toggleFlip();
-    } else if (e.key === 'ArrowLeft') {
-      markAnswer(false);
-    } else if (e.key === 'ArrowRight') {
-      markAnswer(true);
+      const choiceIndex = parseInt(e.key) - 1;
+      // Make sure the button exists and is visible before selecting
+      const btn = document.querySelector(`[data-choice-index="${choiceIndex}"]`);
+      if (btn && btn.style.display !== 'none') {
+        selectChoice(choiceIndex);
+      }
+    }
+    // Enter key to confirm selection
+    else if (e.key === 'Enter' && selectedChoice !== null) {
+      e.preventDefault();
+      submitAnswer(selectedChoice);
     }
   });
-
-  // Click card to flip
-  document.getElementById('test-card').addEventListener('click', toggleFlip);
 
   // CSRF token helper
   function getCookie(name) {

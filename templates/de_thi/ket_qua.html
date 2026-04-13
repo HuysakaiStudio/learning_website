@@ -114,6 +114,14 @@
         </div>
       {% endif %}
     {% endif %}
+    
+    <!-- Warning if exam was affected by prior practice -->
+    {% if kq.danh_dau_khong_chinh_thuc %}
+    <div class="alert alert-warning d-flex align-items-center justify-content-center gap-2 mb-4">
+      <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+      <span class="fw-semibold">Lưu ý: Bài thi này không được tính vào bảng xếp hạng chính thức vì bạn đã luyện từng câu với đề này trước đó.</span>
+    </div>
+    {% endif %}
 
     <!-- Action Buttons -->
     <div class="action-buttons d-flex flex-column gap-3">

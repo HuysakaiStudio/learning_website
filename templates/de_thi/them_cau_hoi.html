@@ -344,7 +344,7 @@
             <a href="{% url 'de_thi:bulk_add_questions' de.id %}" class="btn-action btn-action-bulk">📋 Thêm hàng loạt</a>
         </div>
     </div>
-    <form method="post" id="main-form">
+    <form method="post" id="main-form" enctype="multipart/form-data">
         {% csrf_token %}
         <div id="validation-errors" class="validation-errors"></div>
         <div class="form-group">
@@ -393,6 +393,198 @@
         <button type="submit" class="btn-submit" id="btn-submit">Thêm câu hỏi này</button>
     </form>
 </div>
+
+
+<!-- Quick Navigation Panel for large exams -->
+{% if cau_hoi_list.count > 20 %}
+<div class="quick-navigation-panel" style="position: sticky; top: 0; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100; margin-top: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <label for="jump-to-question" style="font-weight: bold;">Nhảy tới câu:</label>
+            <input type="number" id="jump-to-question" min="1" max="{{ cau_hoi_list|length }}"
+                   style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 80px;">
+            <button onclick="jumpToQuestion()" class="btn-action btn-action-edit" style="padding: 8px 12px;">Go</button>
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button onclick="scrollToBottom()" class="btn-action btn-action-bulk" style="padding: 8px 12px;">↓ Xuống cuối</button>
+        </div>
+        
+        <div style="flex: 1; text-align: right; color: #666;">
+            Tổng cộng: {{ cau_hoi_list|length }} câu hỏi
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Danh sách câu hỏi hiện có -->
+{% if cau_hoi_list %}
+<div class="question-list-container">
+    <h3 class="question-list-title">📚 Danh sách câu hỏi ({{ cau_hoi_list|length }})</h3>
+
+    {% for cau in cau_hoi_list %}
+    <div class="question-card question-card-{{ cau.loai }}" id="question-{{ cau.id }}" data-question-id="{{ cau.id }}">
+        <div class="question-card-content">
+            <div class="question-card-body">
+                <div class="question-card-header">
+                    <span class="question-badge-number">Câu {{ forloop.counter }}</span>
+                    {% if cau.loai == 'tn' %}
+                    <span class="question-badge question-badge-tn">📌 Trắc nghiệm</span>
+                    {% elif cau.loai == 'ds' %}
+                    <span class="question-badge question-badge-ds">✅ Đúng/Sai</span>
+                    {% elif cau.loai == 'dien' %}
+                    <span class="question-badge question-badge-dien">🔢 Điền số</span>
+                    {% endif %}
+                </div>
+                <p class="question-content">{{ cau.noi_dung|truncatewords:30 }}</p>
+                {% if cau.giai_thich %}
+                <p class="question-explanation">
+                    <strong>Giải thích:</strong> {{ cau.giai_thich|truncatewords:20 }}
+                </p>
+                {% endif %}
+                <!-- Display image if available -->
+                {% if cau.hinh_anh %}
+                <div class="question-image-container">
+                    <img src="{{ cau.hinh_anh.url }}" alt="Hình ảnh minh họa câu hỏi" class="question-image" style="max-width: 200px; max-height: 150px; border-radius: 8px;">
+                </div>
+                {% endif %}
+            </div>
+            <div class="question-card-actions">
+                <a href="{% url 'de_thi:sua_cau_hoi' cau.id %}" class="btn-question-action btn-question-edit">✏️ Sửa</a>
+                <a href="{% url 'de_thi:xoa_cau_hoi' cau.id %}" class="btn-question-action btn-question-delete">🗑️ Xóa</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+// Auto-scroll to question after editing
+function scrollToQuestion(questionId) {
+    const questionElement = document.getElementById('question-' + questionId);
+    if (questionElement) {
+        // Add temporary highlight to show which question was edited
+        questionElement.style.transition = 'background-color 0.5s';
+        questionElement.style.backgroundColor = '#e6f7ff';
+        questionElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+        setTimeout(() => {
+            questionElement.style.backgroundColor = '';
+        }, 2000);
+    }
+}
+
+// Jump to question by number
+function jumpToQuestion() {
+    const questionNum = document.getElementById('jump-to-question').value;
+    if (questionNum) {
+        const element = document.querySelector(`.question-badge-number:contains('Câu ${questionNum}')`).closest('.question-card');
+        if (element) {
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+    }
+}
+
+// Scroll to top of question list
+function scrollToTop() {
+    const firstQuestion = document.querySelector('.question-list-container');
+    if (firstQuestion) {
+        firstQuestion.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+}
+
+// Scroll to bottom of question list
+function scrollToBottom() {
+    const lastQuestion = document.querySelector('.question-card:last-of-type');
+    if (lastQuestion) {
+        lastQuestion.scrollIntoView({
+            behavior: 'smooth',
+            block: 'end'
+        });
+    }
+}
+
+// Update the form submission to handle question scrolling
+document.getElementById('main-form').addEventListener('submit', function(e) {
+    // ... existing code from the original template ...
+    .then(data => {
+        // ... existing success handling ...
+        if (data.success) {
+            alert('Câu hỏi đã được thêm!');
+            form.reset();
+            toggleForms(); // Đảm bảo form được reset đúng
+            
+            // If we have a question ID in the response, scroll to it
+            if (data.question_id) {
+                scrollToQuestion(data.question_id);
+            }
+        } else {
+            let errorMsg = 'Có lỗi xảy ra: \n';
+            for (const [field, messages] of Object.entries(data.errors)) {
+                errorMsg += `${field}: ${messages.join(', ')}\n`;
+            }
+            alert(errorMsg);
+    }
+});
+
+// Additional functions for navigation
+function jumpToQuestion() {
+    const questionNum = document.getElementById('jump-to-question').value;
+    if (questionNum) {
+        const questionElements = document.querySelectorAll('.question-card-header .question-badge-number');
+        for (let element of questionElements) {
+            if (element.textContent.includes('Câu ' + questionNum)) {
+                const questionCard = element.closest('.question-card');
+                if (questionCard) {
+                    questionCard.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    // Add temporary highlight
+                    questionCard.style.transition = 'background-color 0.5s';
+                    questionCard.style.backgroundColor = '#e6f7ff';
+                    setTimeout(() => {
+                        questionCard.style.backgroundColor = '';
+                    }, 2000);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+function scrollToBottom() {
+    window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+    });
+}
+
+// Auto-scroll to question after editing if specified in URL
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const scrollToQuestionId = urlParams.get('scroll_to');
+    if (scrollToQuestionId) {
+        scrollToQuestion(scrollToQuestionId);
+    }
+});
+</script>
 
 <!-- Danh sách câu hỏi hiện có -->
 {% if cau_hoi_list %}
@@ -624,6 +816,15 @@ form.addEventListener('submit', function(e) {
             alert('Câu hỏi đã được thêm!');
             form.reset();
             toggleForms(); // Đảm bảo form được reset đúng
+            
+            // Redirect to the exam page with the question ID to scroll to
+            if (data.redirect_url) {
+                if (data.question_id) {
+                    window.location.href = data.redirect_url + '?scroll_to=' + data.question_id;
+                } else {
+                    window.location.href = data.redirect_url;
+                }
+            }
         } else {
             let errorMsg = 'Có lỗi xảy ra: \n';
             for (const [field, messages] of Object.entries(data.errors)) {
@@ -638,4 +839,160 @@ form.addEventListener('submit', function(e) {
     });
 });
 </script>
+
+<!-- Quick Navigation Panel for large exams -->
+{% if cau_hoi_list.count > 20 %}
+<script>
+// Function to scroll to a specific question in the list
+function scrollToQuestion(questionId) {
+    const questionElement = document.getElementById('question-' + questionId);
+    if (questionElement) {
+        // Add temporary highlight to show which question was edited
+        questionElement.style.transition = 'background-color 0.5s';
+        questionElement.style.backgroundColor = '#e6f7ff';
+        questionElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+        setTimeout(() => {
+            questionElement.style.backgroundColor = '';
+        }, 2000);
+    }
+}
+
+// Function to jump to a specific question by number
+function jumpToQuestion() {
+    const questionNum = document.getElementById('jump-to-question').value;
+    if (questionNum) {
+        const questionElements = document.querySelectorAll('.question-card-header .question-badge-number');
+        for (let element of questionElements) {
+            if (element.textContent.includes('Câu ' + questionNum)) {
+                const questionCard = element.closest('.question-card');
+                if (questionCard) {
+                    questionCard.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    // Add temporary highlight
+                    questionCard.style.transition = 'background-color 0.5s';
+                    questionCard.style.backgroundColor = '#e6f7ff';
+                    setTimeout(() => {
+                        questionCard.style.backgroundColor = '';
+                    }, 2000);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+function scrollToBottom() {
+    window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+    });
+}
+
+// Auto-scroll to question after editing if specified in URL
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const scrollToQuestionId = urlParams.get('scroll_to');
+    if (scrollToQuestionId) {
+        scrollToQuestion(scrollToQuestionId);
+    }
+});
+
+// Function to scroll to a specific question in the list
+function scrollToQuestion(questionId) {
+    const questionElement = document.getElementById('question-' + questionId);
+    if (questionElement) {
+        // Add temporary highlight to show which question was edited
+        questionElement.style.transition = 'background-color 0.5s';
+        questionElement.style.backgroundColor = '#e6f7ff';
+        questionElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+        setTimeout(() => {
+            questionElement.style.backgroundColor = '';
+        }, 2000);
+    }
+}
+
+// Function to jump to a specific question by number
+function jumpToQuestion() {
+    const questionNum = document.getElementById('jump-to-question').value;
+    if (questionNum) {
+        const questionElements = document.querySelectorAll('.question-card-header .question-badge-number');
+        for (let element of questionElements) {
+            if (element.textContent.includes('Câu ' + questionNum)) {
+                const questionCard = element.closest('.question-card');
+                if (questionCard) {
+                    questionCard.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    // Add temporary highlight
+                    questionCard.style.transition = 'background-color 0.5s';
+                    questionCard.style.backgroundColor = '#e6f7ff';
+                    setTimeout(() => {
+                        questionCard.style.backgroundColor = '';
+                    }, 2000);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+function scrollToBottom() {
+    window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+    });
+}
+
+// Auto-scroll to question after editing if specified in URL
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const scrollToQuestionId = urlParams.get('scroll_to');
+    if (scrollToQuestionId) {
+        scrollToQuestion(scrollToQuestionId);
+    }
+});
+</script>
+
+<div class="quick-navigation-panel" style="position: sticky; top: 0; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100; margin-top: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <label for="jump-to-question" style="font-weight: bold;">Nhảy tới câu:</label>
+            <input type="number" id="jump-to-question" min="1" max="{{ cau_hoi_list|length }}"
+                   style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 80px;">
+            <button onclick="jumpToQuestion()" class="btn-action btn-action-edit" style="padding: 8px 12px;">Go</button>
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button onclick="scrollToTop()" class="btn-action btn-action-bulk" style="padding: 8px 12px;">↑ Lên đầu</button>
+        </div>
+        
+        <div style="flex: 1; text-align: right; color: #666;">
+            Tổng cộng: {{ cau_hoi_list|length }} câu hỏi
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

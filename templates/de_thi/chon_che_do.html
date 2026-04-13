@@ -53,7 +53,9 @@
     </a>
 
     <!-- Luyện từng câu (Wayground-style) -->
-    <a href="{% url 'de_thi:bat_dau_luyen_tung_cau' de.id %}" class="mode-card wayground" style="animation-delay: 0.2s">
+    <a href="{% url 'de_thi:bat_dau_luyen_tung_cau' de.id %}"
+       {% if da_luyen_tung_cau %}onclick="return confirmPracticeStartNoWarning();"{% else %}onclick="return confirmPracticeStart();"{% endif %}
+       class="mode-card wayground" style="animation-delay: 0.2s">
       <div class="mode-icon">🎯</div>
       <h3 class="mode-title">Luyện từng câu</h3>
       <p class="mode-description">
@@ -108,5 +110,31 @@
       Hãy luyện tập kỹ trước khi thi thật để đạt kết quả tốt nhất! 💪
     </p>
   </div>
+  
+  <!-- Warning indicator if user has practiced this exam -->
+  {% if da_luyen_tung_cau %}
+  <div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle"></i>
+    Bạn đã thực hành với đề thi này. Nếu bạn làm bài thi thật, kết quả sẽ không được tính vào bảng xếp hạng chính thức.
+  </div>
+  {% endif %}
 </div>
+
+<script>
+function confirmPracticeStart() {
+    if (confirm("Bạn đang chuẩn bị thực hành với đề thi này. Lưu ý rằng nếu bạn sau này làm bài thi thật với đề này, kết quả sẽ không được tính vào bảng xếp hạng chính thức. Bạn có muốn tiếp tục?")) {
+        // Proceed with practice
+        return true;
+    } else {
+        // Cancel practice
+        return false;
+    }
+}
+
+function confirmPracticeStartNoWarning() {
+    // If user has already practiced, don't show the warning again
+    // Just proceed with the practice
+    return true;
+}
+</script>
 {% endblock %}

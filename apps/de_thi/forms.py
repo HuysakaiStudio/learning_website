@@ -94,9 +94,10 @@ class TracNghiemForm(forms.ModelForm):
     
     class Meta:
         model = CauHoi
-        fields = ['noi_dung', 'giai_thich', 'dap_an_a', 'dap_an_b', 'dap_an_c', 'dap_an_d', 'dap_an_dung']
+        fields = ['noi_dung', 'hinh_anh', 'giai_thich', 'dap_an_a', 'dap_an_b', 'dap_an_c', 'dap_an_d', 'dap_an_dung']
         labels = {
             'noi_dung': 'Nội dung câu hỏi',
+            'hinh_anh': 'Hình ảnh minh họa',
             'giai_thich': 'Giải thích',
             'dap_an_a': 'Đáp án A',
             'dap_an_b': 'Đáp án B',
@@ -109,6 +110,9 @@ class TracNghiemForm(forms.ModelForm):
                 'rows': 3,
                 'style': 'width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;',
                 'placeholder': 'Nhập nội dung câu hỏi'
+            }),
+            'hinh_anh': forms.FileInput(attrs={
+                'style': 'width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;'
             }),
             'giai_thich': forms.Textarea(attrs={
                 'rows': 2,
@@ -136,9 +140,10 @@ class TracNghiemForm(forms.ModelForm):
 class DungSaiForm(forms.ModelForm):
     class Meta:
         model = CauHoi
-        fields = ['noi_dung', 'giai_thich', 'y_a', 'y_b', 'y_c', 'y_d', 'dung_sai_a', 'dung_sai_b', 'dung_sai_c', 'dung_sai_d']
+        fields = ['noi_dung', 'hinh_anh', 'giai_thich', 'y_a', 'y_b', 'y_c', 'y_d', 'dung_sai_a', 'dung_sai_b', 'dung_sai_c', 'dung_sai_d']
         labels = {
             'noi_dung': 'Nội dung câu hỏi',
+            'hinh_anh': 'Hình ảnh minh họa',
             'giai_thich': 'Giải thích',
             'y_a': 'Ý A',
             'y_b': 'Ý B',
@@ -154,6 +159,9 @@ class DungSaiForm(forms.ModelForm):
                 'rows': 3,
                 'style': 'width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;',
                 'placeholder': 'Nhập nội dung câu hỏi'
+            }),
+            'hinh_anh': forms.FileInput(attrs={
+                'style': 'width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;'
             }),
             'giai_thich': forms.Textarea(attrs={
                 'rows': 2,
@@ -193,9 +201,10 @@ class DungSaiForm(forms.ModelForm):
 class DienSoForm(forms.ModelForm):
     class Meta:
         model = CauHoi
-        fields = ['noi_dung', 'giai_thich', 'dap_an_so']
+        fields = ['noi_dung', 'hinh_anh', 'giai_thich', 'dap_an_so']
         labels = {
             'noi_dung': 'Nội dung câu hỏi',
+            'hinh_anh': 'Hình ảnh minh họa',
             'giai_thich': 'Giải thích',
             'dap_an_so': 'Đáp án số',
         }
@@ -204,6 +213,9 @@ class DienSoForm(forms.ModelForm):
                 'rows': 3,
                 'style': 'width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;',
                 'placeholder': 'Nhập nội dung câu hỏi'
+            }),
+            'hinh_anh': forms.FileInput(attrs={
+                'style': 'width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;'
             }),
             'giai_thich': forms.Textarea(attrs={
                 'rows': 2,

@@ -45,7 +45,20 @@
     <div class="answer-details">
       Bạn chọn: <strong>{{ tl.chon|default:"(Chưa trả lời)" }}</strong>
       &nbsp;|&nbsp;
-      Đáp án đúng: <strong class="answer-correct-value">{{ tl.cau_hoi.dap_an_dung }}</strong>
+      Đáp án đúng: <strong class="answer-correct-value">{{ tl.cau_hoi.dap_an_dung }} -
+      {% if tl.cau_hoi.dap_an_dung == 'A' %}{{ tl.cau_hoi.dap_an_a }}
+      {% elif tl.cau_hoi.dap_an_dung == 'B' %}{{ tl.cau_hoi.dap_an_b }}
+      {% elif tl.cau_hoi.dap_an_dung == 'C' %}{{ tl.cau_hoi.dap_an_c }}
+      {% elif tl.cau_hoi.dap_an_dung == 'D' %}{{ tl.cau_hoi.dap_an_d }}
+      {% endif %}</strong>
+      
+      <!-- Show all options -->
+      <div class="all-options mt-2">
+        <div class="option-item {% if tl.cau_hoi.dap_an_dung == 'A' %}correct-option{% endif %}">A. {{ tl.cau_hoi.dap_an_a }} {% if tl.cau_hoi.dap_an_dung == 'A' %}(Đáp án đúng){% endif %}</div>
+        <div class="option-item {% if tl.cau_hoi.dap_an_dung == 'B' %}correct-option{% endif %}">B. {{ tl.cau_hoi.dap_an_b }} {% if tl.cau_hoi.dap_an_dung == 'B' %}(Đáp án đúng){% endif %}</div>
+        <div class="option-item {% if tl.cau_hoi.dap_an_dung == 'C' %}correct-option{% endif %}">C. {{ tl.cau_hoi.dap_an_c }} {% if tl.cau_hoi.dap_an_dung == 'C' %}(Đáp án đúng){% endif %}</div>
+        <div class="option-item {% if tl.cau_hoi.dap_an_dung == 'D' %}correct-option{% endif %}">D. {{ tl.cau_hoi.dap_an_d }} {% if tl.cau_hoi.dap_an_dung == 'D' %}(Đáp án đúng){% endif %}</div>
+      </div>
     </div>
 
     {% elif tl.cau_hoi.loai == 'dien' %}

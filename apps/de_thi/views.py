@@ -58,11 +58,11 @@ def them_cau_hoi(request, de_id):
 
         # Tạo form dựa trên loại câu hỏi
         if loai == 'tn':
-            form = TracNghiemForm(request.POST)
+            form = TracNghiemForm(request.POST, request.FILES)
         elif loai == 'ds':
-            form = DungSaiForm(request.POST)
+            form = DungSaiForm(request.POST, request.FILES)
         elif loai == 'dien':
-            form = DienSoForm(request.POST)
+            form = DienSoForm(request.POST, request.FILES)
         else:
             form = None
 
@@ -73,7 +73,11 @@ def them_cau_hoi(request, de_id):
             cau_hoi.save()
             
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({'success': True})
+                return JsonResponse({
+                    'success': True,
+                    'question_id': cau_hoi.id,
+                    'redirect_url': reverse('de_thi:them_cau_hoi', kwargs={'de_id': de.id})
+                })
             
             messages.success(request, 'Câu hỏi đã được thêm!')
             return redirect('de_thi:them_cau_hoi', de_id=de.id)
@@ -105,11 +109,11 @@ def them_cau_hoi(request, de_id):
             }
             # Đảm bảo form bị lỗi được giữ lại để hiển thị lỗi
             if loai == 'tn':
-                context['form_tn'] = TracNghiemForm(request.POST)
+                context['form_tn'] = TracNghiemForm(request.POST, request.FILES)
             elif loai == 'ds':
-                context['form_ds'] = DungSaiForm(request.POST)
+                context['form_ds'] = DungSaiForm(request.POST, request.FILES)
             elif loai == 'dien':
-                context['form_dien'] = DienSoForm(request.POST)
+                context['form_dien'] = DienSoForm(request.POST, request.FILES)
                 
             return render(request, 'de_thi/them_cau_hoi.html', context)
     else:
@@ -127,6 +131,7 @@ def them_cau_hoi(request, de_id):
 def danh_sach_de(request):
     selected_mon = request.GET.get('mon')
     search_q = request.GET.get('q')
+    sort_by = request.GET.get('sort', 'moi_nhat')  # Default sort by newest
 
     selected_mon_id = None
     try:
@@ -135,7 +140,8 @@ def danh_sach_de(request):
         selected_mon_id = None
 
     de_list = DeThi.objects.filter(an=False).annotate(
-        attempt_count=Count('ketqua', distinct=True)
+        attempt_count=Count('ketqua', distinct=True),
+        question_count=Count('cau_hoi', distinct=True)
     )
     mon_list = Mon.objects.filter(de_thi__an=False).distinct()
 
@@ -144,10 +150,26 @@ def danh_sach_de(request):
 
     if not request.user.is_staff:
         # Ẩn đề thi không có câu hỏi đối với người dùng bình thường
-        de_list = de_list.annotate(q_count=Count('cau_hoi')).filter(q_count__gt=0)
+        de_list = de_list.filter(question_count__gt=0)
 
     if selected_mon_id:
         de_list = de_list.filter(mon_id=selected_mon_id)
+
+    # Apply sorting based on user selection
+    if sort_by == 'luot_thi_giam_dan':
+        de_list = de_list.order_by('-attempt_count', '-ngay_tao')
+    elif sort_by == 'luot_thi_tang_dan':
+        de_list = de_list.order_by('attempt_count', '-ngay_tao')
+    elif sort_by == 'ten_az':
+        de_list = de_list.order_by('ten', '-ngay_tao')
+    elif sort_by == 'ten_za':
+        de_list = de_list.order_by('-ten', '-ngay_tao')
+    elif sort_by == 'cau_hoi_giam_dan':
+        de_list = de_list.order_by('-question_count', '-ngay_tao')
+    elif sort_by == 'cau_hoi_tang_dan':
+        de_list = de_list.order_by('question_count', '-ngay_tao')
+    else:  # 'moi_nhat' or default
+        de_list = de_list.order_by('-ngay_tao')
 
     paginator = Paginator(de_list, 8)
     page_number = request.GET.get('page')
@@ -157,12 +179,24 @@ def danh_sach_de(request):
         'page_obj': page_obj,
         'mon_list': mon_list,
         'selected_mon': selected_mon_id,
+        'sort_by': sort_by,
     })
 
 @login_required
 def chon_che_do(request, de_id):
     de = get_object_or_404(DeThi, id=de_id, an=False)
-    return render(request, 'de_thi/chon_che_do.html', {'de': de})
+    # Check if user has practiced this exam
+    da_luyen_tung_cau = PracticeSession.objects.filter(
+        nguoi_dung=request.user,
+        de_thi=de
+    ).exists()
+    
+    context = {
+        'de': de,
+        'da_luyen_tung_cau': da_luyen_tung_cau,
+    }
+    
+    return render(request, 'de_thi/chon_che_do.html', context)
 
 @login_required
 def lich_su_lam_bai(request):
@@ -325,9 +359,9 @@ def lam_bai(request, de_id):
                 logger.error(f"Error processing answer for question {cau.id} in exam {ket_qua.id}: {str(e)}")
                 # Still continue with the loop
 
-        # Quy về thang điểm 10.0 (Strict rounding)
+        # Quy về thang điểm 10.0 (Tối giản điểm số chỉ còn hàng phần mười)
         if tong_cau > 0:
-            diem_10 = round((tong_diem / tong_cau) * 10, 2)
+            diem_10 = round((tong_diem / tong_cau) * 10, 1)
         else:
             diem_10 = 0.0
             
@@ -867,7 +901,7 @@ def sua_cau_hoi(request, cau_id):
             cau.giai_thich = request.POST.get('giai_thich', '')
             
             if loai == 'tn':
-                form = TracNghiemForm(request.POST, instance=cau)
+                form = TracNghiemForm(request.POST, request.FILES, instance=cau)
                 if form.is_valid():
                     form.save()
                     messages.success(request, '✅ Cập nhật câu hỏi trắc nghiệm thành công!')
@@ -876,7 +910,7 @@ def sua_cau_hoi(request, cau_id):
                     return render(request, 'de_thi/sua_cau_hoi.html', {'cau': cau, 'de': de, 'form_tn': form})
             
             elif loai == 'ds':
-                form = DungSaiForm(request.POST, instance=cau)
+                form = DungSaiForm(request.POST, request.FILES, instance=cau)
                 if form.is_valid():
                     form.save()
                     messages.success(request, '✅ Cập nhật câu hỏi Đúng/Sai thành công!')
@@ -885,7 +919,7 @@ def sua_cau_hoi(request, cau_id):
                     return render(request, 'de_thi/sua_cau_hoi.html', {'cau': cau, 'de': de, 'form_ds': form})
             
             elif loai == 'dien':
-                form = DienSoForm(request.POST, instance=cau)
+                form = DienSoForm(request.POST, request.FILES, instance=cau)
                 if form.is_valid():
                     form.save()
                     messages.success(request, '✅ Cập nhật câu hỏi điền số thành công!')
@@ -893,6 +927,12 @@ def sua_cau_hoi(request, cau_id):
                     messages.error(request, f'❌ Lỗi: {form.errors}')
                     return render(request, 'de_thi/sua_cau_hoi.html', {'cau': cau, 'de': de, 'form_dien': form})
             
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'redirect_url': reverse('de_thi:them_cau_hoi', kwargs={'de_id': de.id}),
+                    'question_id': cau.id
+                })
             return redirect('de_thi:them_cau_hoi', de_id=de.id)
         
         except Exception as e:
@@ -1381,9 +1421,10 @@ def hien_thi_cau_hoi(request, session_id):
         session.da_hoan_thanh = True
         session.save()
         
-        # Calculate final score
+        # Calculate final score (optimized to tenths place only)
         tong_diem = session.ket_qua.tra_loi.aggregate(Sum('diem_duoc'))['diem_duoc__sum'] or 0
-        session.ket_qua.diem = (tong_diem / len(cau_hoi_list)) * 10 if len(cau_hoi_list) > 0 else 0
+        diem_raw = (tong_diem / len(cau_hoi_list)) * 10 if len(cau_hoi_list) > 0 else 0
+        session.ket_qua.diem = round(diem_raw, 1)
         session.ket_qua.save()
         
         return redirect('de_thi:ket_qua', kq_id=session.ket_qua.id)
@@ -1463,7 +1504,17 @@ def submit_cau_tra_loi(request, session_id):
             tra_loi.chon = chon
             dung = (chon == cau_hoi.dap_an_dung.strip().upper())
             diem = 1.0 if dung else 0.0
-            dap_an_dung = cau_hoi.dap_an_dung
+            # Return full answer content instead of just letter
+            dap_an_dung = {
+                'letter': cau_hoi.dap_an_dung,
+                'content': getattr(cau_hoi, f'dap_an_{cau_hoi.dap_an_dung.lower()}', ''),
+                'all_options': {
+                    'A': cau_hoi.dap_an_a,
+                    'B': cau_hoi.dap_an_b,
+                    'C': cau_hoi.dap_an_c,
+                    'D': cau_hoi.dap_an_d,
+                }
+            }
             
         elif cau_hoi.loai == 'dien':
             so_raw = request.POST.get('so_dien', '').strip()
@@ -1498,10 +1549,28 @@ def submit_cau_tra_loi(request, session_id):
             dung = (so_dung == 4)
             
             dap_an_dung = {
-                'a': cau_hoi.dung_sai_a,
-                'b': cau_hoi.dung_sai_b,
-                'c': cau_hoi.dung_sai_c,
-                'd': cau_hoi.dung_sai_d,
+                'sub_options': {
+                    'a': {
+                        'content': cau_hoi.y_a,
+                        'correct': cau_hoi.dung_sai_a,
+                        'user_answer': chon_a
+                    },
+                    'b': {
+                        'content': cau_hoi.y_b,
+                        'correct': cau_hoi.dung_sai_b,
+                        'user_answer': chon_b
+                    },
+                    'c': {
+                        'content': cau_hoi.y_c,
+                        'correct': cau_hoi.dung_sai_c,
+                        'user_answer': chon_c
+                    },
+                    'd': {
+                        'content': cau_hoi.y_d,
+                        'correct': cau_hoi.dung_sai_d,
+                        'user_answer': chon_d
+                    }
+                }
             }
         
         tra_loi.dung = dung
@@ -1520,9 +1589,10 @@ def submit_cau_tra_loi(request, session_id):
             session.da_hoan_thanh = True
             session.save()
             
-            # Calculate final score
+            # Calculate final score (optimized to tenths place only)
             tong_diem = session.ket_qua.tra_loi.aggregate(Sum('diem_duoc'))['diem_duoc__sum'] or 0
-            session.ket_qua.diem = (tong_diem / len(cau_hoi_list)) * 10 if len(cau_hoi_list) > 0 else 0
+            diem_raw = (tong_diem / len(cau_hoi_list)) * 10 if len(cau_hoi_list) > 0 else 0
+            session.ket_qua.diem = round(diem_raw, 1)
             session.ket_qua.save()
         
         # Return feedback

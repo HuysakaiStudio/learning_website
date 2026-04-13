@@ -23,6 +23,7 @@ from apps.kien_thuc import views_search as kien_thuc_search
 from apps.home_views import home_view
 import os
 from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -47,3 +48,7 @@ urlpatterns = [
 
     path('.well-known/appspecific/com.chrome.devtools.json', lambda r: HttpResponseNotFound()),
 ]
+
+# Serve media files during development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

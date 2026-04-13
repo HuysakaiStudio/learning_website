@@ -34,11 +34,11 @@
   <div class="card mb-4">
     <div class="card-body">
       <form method="get" class="row g-3 align-items-end">
-        <div class="col-sm-6 col-md-4">
+        <div class="col-sm-6 col-md-3">
           <label for="search-input" class="form-label fw-semibold">Tìm kiếm</label>
           <input type="text" id="search-input" name="q" class="form-control" placeholder="Nhập tên đề..." value="{{ request.GET.q }}">
         </div>
-        <div class="col-sm-6 col-md-4">
+        <div class="col-sm-6 col-md-3">
           <label for="mon-select" class="form-label fw-semibold">Lọc theo môn</label>
           <select id="mon-select" name="mon" class="form-select">
             <option value="">Tất cả môn</option>
@@ -47,8 +47,20 @@
             {% endfor %}
           </select>
         </div>
-        <div class="col-auto">
-          <button type="submit" class="btn btn-primary">
+        <div class="col-sm-6 col-md-3">
+          <label for="sort-select" class="form-label fw-semibold">Sắp xếp theo</label>
+          <select id="sort-select" name="sort" class="form-select">
+            <option value="moi_nhat" {% if sort_by == 'moi_nhat' %}selected{% endif %}>Mới nhất</option>
+            <option value="luot_thi_giam_dan" {% if sort_by == 'luot_thi_giam_dan' %}selected{% endif %}>Lượt thi giảm dần</option>
+            <option value="luot_thi_tang_dan" {% if sort_by == 'luot_thi_tang_dan' %}selected{% endif %}>Lượt thi tăng dần</option>
+            <option value="ten_az" {% if sort_by == 'ten_az' %}selected{% endif %}>Tên A-Z</option>
+            <option value="ten_za" {% if sort_by == 'ten_za' %}selected{% endif %}>Tên Z-A</option>
+            <option value="cau_hoi_giam_dan" {% if sort_by == 'cau_hoi_giam_dan' %}selected{% endif %}>Số câu hỏi giảm dần</option>
+            <option value="cau_hoi_tang_dan" {% if sort_by == 'cau_hoi_tang_dan' %}selected{% endif %}>Số câu hỏi tăng dần</option>
+          </select>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <button type="submit" class="btn btn-primary w-100">
             <i class="bi bi-search me-1"></i>Áp dụng
           </button>
         </div>

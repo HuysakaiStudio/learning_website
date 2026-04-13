@@ -1,377 +1,104 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block title %}Cài đặt thông báo{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+{% endblock %}
+
 {% block content %}
-<style>
-  .preferences-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 24px;
-  }
-
-  .preferences-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 32px;
-    border-radius: 16px;
-    margin-bottom: 24px;
-    text-align: center;
-  }
-
-  .preferences-header h1 {
-    margin: 0 0 8px 0;
-    font-size: 32px;
-    font-weight: 700;
-  }
-
-  .preferences-form {
-    background: white;
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  }
-
-  .form-section {
-    margin-bottom: 32px;
-  }
-
-  .form-section:last-child {
-    margin-bottom: 0;
-  }
-
-  .section-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: #333;
-    margin: 0 0 16px 0;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #f0f0f0;
-  }
-
-  .section-description {
-    font-size: 14px;
-    color: #666;
-    margin: 0 0 20px 0;
-  }
-
-  .preference-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    background: #f8f9fa;
-    transition: all 0.2s;
-  }
-
-  .preference-item:hover {
-    background: #e9ecef;
-  }
-
-  .preference-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .preference-icon {
-    font-size: 24px;
-  }
-
-  .preference-label {
-    font-size: 16px;
-    font-weight: 500;
-    color: #333;
-  }
-
-  .toggle-switch {
-    position: relative;
-    width: 56px;
-    height: 28px;
-  }
-
-  .toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  .toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.3s;
-    border-radius: 28px;
-  }
-
-  .toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: 0.3s;
-    border-radius: 50%;
-  }
-
-  input:checked + .toggle-slider {
-    background-color: #667eea;
-  }
-
-  input:checked + .toggle-slider:before {
-    transform: translateX(28px);
-  }
-
-  .radio-group {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .radio-option {
-    flex: 1;
-    min-width: 150px;
-  }
-
-  .radio-option input[type="radio"] {
-    display: none;
-  }
-
-  .radio-label {
-    display: block;
-    padding: 12px 16px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 14px;
-    font-weight: 500;
-    color: #666;
-  }
-
-  .radio-option input[type="radio"]:checked + .radio-label {
-    border-color: #667eea;
-    background: #667eea;
-    color: white;
-  }
-
-  .radio-label:hover {
-    border-color: #999;
-  }
-
-  .save-button {
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 24px;
-  }
-
-  .save-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
-  }
-
-  .back-link {
-    display: inline-block;
-    margin-top: 16px;
-    color: #667eea;
-    text-decoration: none;
-    font-weight: 500;
-  }
-
-  .back-link:hover {
-    text-decoration: underline;
-  }
-
-  @media (max-width: 768px) {
-    .preferences-container {
-      padding: 16px;
-    }
-
-    .preferences-form {
-      padding: 24px 16px;
-    }
-
-    .preference-item {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .radio-group {
-      flex-direction: column;
-    }
-
-    .radio-option {
-      min-width: 100%;
-    }
-  }
-</style>
-
-<div class="preferences-container">
-  <div class="preferences-header">
-    <h1>⚙️ Cài đặt thông báo</h1>
-    <p>Tùy chỉnh loại thông báo bạn muốn nhận</p>
-  </div>
-
-  <form method="post" class="preferences-form">
-    {% csrf_token %}
-
-    <!-- Notification Types -->
-    <div class="form-section">
-      <h2 class="section-title">📬 Loại thông báo</h2>
-      <p class="section-description">Chọn loại thông báo bạn muốn nhận</p>
-
-      <div class="preference-item">
-        <div class="preference-info">
-          <span class="preference-icon">🏆</span>
-          <span class="preference-label">Thành tựu</span>
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <h2 class="mb-4">Cài đặt thông báo</h2>
+      
+      <form method="post">
+        {% csrf_token %}
+        
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5>Loại thông báo</h5>
+          </div>
+          <div class="card-body">
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="enable_badge" name="enable_badge" {% if prefs.enable_badge %}checked{% endif %}>
+              <label class="form-check-label" for="enable_badge">Huy hiệu mới</label>
+            </div>
+            
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="enable_forum_reply" name="enable_forum_reply" {% if prefs.enable_forum_reply %}checked{% endif %}>
+              <label class="form-check-label" for="enable_forum_reply">Trả lời diễn đàn</label>
+            </div>
+            
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="enable_leaderboard" name="enable_leaderboard" {% if prefs.enable_leaderboard %}checked{% endif %}>
+              <label class="form-check-label" for="enable_leaderboard">Xếp hạng</label>
+            </div>
+            
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="enable_achievement" name="enable_achievement" {% if prefs.enable_achievement %}checked{% endif %}>
+              <label class="form-check-label" for="enable_achievement">Thành tựu</label>
+            </div>
+            
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="enable_study_reminder" name="enable_study_reminder" {% if prefs.enable_study_reminder %}checked{% endif %}>
+              <label class="form-check-label" for="enable_study_reminder">Nhắc nhở học tập</label>
+            </div>
+            
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="enable_exam_result" name="enable_exam_result" {% if prefs.enable_exam_result %}checked{% endif %}>
+              <label class="form-check-label" for="enable_exam_result">Kết quả thi</label>
+            </div>
+            
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="enable_flashcard_milestone" name="enable_flashcard_milestone" {% if prefs.enable_flashcard_milestone %}checked{% endif %}>
+              <label class="form-check-label" for="enable_flashcard_milestone">Cột mốc flashcard</label>
+            </div>
+            
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="enable_system" name="enable_system" {% if prefs.enable_system %}checked{% endif %}>
+              <label class="form-check-label" for="enable_system">Hệ thống</label>
+            </div>
+          </div>
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox" name="enable_achievement" {% if prefs.enable_achievement %}checked{% endif %}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="preference-item">
-        <div class="preference-info">
-          <span class="preference-icon">📊</span>
-          <span class="preference-label">Xếp hạng</span>
+        
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5>Thông báo qua email</h5>
+          </div>
+          <div class="card-body">
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" {% if prefs.email_notifications %}checked{% endif %}>
+              <label class="form-check-label" for="email_notifications">Gửi email thông báo</label>
+            </div>
+            
+            <div class="mb-3">
+              <label for="email_frequency" class="form-label">Tần suất gửi email</label>
+              <select class="form-select" id="email_frequency" name="email_frequency">
+                <option value="instant" {% if prefs.email_frequency == 'instant' %}selected{% endif %}>Ngay lập tức</option>
+                <option value="daily" {% if prefs.email_frequency == 'daily' %}selected{% endif %}>Hàng ngày</option>
+                <option value="weekly" {% if prefs.email_frequency == 'weekly' %}selected{% endif %}>Hàng tuần</option>
+                <option value="never" {% if prefs.email_frequency == 'never' %}selected{% endif %}>Không bao giờ</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox" name="enable_leaderboard" {% if prefs.enable_leaderboard %}checked{% endif %}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="preference-item">
-        <div class="preference-info">
-          <span class="preference-icon">📝</span>
-          <span class="preference-label">Kết quả thi</span>
+        
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+          <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+          <a href="{% url 'notifications:list' %}" class="btn btn-outline-secondary">Quay lại</a>
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox" name="enable_exam_result" {% if prefs.enable_exam_result %}checked{% endif %}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="preference-item">
-        <div class="preference-info">
-          <span class="preference-icon">💬</span>
-          <span class="preference-label">Trả lời diễn đàn</span>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" name="enable_forum_reply" {% if prefs.enable_forum_reply %}checked{% endif %}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="preference-item">
-        <div class="preference-info">
-          <span class="preference-icon">⭐</span>
-          <span class="preference-label">Cột mốc Flashcard</span>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" name="enable_flashcard_milestone" {% if prefs.enable_flashcard_milestone %}checked{% endif %}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="preference-item">
-        <div class="preference-info">
-          <span class="preference-icon">📚</span>
-          <span class="preference-label">Nhắc nhở học tập</span>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" name="enable_study_reminder" {% if prefs.enable_study_reminder %}checked{% endif %}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="preference-item">
-        <div class="preference-info">
-          <span class="preference-icon">🎖️</span>
-          <span class="preference-label">Huy hiệu mới</span>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" name="enable_badge" {% if prefs.enable_badge %}checked{% endif %}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="preference-item">
-        <div class="preference-info">
-          <span class="preference-icon">🔔</span>
-          <span class="preference-label">Thông báo hệ thống</span>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" name="enable_system" {% if prefs.enable_system %}checked{% endif %}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
+      </form>
     </div>
-
-    <!-- Email Notifications -->
-    <div class="form-section">
-      <h2 class="section-title">📧 Thông báo qua Email</h2>
-      <p class="section-description">Nhận thông báo qua email</p>
-
-      <div class="preference-item">
-        <div class="preference-info">
-          <span class="preference-icon">✉️</span>
-          <span class="preference-label">Bật thông báo email</span>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" name="email_notifications" {% if prefs.email_notifications %}checked{% endif %}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div style="margin-top: 16px;">
-        <label style="display: block; margin-bottom: 12px; font-weight: 500; color: #333;">
-          Tần suất gửi email:
-        </label>
-        <div class="radio-group">
-          <div class="radio-option">
-            <input type="radio" name="email_frequency" value="instant" id="freq_instant" {% if prefs.email_frequency == 'instant' %}checked{% endif %}>
-            <label for="freq_instant" class="radio-label">⚡ Ngay lập tức</label>
-          </div>
-          <div class="radio-option">
-            <input type="radio" name="email_frequency" value="daily" id="freq_daily" {% if prefs.email_frequency == 'daily' %}checked{% endif %}>
-            <label for="freq_daily" class="radio-label">📅 Hàng ngày</label>
-          </div>
-          <div class="radio-option">
-            <input type="radio" name="email_frequency" value="weekly" id="freq_weekly" {% if prefs.email_frequency == 'weekly' %}checked{% endif %}>
-            <label for="freq_weekly" class="radio-label">📊 Hàng tuần</label>
-          </div>
-          <div class="radio-option">
-            <input type="radio" name="email_frequency" value="never" id="freq_never" {% if prefs.email_frequency == 'never' %}checked{% endif %}>
-            <label for="freq_never" class="radio-label">🚫 Không bao giờ</label>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <button type="submit" class="save-button">💾 Lưu cài đặt</button>
-  </form>
-
-  <div style="text-align: center;">
-    <a href="{% url 'notifications:list' %}" class="back-link">← Quay lại danh sách thông báo</a>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Add any specific notification preferences functionality here
+});
+</script>
 {% endblock %}

@@ -54,13 +54,17 @@
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     display: none;
-    z-index: 1000;
+    z-index: 1050; /* Higher z-index to ensure it appears above navbar */
     overflow: hidden;
+    /* Ensure proper positioning in navbar context */
+    left: auto !important; /* Override any conflicting left positioning */
   }
 
   .notification-dropdown.show {
-    display: block;
+    display: block !important;
     animation: slideDown 0.2s ease-out;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
   @keyframes slideDown {
@@ -188,6 +192,30 @@
     margin-bottom: 8px;
   }
 
+  /* Allow dropdown on all devices */
+  .notification-bell {
+    cursor: pointer;
+    position: relative; /* Ensure proper positioning context */
+  }
+  
+  .notification-bell:hover .notification-bell-icon {
+    color: #667eea;
+    transform: scale(1.1);
+  }
+
+  /* Ensure dropdown is visible on desktop */
+  @media (min-width: 992px) {
+    .notification-dropdown.show {
+      display: block !important;
+      position: absolute !important; /* Override any inherited positioning */
+      top: 100% !important;
+      right: 0 !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: auto !important; /* Ensure it can receive clicks */
+    }
+  }
+
   @media (max-width: 768px) {
     .notification-dropdown {
       width: 320px;
@@ -260,6 +288,11 @@
   body.dark-mode .notification-dropdown-footer {
     border-top: 1px solid var(--dm-border);
   }
+  
+  /* Dark mode desktop override */
+  body.dark-mode .notification-bell:hover .notification-bell-icon {
+    color: var(--dm-primary);
+  }
 </style>
 
 {% if user.is_authenticated %}
@@ -292,11 +325,11 @@
 <script>
 // Improved Notification Bell Widget with error handling
 document.addEventListener('DOMContentLoaded', function() {
-  // Check if elements exist before initializing
-  const bell = document.getElementById('notificationBell');
-  const dropdown = document.getElementById('notificationDropdown');
-  const badge = document.getElementById('notificationBadge');
-  const list = document.getElementById('notificationList');
+  // Find the closest notification elements in the current widget's context
+  const bell = document.querySelector('.notification-bell');
+  const dropdown = document.querySelector('.notification-dropdown');
+  const badge = document.querySelector('.notification-badge');
+  const list = document.querySelector('.notification-dropdown-list');
 
   // Exit early if required elements are not found
   if (!bell || !dropdown || !badge || !list) {
@@ -310,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   bell.dataset.notificationInitialized = 'true';
 
-  // Toggle dropdown with proper error handling
+  // Handle notification bell click (works on both desktop and mobile now)
   bell.addEventListener('click', function(e) {
     try {
       e.stopPropagation();
@@ -326,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Close when clicking outside with error handling
+  // Close when clicking outside with error handling (on both desktop and mobile)
   document.addEventListener('click', function(e) {
     try {
       if (!bell.contains(e.target)) {
@@ -399,6 +432,8 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Update unread count with error handling
   function updateUnreadCount() {
+    // Get the badge element in the current context
+    const currentBadge = document.querySelector('.notification-badge');
     try {
       fetch('{% url "notifications:api_unread_count" %}')
         .then(response => {
@@ -410,10 +445,10 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
           if (data && typeof data.count === 'number') {
             if (data.count > 0) {
-              badge.textContent = data.count > 99 ? '99+' : data.count;
-              badge.style.display = 'flex';
+              currentBadge.textContent = data.count > 99 ? '99+' : data.count;
+              currentBadge.style.display = 'flex';
             } else {
-              badge.style.display = 'none';
+              currentBadge.style.display = 'none';
             }
           }
         })
@@ -527,7 +562,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (diff < 60) return 'Vừa xong';
       if (diff < 3600) return Math.floor(diff / 60) + ' phút trước';
       if (diff < 86400) return Math.floor(diff / 3600) + ' giờ trước';
-      if (diff < 604800) return Math.floor(diff / 86400) + ' ngày trước';
+      if (diff < 604800) return Math.floor(diff / 3600) + ' ngày trước';
       return date.toLocaleDateString('vi-VN');
     } catch (error) {
       console.error('Error formatting time:', error);
@@ -567,6 +602,22 @@ document.addEventListener('DOMContentLoaded', function() {
       if (intervalId) {
         clearInterval(intervalId);
       }
+    });
+    
+    // Handle window resize to ensure proper behavior when switching between mobile/desktop views
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+      // Clear the previous timer
+      clearTimeout(resizeTimer);
+      
+      // Set a new timer to handle the resize after a delay
+      resizeTimer = setTimeout(function() {
+        // On window resize, ensure the dropdown is closed to prevent display issues
+        dropdown.classList.remove('show');
+        
+        // Update unread count when resizing to ensure consistency
+        updateUnreadCount();
+      }, 250); // 250ms delay to avoid excessive calls during resize
     });
   } catch (error) {
     console.error('Error in initialization:', error);

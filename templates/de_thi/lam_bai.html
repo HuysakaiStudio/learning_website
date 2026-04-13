@@ -93,6 +93,14 @@
     </div>
 </div>
 
+<!-- Warning if user has practiced this exam before -->
+{% if che_do == 'thi_that' and ket_qua.danh_dau_khong_chinh_thuc %}
+<div class="alert alert-info">
+ <i class="bi bi-info-circle"></i>
+ Lưu ý: Bài thi này sẽ không được tính vào bảng xếp hạng chính thức vì bạn đã thực hành với đề thi này trước đó.
+</div>
+{% endif %}
+
 <div class="exam-container">
   <form id="form-lam-bai" method="post">
     {% csrf_token %}
@@ -119,6 +127,13 @@
           <span class="mark-star" data-marked="false">☆</span>
         </button>
       </div>
+
+      <!-- Hình ảnh minh họa (nếu có) -->
+      {% if cau.hinh_anh %}
+      <div class="question-image-container">
+        <img src="{{ cau.hinh_anh.url }}" alt="Hình ảnh minh họa câu hỏi" class="question-image">
+      </div>
+      {% endif %}
 
       <!-- Nội dung câu hỏi -->
       <div class="question-text">
@@ -187,6 +202,14 @@
 
   </form>
 </div>
+
+<!-- Warning if user has practiced this exam before -->
+{% if che_do == 'thi_that' and ket_qua.danh_dau_khong_chinh_thuc %}
+<div class="alert alert-info">
+  <i class="bi bi-info-circle"></i>
+  Lưu ý: Bài thi này sẽ không được tính vào bảng xếp hạng chính thức vì bạn đã thực hành với đề thi này trước đó.
+</div>
+{% endif %}
 
 <script>
 const form = document.getElementById('form-lam-bai');
