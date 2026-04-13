@@ -147,14 +147,31 @@ def danh_sach_flashcard_sets(request):
     mon_list = Mon.objects.all()
     selected_mon = request.GET.get('mon')
     search_q = request.GET.get('q')
+    sort_by = request.GET.get('sort', 'moi_nhat')  # Default sort by newest
     
-    flashcard_sets = FlashcardSet.objects.filter(status='published', so_luong_the__gt=0).order_by('-ngay_tao')
+    flashcard_sets = FlashcardSet.objects.filter(status='published', so_luong_the__gt=0)
     
     if search_q:
         flashcard_sets = flashcard_sets.filter(tieu_de__icontains=search_q)
 
     if selected_mon:
         flashcard_sets = flashcard_sets.filter(mon_id=selected_mon)
+    
+    # Apply sorting based on user selection
+    if sort_by == 'luot_xem_giam_dan':
+        flashcard_sets = flashcard_sets.order_by('-lan_xem', '-ngay_tao')
+    elif sort_by == 'luot_xem_tang_dan':
+        flashcard_sets = flashcard_sets.order_by('lan_xem', '-ngay_tao')
+    elif sort_by == 'so_the_giam_dan':
+        flashcard_sets = flashcard_sets.order_by('-so_luong_the', '-ngay_tao')
+    elif sort_by == 'so_the_tang_dan':
+        flashcard_sets = flashcard_sets.order_by('so_luong_the', '-ngay_tao')
+    elif sort_by == 'ten_az':
+        flashcard_sets = flashcard_sets.order_by('tieu_de', '-ngay_tao')
+    elif sort_by == 'ten_za':
+        flashcard_sets = flashcard_sets.order_by('-tieu_de', '-ngay_tao')
+    else:  # 'moi_nhat' or default
+        flashcard_sets = flashcard_sets.order_by('-ngay_tao')
         
     paginator = Paginator(flashcard_sets, 8)
     page_number = request.GET.get('page')
@@ -164,6 +181,7 @@ def danh_sach_flashcard_sets(request):
         'page_obj': page_obj,
         'mon_list': mon_list,
         'selected_mon': selected_mon,
+        'sort_by': sort_by,
     }
     return render(request, 'kien_thuc/danh_sach_flashcard_sets.html', context)
 
@@ -226,6 +244,23 @@ def hoc_flashcard(request, flashcard_set_id):
         'da_thuoc': len(learned_ids),
         'mode': mode,
         'cache_version': '20260410'  # Update this when CSS/JS changes
+    }
+    # Create a new study session for this flashcard set
+    from .models import FlashcardStudySession
+    study_session = FlashcardStudySession.objects.create(
+        nguoi_dung=request.user,
+        bo_flashcard=flashcard_set,
+        che_do=mode
+    )
+    
+    context = {
+        'flashcard_set': flashcard_set,
+        'flashcard_data_json': json.dumps(flashcard_data),
+        'tong_so': total_count,  # Tổng số thẻ trong set (không đổi)
+        'da_thuoc': len(learned_ids),
+        'mode': mode,
+        'cache_version': '20260410',  # Update this when CSS/JS changes
+        'study_session_id': study_session.id
     }
     return render(request, 'kien_thuc/hoc_flashcard.html', context)
 
@@ -349,7 +384,7 @@ def reset_flashcard_progress(request, set_id):
 @login_required
 def start_flashcard_test(request, flashcard_set_id):
     """
-    Bắt đầu một bài kiểm tra flashcard mới
+    Bắt đầu một bài kiểm tra flashcard mới (dưới dạng trắc nghiệm 4 lựa chọn)
     """
     flashcard_set = get_object_or_404(FlashcardSet, pk=flashcard_set_id)
     
@@ -359,33 +394,69 @@ def start_flashcard_test(request, flashcard_set_id):
         return redirect('kien_thuc:danh_sach_flashcard_sets')
     
     # Lấy tất cả flashcards trong bộ
-    flashcards = list(flashcard_set.flashcards.all())
+    all_flashcards = list(flashcard_set.flashcards.all())
     
-    if not flashcards:
+    if not all_flashcards:
         messages.error(request, 'Bộ flashcard này không có thẻ nào để kiểm tra.')
         return redirect('kien_thuc:hoc_flashcard', flashcard_set_id=flashcard_set_id)
+    
+    # Kiểm tra xem có đủ thẻ để tạo câu hỏi trắc nghiệm không (ít nhất 4 thẻ để có 1 đúng + 3 sai)
+    if len(all_flashcards) < 4:
+        messages.error(request, 'Không thể truy cập chế độ kiểm tra của flashcard khi chưa đủ 4 thẻ.')
+        return redirect('kien_thuc:hoc_flashcard', flashcard_set_id=flashcard_set_id)
+    
+    # Trộn ngẫu nhiên các thẻ để tạo câu hỏi
+    import random
+    random.shuffle(all_flashcards)
+    
+    # Giới hạn số lượng câu hỏi (ví dụ: tối đa 20 câu)
+    selected_flashcards = all_flashcards[:20]  # Giới hạn số lượng câu hỏi
+    
+    # Tạo dữ liệu câu hỏi trắc nghiệm
+    multiple_choice_data = []
+    for i, main_card in enumerate(selected_flashcards):
+        # Lấy 3 thẻ khác làm đáp án sai
+        other_cards = [card for j, card in enumerate(selected_flashcards) if j != i]
+        wrong_choices = random.sample(other_cards, min(3, len(other_cards)))
+        
+        # Tạo danh sách lựa chọn
+        choices = [
+            {'id': main_card.id, 'content': main_card.mat_sau, 'is_correct': True}
+        ]
+        
+        for wrong_card in wrong_choices:
+            choices.append({
+                'id': wrong_card.id,
+                'content': wrong_card.mat_sau,
+                'is_correct': False
+            })
+        
+        # Trộn ngẫu nhiên thứ tự các lựa chọn
+        random.shuffle(choices)
+        
+        multiple_choice_data.append({
+            'id': main_card.id,
+            'question': main_card.mat_truoc,  # Câu hỏi từ mặt trước
+            'choices': choices,  # Các lựa chọn (1 đúng + 3 sai)
+            'correct_answer_id': main_card.id  # ID của đáp án đúng
+        })
     
     # Tạo bài kiểm tra mới
     test = FlashcardTest.objects.create(
         nguoi_dung=request.user,
         bo_flashcard=flashcard_set,
-        tong_so_cau_hoi=len(flashcards)
+        tong_so_cau_hoi=len(multiple_choice_data)
     )
     
-    # Trả về dữ liệu để khởi tạo bài kiểm tra
-    flashcard_data = []
-    for fc in flashcards:
-        flashcard_data.append({
-            'id': fc.id,
-            'mat_truoc': fc.mat_truoc,
-            'mat_sau': fc.mat_sau
-        })
+    # Check if there are enough cards to show quiz controls
+    has_min_cards_for_quiz = len(multiple_choice_data) >= 1  # Since we already checked above
     
     context = {
         'test': test,
         'flashcard_set': flashcard_set,
-        'flashcard_data_json': json.dumps(flashcard_data),
-        'total_questions': len(flashcards)
+        'flashcard_data_json': json.dumps(multiple_choice_data),
+        'total_questions': len(multiple_choice_data),
+        'has_min_cards_for_quiz': has_min_cards_for_quiz
     }
     
     return render(request, 'kien_thuc/flashcard_test.html', context)
@@ -480,3 +551,53 @@ def api_reset_flashcard(request, set_id):
         FlashcardProgress.objects.filter(user=request.user, flashcard__flashcard_set=flashcard_set).delete()
         return JsonResponse({'success': True})
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@login_required
+def end_flashcard_session(request):
+    """
+    API endpoint to end a flashcard study session and record time spent
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    
+    try:
+        data = json.loads(request.body)
+        session_id = data.get('session_id')
+        
+        if not session_id:
+            return JsonResponse({'success': False, 'error': 'Session ID is required'})
+        
+        from .models import FlashcardStudySession
+        session = get_object_or_404(FlashcardStudySession, id=session_id, nguoi_dung=request.user)
+        
+        # Update session end time
+        session.ngay_ket_thuc = timezone.now()
+        session.cap_nhat_thoi_gian_hoc()  # Calculate time spent
+        
+        # Update card counters if provided
+        cards_seen = data.get('cards_seen', 0)
+        cards_studied = data.get('cards_studied', 0)
+        if cards_seen > 0:
+            session.so_the_da_xem = cards_seen
+        if cards_studied > 0:
+            session.so_the_da_hoc = cards_studied
+        
+        session.save()
+        
+        # Update user analytics with the time spent
+        try:
+            from apps.de_thi.models import UserAnalytics
+            analytics, created = UserAnalytics.objects.get_or_create(nguoi_dung=request.user)
+            time_spent_minutes = session.thoi_gian_hoc // 60  # Convert seconds to minutes
+            analytics.cap_nhat_thoi_gian_hoc(time_spent_minutes, 'flashcard')
+        except ImportError:
+            pass  # Analytics not available
+        
+        return JsonResponse({
+            'success': True,
+            'time_spent': session.thoi_gian_hoc,
+            'time_spent_minutes': time_spent_minutes
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

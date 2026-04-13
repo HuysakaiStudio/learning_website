@@ -35,6 +35,7 @@ class CauHoi(models.Model):
     de_thi = models.ForeignKey(DeThi, on_delete=models.CASCADE, related_name='cau_hoi')
     loai = models.CharField(max_length=10, choices=LOAI_CAU, default='tn')
     noi_dung = models.TextField()
+    hinh_anh = models.ImageField(upload_to='cau_hoi_images/', blank=True, null=True, verbose_name='Hình ảnh minh họa')
     giai_thich = models.TextField(blank=True)
     thu_tu = models.IntegerField(default=0)
 
@@ -60,6 +61,8 @@ class CauHoi(models.Model):
 
     class Meta:
         ordering = ['thu_tu']
+        verbose_name = 'Câu hỏi'
+        verbose_name_plural = 'Câu hỏi'
 
     def __str__(self):
         return f'[{self.get_loai_display()}] {self.noi_dung[:60]}'
@@ -76,6 +79,7 @@ class KetQua(models.Model):
     da_xem_dap_an = models.BooleanField(default=False)
     is_official = models.BooleanField(default=False)  # Chỉ những bài official mới được tính vào leaderboard
     is_violated = models.BooleanField(default=False)  # Đánh dấu bài thi có hành vi gian lận (ra khỏi tab, ẩn trang)
+    danh_dau_khong_chinh_thuc = models.BooleanField(default=False)  # Đánh dấu bài thi không chính thức vì đã luyện từng câu
 
     class Meta:
         ordering = ['-ngay_lam']
@@ -132,9 +136,11 @@ class QuestionDifficulty(models.Model):
 class UserAnalytics(models.Model):
     """Tracks user's performance metrics across all exams"""
     nguoi_dung = models.OneToOneField(User, on_delete=models.CASCADE, related_name='analytics')
-    tong_bai_lam = models.IntegerField(default=0)  # Total exams taken
+    tong_bai_lam = models.IntegerField(default=0)  # Total exams taken (official only)
+    tong_bai_da_lam = models.IntegerField(default=0)  # Total exams completed (all exams)
     diem_trung_binh = models.FloatField(default=0)  # Average score across all exams
-    tong_gio_lam = models.IntegerField(default=0)  # Total minutes spent
+    tong_gio_lam = models.IntegerField(default=0)  # Total minutes spent on exams
+    tong_gio_hoc = models.IntegerField(default=0)  # Total minutes spent studying (including flashcards)
     dem_tien_tro = models.IntegerField(default=0)  # Streak count
     ngay_cap_nhat = models.DateTimeField(auto_now=True)
 
@@ -148,8 +154,9 @@ class UserAnalytics(models.Model):
     def cap_nhat_thong_ke(self):
         """Update user statistics from KetQua records"""
         from django.db.models import Avg, Sum, Count, Q
-        # Chỉ tính những kết quả có ít nhất một câu trả lời (valid) và là official (thi thật không vi phạm)
-        stats = KetQua.objects.filter(
+        
+        # Update official exams count (only valid official exams)
+        official_stats = KetQua.objects.filter(
             nguoi_dung=self.nguoi_dung,
             tra_loi__isnull=False,
             is_official=True
@@ -158,10 +165,207 @@ class UserAnalytics(models.Model):
             avg_score=Avg('diem'),
             total_time=Sum('thoi_gian_lam')
         )
-        self.tong_bai_lam = stats['total'] or 0
-        self.diem_trung_binh = stats['avg_score'] or 0
-        self.tong_gio_lam = int((stats['total_time'] or 0) / 60)  # Convert seconds to minutes
+        
+        # Update all completed exams count (regardless of official status)
+        all_exams_stats = KetQua.objects.filter(
+            nguoi_dung=self.nguoi_dung,
+            tra_loi__isnull=False  # Only exams with at least one answer
+        ).distinct().aggregate(
+            total=Count('id')
+        )
+        
+        self.tong_bai_lam = official_stats['total'] or 0
+        self.tong_bai_da_lam = all_exams_stats['total'] or 0
+        self.diem_trung_binh = official_stats['avg_score'] or 0
+        self.tong_gio_lam = int((official_stats['total_time'] or 0) / 60)  # Convert seconds to minutes
+        
+        # Import here to avoid circular imports
+        from django.utils import timezone
+        try:
+            from apps.leaderboard.models import LeaderboardEntry
+            # Get the user's overall leaderboard entry to combine times
+            overall_entry = LeaderboardEntry.objects.filter(
+                user=self.nguoi_dung,
+                leaderboard__category='overall'
+            ).first()
+            
+            if overall_entry:
+                self.tong_gio_hoc = self.tong_gio_lam + overall_entry.total_time_minutes
+            else:
+                self.tong_gio_hoc = self.tong_gio_lam
+        except ImportError:
+            # If leaderboard app is not available, just use exam time
+            self.tong_gio_hoc = self.tong_gio_lam
+            
         self.save()
+
+    def cap_nhat_thoi_gian_hoc(self, time_spent_minutes, activity_type='general'):
+        """
+        Update study time tracking for different activities
+        activity_type: 'exam', 'flashcard', 'general'
+        """
+        from django.utils import timezone
+        if activity_type == 'exam':
+            self.tong_gio_lam += time_spent_minutes
+        elif activity_type == 'flashcard':
+            # Update flashcard-specific tracking in leaderboard entry if available
+            try:
+                from apps.leaderboard.models import LeaderboardEntry
+                from apps.leaderboard.models import Leaderboard  # Import Leaderboard model
+                
+                # Get or create a flashcard-specific leaderboard for the user
+                flashcard_lb, created = Leaderboard.objects.get_or_create(
+                    period='all_time',
+                    category='flashcard',
+                    defaults={'period': 'all_time', 'category': 'flashcard'}
+                )
+                
+                leaderboard_entry, created = LeaderboardEntry.objects.get_or_create(
+                    user=self.nguoi_dung,
+                    leaderboard=flashcard_lb,
+                    defaults={
+                        'score': 0,
+                        'total_score': 0,
+                        'rank': 999999,
+                        'exams_completed': 0,
+                        'flashcards_learned': 0,
+                        'total_time_minutes': 0,
+                        'flashcard_avg_score': 0.0,
+                        'flashcard_total_cards': 0,
+                        'weekly_flashcard_count': 0,
+                        'flashcard_streak': 0
+                    }
+                )
+                
+                if leaderboard_entry:
+                    leaderboard_entry.total_time_minutes += time_spent_minutes
+                    leaderboard_entry.last_flashcard_study = timezone.now()
+                    leaderboard_entry.save()
+                    
+            except (ImportError, Exception):
+                pass  # Leaderboard app not available or other error
+                
+        # Update total study time
+        self.tong_gio_hoc = self.tong_gio_lam + time_spent_minutes
+        self.save()
+        
+        # Update leaderboard entries with the new total study time
+        try:
+            from apps.leaderboard.models import LeaderboardEntry, Leaderboard
+            # Update overall leaderboard entry
+            overall_lb, created = Leaderboard.objects.get_or_create(
+                period='all_time',
+                category='overall'
+            )
+            
+            overall_entry, created = LeaderboardEntry.objects.get_or_create(
+                user=self.nguoi_dung,
+                leaderboard=overall_lb,
+                defaults={
+                    'score': 0,
+                    'total_score': 0,
+                    'rank': 999999,
+                    'exams_completed': 0,
+                    'flashcards_learned': 0,
+                    'total_time_minutes': 0,
+                    'total_study_time_minutes': 0,
+                    'flashcard_avg_score': 0.0,
+                    'flashcard_total_cards': 0,
+                    'weekly_flashcard_count': 0,
+                    'flashcard_streak': 0
+                }
+            )
+            
+            overall_entry.total_study_time_minutes = self.tong_gio_hoc
+            overall_entry.total_time_minutes += time_spent_minutes  # Add to existing time
+            overall_entry.save()
+            
+            # Update flashcard leaderboard entry
+            flashcard_lb, created = Leaderboard.objects.get_or_create(
+                period='all_time',
+                category='flashcard'
+            )
+            
+            flashcard_entry, created = LeaderboardEntry.objects.get_or_create(
+                user=self.nguoi_dung,
+                leaderboard=flashcard_lb,
+                defaults={
+                    'score': 0,
+                    'total_score': 0,
+                    'rank': 999999,
+                    'exams_completed': 0,
+                    'flashcards_learned': 0,
+                    'total_time_minutes': 0,
+                    'total_study_time_minutes': 0,
+                    'flashcard_avg_score': 0.0,
+                    'flashcard_total_cards': 0,
+                    'weekly_flashcard_count': 0,
+                    'flashcard_streak': 0
+                }
+            )
+            
+            flashcard_entry.total_study_time_minutes = self.tong_gio_hoc
+            flashcard_entry.total_time_minutes += time_spent_minutes
+            flashcard_entry.save()
+            
+        except ImportError:
+            pass  # Leaderboard app not available
+    
+    def get_detailed_statistics(self):
+        """Get detailed statistics for the profile page"""
+        from django.db.models import Avg, Count, Sum, Max, Min
+        from datetime import timedelta, datetime
+        
+        # Get all official exam results
+        exam_results = KetQua.objects.filter(
+            nguoi_dung=self.nguoi_dung,
+            is_official=True
+        )
+        
+        # Overall statistics
+        total_exams = exam_results.count()
+        avg_score = exam_results.aggregate(Avg('diem'))['diem__avg'] or 0
+        total_time = exam_results.aggregate(Sum('thoi_gian_lam'))['thoi_gian_lam__sum'] or 0
+        highest_score = exam_results.aggregate(Max('diem'))['diem__max'] or 0
+        lowest_score = exam_results.aggregate(Min('diem'))['diem__min'] or 0
+        
+        # Recent statistics (last 30 days)
+        thirty_days_ago = datetime.now() - timedelta(days=30)
+        recent_exams = exam_results.filter(ngay_lam__gte=thirty_days_ago)
+        recent_count = recent_exams.count()
+        recent_avg = recent_exams.aggregate(Avg('diem'))['diem__avg'] or 0
+        
+        # Subject-wise statistics
+        subject_stats = []
+        from apps.kien_thuc.models import Mon
+        subjects = Mon.objects.filter(de_thi__ket_qua__nguoi_dung=self.nguoi_dung).distinct()
+        
+        for subject in subjects:
+            subject_exams = exam_results.filter(de_thi__mon=subject)
+            subject_avg = subject_exams.aggregate(Avg('diem'))['diem__avg'] or 0
+            subject_count = subject_exams.count()
+            
+            subject_stats.append({
+                'subject': subject.ten,
+                'average_score': subject_avg,
+                'exam_count': subject_count
+            })
+        
+        return {
+            'overall': {
+                'total_exams': total_exams,
+                'average_score': round(avg_score, 2),
+                'total_time_minutes': int(total_time / 60) if total_time else 0,
+                'highest_score': round(highest_score, 2),
+                'lowest_score': round(lowest_score, 2),
+            },
+            'recent': {
+                'recent_30_days': recent_count,
+                'recent_average': round(recent_avg, 2),
+            },
+            'by_subject': subject_stats
+        }
+    
 
 
 class SubjectPerformance(models.Model):

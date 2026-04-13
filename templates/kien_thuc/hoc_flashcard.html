@@ -2,6 +2,17 @@
 {% block title %}Học {{ flashcard_set.tieu_de }}{% endblock %}
 
 {% block content %}
+<!-- Messages -->
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 <!-- Cache version: {{ cache_version }} -->
 {% load static %}
 {% block extra_css %}
@@ -709,6 +720,12 @@
   }
 </style>
 
+<!-- Study Session ID passed from backend -->
+<input type="hidden" id="study-session-id" value="{{ study_session_id }}">
+
+<!-- Study Session ID passed from backend -->
+<input type="hidden" id="study-session-id" value="{{ study_session_id|default:'' }}">
+
 <!-- Toast Notification -->
 <div class="toast" id="toast">
   <span class="toast-icon" id="toast-icon">✓</span>
@@ -731,9 +748,6 @@
         </button>
         <button class="kt-mode-btn" onclick="shuffleCards()">
           🔀 Xáo trộn
-        </button>
-        <button class="kt-mode-btn" onclick="filterUnlearned()">
-          🎯 Chưa thuộc
         </button>
         <button class="kt-mode-btn" onclick="window.location.href='{% url 'kien_thuc:start_flashcard_test' flashcard_set.id %}'">
           📝 Kiểm tra
@@ -799,8 +813,8 @@
       <button class="kt-flashcard-btn kt-btn-flip" onclick="toggleFlip()">🔄 Lật</button>
 
       {% if mode == 'review' %}
-        <button class="kt-flashcard-btn kt-btn-again" onclick="submitReview(false)">❌ Sai</button>
-        <button class="kt-flashcard-btn kt-btn-good" onclick="submitReview(true)">✅ Đúng</button>
+        <button class="kt-flashcard-btn kt-btn-again" onclick="submitReview(false)">❌ Chưa thuộc</button>
+        <button class="kt-flashcard-btn kt-btn-good" onclick="submitReview(true)">✅ Đã thuộc</button>
       {% endif %}
     </div>
 
@@ -1208,6 +1222,36 @@
 
     // Start session stats timer
     setInterval(updateSessionStats, 1000);
+    
+    // Register beforeunload handler to send session data when leaving page
+    window.addEventListener('beforeunload', function(e) {
+      sendSessionData();
+    });
+    
+    // Helper function to send session data to backend
+    function sendSessionData() {
+      const sessionId = document.getElementById('study-session-id')?.value;
+      if (!sessionId) return; // Skip if no session ID
+      
+      const elapsed = Math.floor((Date.now() - sessionStats.startTime) / 1000);
+      
+      fetch('{% url "kien_thuc:end_flashcard_session" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+          time_spent: elapsed,
+          cards_seen: sessionStats.cardsViewed.size,
+          cards_studied: sessionStats.cardsLearned
+        })
+      }).catch(function(error) {
+        // Ignore errors during unload as they're common and not critical
+        console.warn('Failed to send session data:', error);
+      });
+    }
   });
 </script>
 {% endblock %}

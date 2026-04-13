@@ -25,4 +25,5 @@ urlpatterns = [
     path('flashcard/<int:flashcard_set_id>/test/', views.start_flashcard_test, name='start_flashcard_test'),
     path('api/flashcard/test/answer/', views.submit_flashcard_test_answer, name='submit_flashcard_test_answer'),
     path('flashcard/test/<int:test_id>/finish/', views.finish_flashcard_test, name='finish_flashcard_test'),
+    path('api/flashcard/session/end/', views.end_flashcard_session, name='end_flashcard_session'),
 ]

@@ -63,7 +63,7 @@ def profile(request, username=None):
         form = UserProfileForm(instance=profile_obj)
     
     # 1. Lịch sử bài làm (Phân trang 8 bản ghi)
-    ket_qua_list = KetQua.objects.filter(nguoi_dung=user).order_by('-ngay_lam')
+    ket_qua_list = KetQua.objects.filter(nguoi_dung=user).select_related('de_thi').order_by('-ngay_lam')
     
     if not request.user.is_staff:
         # Ẩn kết quả không có câu trả lời đối với người xem không phải admin
@@ -142,22 +142,61 @@ def profile(request, username=None):
             'level_progress': level_progress
         }
         
-    analytics = getattr(user, 'analytics', None)
-    if analytics:
+    analytics = None
+    try:
+        analytics = user.analytics
         analytics.cap_nhat_thong_ke()
+    except AttributeError:
+        # Create UserAnalytics if it doesn't exist
+        from apps.de_thi.models import UserAnalytics
+        analytics, created = UserAnalytics.objects.get_or_create(nguoi_dung=user)
+        if created:
+            analytics.cap_nhat_thong_ke()
+        
+    # Enhanced analytics data for the profile page
+    detailed_analytics = None
+    if analytics:
+        try:
+            detailed_analytics = analytics.get_detailed_statistics()
+        except Exception as e:
+            print(f"Error getting detailed analytics: {e}")  # For debugging
+            detailed_analytics = None
 
     # 4. Tiến độ Flashcard (Gom nhóm theo bộ thẻ)
     # Chỉ lấy bộ thẻ có ít nhất 1 thẻ và người dùng đã có tiến độ
-    flashcard_sets = FlashcardSet.objects.filter(
-        so_luong_the__gt=0  # Chỉ lấy bộ có thẻ
-    ).filter(
-        Q(flashcards__flashcardprogress__user=user) | Q(creator=user)  # Đã học hoặc là người tạo
-    ).annotate(
-        learned_count=Count('flashcards__id', filter=Q(flashcards__flashcardprogress__user=user, flashcards__flashcardprogress__is_learned=True), distinct=True),
-        total_count=Count('flashcards__id', distinct=True)
-    ).filter(
-        total_count__gt=0  # Đảm bảo có thẻ (double check)
-    ).order_by('-learned_count')
+    try:
+        # First get the flashcard sets the user has interacted with
+        user_flashcard_sets = FlashcardSet.objects.filter(
+            flashcards__flashcardprogress__user=user
+        ).distinct()
+        
+        # Then get the flashcard sets the user created
+        created_sets = FlashcardSet.objects.filter(creator=user)
+        
+        # Combine both querysets
+        all_sets = (user_flashcard_sets | created_sets).filter(so_luong_the__gt=0).distinct()
+        
+        # Now annotate each set with the learning progress
+        flashcard_sets = []
+        for fs in all_sets:
+            learned_count = fs.flashcards.filter(
+                flashcardprogress__user=user,
+                flashcardprogress__is_learned=True
+            ).count()
+            total_count = fs.so_luong_the  # Use the stored count instead of recounting
+            
+            if total_count > 0:  # Only include sets that have cards
+                fs.learned_count = learned_count
+                fs.total_count = total_count
+                flashcard_sets.append(fs)
+        
+        # Sort by learned count descending
+        flashcard_sets.sort(key=lambda x: x.learned_count, reverse=True)
+        
+    except Exception as e:
+        # If there's an error with the query, return an empty list
+        flashcard_sets = []
+        print(f"Error in flashcard_sets query: {e}")  # For debugging
 
     return render(request, 'nguoi_dung/profile.html', {
         'form': form,
@@ -167,6 +206,7 @@ def profile(request, username=None):
         'display_badges': display_badges,
         'user_achievements': user_achievements,
         'analytics': analytics,
+        'detailed_analytics': detailed_analytics,
         'flashcard_sets': flashcard_sets,
         'is_own_profile': is_own_profile,
         'gamification_data': gamification_data

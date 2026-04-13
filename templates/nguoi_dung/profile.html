@@ -55,14 +55,14 @@
     <div class="col-lg-8">
         <!-- Gamification Stats -->
         {% if is_own_profile %}
-        <div class="card mb-4 gamification-stats-card" style="padding: var(--space-6); color: white; border: none;">
+        <div class="card mb-4 gamification-stats-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 15px; padding: 25px;">
             <div class="row g-4 align-items-center">
                 <div class="col-6 col-md-3 text-center">
-                    <div class="mb-2" style="font-size: var(--text-5xl);">🏆</div>
-                    <div class="fw-bold mb-1" style="font-size: var(--text-3xl);" id="user-level-display">
+                    <div class="mb-2" style="font-size: 2.5rem;">🏆</div>
+                    <div class="fw-bold mb-1" style="font-size: 1.8rem;" id="user-level-display">
                         {% if gamification_data %}Level {{ gamification_data.level }}{% else %}Level 0{% endif %}
                     </div>
-                    <div style="font-size: var(--text-sm); opacity: 0.9;" id="user-level-name">
+                    <div style="font-size: 0.9rem; opacity: 0.9;" id="user-level-name">
                         {% if gamification_data.level_progress.level_name %}
                             {{ gamification_data.level_progress.level_name }}
                         {% else %}
@@ -71,28 +71,28 @@
                     </div>
                 </div>
                 <div class="col-6 col-md-3 text-center">
-                    <div class="mb-2" style="font-size: var(--text-5xl);">⭐</div>
-                    <div class="fw-bold mb-1" style="font-size: var(--text-3xl);" id="user-xp-display">
+                    <div class="mb-2" style="font-size: 2.5rem;">⭐</div>
+                    <div class="fw-bold mb-1" style="font-size: 1.8rem;" id="user-xp-display">
                         {% if gamification_data %}{{ gamification_data.xp }} XP{% else %}0 XP{% endif %}
                     </div>
-                    <div style="font-size: var(--text-sm); opacity: 0.9;">Kinh nghiệm</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Kinh nghiệm</div>
                 </div>
                 <div class="col-6 col-md-3 text-center">
-                    <div class="mb-2" style="font-size: var(--text-5xl);">🔥</div>
-                    <div class="fw-bold mb-1" style="font-size: var(--text-3xl);" id="user-streak-display">
+                    <div class="mb-2" style="font-size: 2.5rem;">🔥</div>
+                    <div class="fw-bold mb-1" style="font-size: 1.8rem;" id="user-streak-display">
                         {% if gamification_data %}{{ gamification_data.current_streak }}{% else %}0{% endif %}
                     </div>
-                    <div style="font-size: var(--text-sm); opacity: 0.9;">Ngày liên tiếp</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Ngày liên tiếp</div>
                 </div>
                 <div class="col-6 col-md-3 text-center">
-                    <div class="mb-2" style="font-size: var(--text-5xl);">🎯</div>
-                    <div class="fw-bold mb-1" style="font-size: var(--text-3xl);">{{ analytics.tong_bai_lam|default:0 }}</div>
-                    <div style="font-size: var(--text-sm); opacity: 0.9;">Bài thi hoàn thành</div>
+                    <div class="mb-2" style="font-size: 2.5rem;">🎯</div>
+                    <div class="fw-bold mb-1" style="font-size: 1.8rem;">{{ analytics.tong_bai_da_lam|default:0 }}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Bài thi hoàn thành</div>
                 </div>
             </div>
             <!-- XP Progress Bar -->
             <div class="mt-4">
-                <div class="d-flex justify-content-between mb-2" style="font-size: var(--text-sm);">
+                <div class="d-flex justify-content-between mb-2" style="font-size: 0.9rem;">
                     <span>Tiến độ lên cấp</span>
                     <span id="xp-progress-text">
                         {% if gamification_data.level_progress %}
@@ -102,9 +102,9 @@
                         {% endif %}
                     </span>
                 </div>
-                <div class="progress">
+                <div class="progress" style="height: 12px; border-radius: 6px; background: rgba(255,255,255,0.2);">
                     <div id="xp-progress-bar" class="progress-bar"
-                         style="width: {% if gamification_data.level_progress %}{{ gamification_data.level_progress.progress_percent|default:0}}{% else %}0{% endif %}%; background: linear-gradient(90deg, #4ade80, #22c55e); height: 20px;">
+                         style="width: {% if gamification_data.level_progress %}{{ gamification_data.level_progress.progress_percent|default:0}}{% else %}0{% endif %}%; background: linear-gradient(90deg, #4ade80, #22c55e); border-radius: 6px;">
                     </div>
                 </div>
             </div>
@@ -113,31 +113,119 @@
         
         <!-- Dashboard Thống kê -->
         <h4 class="fw-bold mb-4">Tổng quan học tập {% if not is_own_profile %}của {{ target_user.username }}{% endif %}</h4>
+        
+        <!-- Enhanced Statistics Section -->
+        {% if detailed_analytics %}
         <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="card stat-card border-0 h-100">
-                    <div class="card-body p-4 text-center">
-                        <div class="stat-icon text-primary">📝</div>
-                        <div class="display-6 fw-bold text-dark">{{ analytics.tong_bai_lam|default:0 }}</div>
-                        <div class="text-muted small text-uppercase fw-bold">Đề thi đã làm</div>
+            <div class="col-md-12">
+                <div class="card border-0">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">📊 Thống kê học tập chi tiết</h5>
+                        <div class="row g-4">
+                            <div class="col-md-3 col-6">
+                                <div class="text-center">
+                                    <div class="display-5 fw-bold text-primary">{{ detailed_analytics.overall.total_exams }}</div>
+                                    <div class="text-muted small">Tổng đề thi</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="text-center">
+                                    <div class="display-5 fw-bold text-success">{{ detailed_analytics.overall.average_score|floatformat:2 }}</div>
+                                    <div class="text-muted small">Điểm trung bình</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="text-center">
+                                    <div class="display-5 fw-bold text-warning">{{ detailed_analytics.overall.highest_score|floatformat:2 }}</div>
+                                    <div class="text-muted small">Điểm cao nhất</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="text-center">
+                                    <div class="display-5 fw-bold text-info">{{ detailed_analytics.overall.total_time_minutes }}</div>
+                                    <div class="text-muted small">Phút học tập</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card stat-card border-0 h-100" style="border-left-color: #10b981;">
-                    <div class="card-body p-4 text-center">
-                        <div class="stat-icon text-success">🎯</div>
-                        <div class="display-6 fw-bold text-dark">{{ analytics.diem_trung_binh|default:0|floatformat:2 }}</div>
-                        <div class="text-muted small text-uppercase fw-bold">Điểm trung bình</div>
+            
+            <div class="col-md-6">
+                <div class="card border-0 h-100">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">📈 Thống kê gần đây (30 ngày)</h5>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <div class="display-6 fw-bold text-primary">{{ detailed_analytics.recent.recent_30_days }}</div>
+                                    <div class="text-muted small">Bài làm</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <div class="display-6 fw-bold text-success">{{ detailed_analytics.recent.recent_average|floatformat:2 }}</div>
+                                    <div class="text-muted small">Điểm TB</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card stat-card border-0 h-100" style="border-left-color: #f59e0b;">
+            
+            <div class="col-md-6">
+                <div class="card border-0 h-100">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">📚 Hiệu suất theo môn học</h5>
+                        <div class="subject-stats">
+                            {% for subject_stat in detailed_analytics.by_subject %}
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span class="fw-medium">{{ subject_stat.subject }}</span>
+                                <span class="badge bg-primary rounded-pill fs-6">{{ subject_stat.average_score|floatformat:2 }}</span>
+                            </div>
+                            {% empty %}
+                            <p class="text-muted small mb-0 py-2">Chưa có dữ liệu theo môn học</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card stat-card border-0 h-100 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                     <div class="card-body p-4 text-center">
-                        <div class="stat-icon text-warning">⏱️</div>
-                        <div class="display-6 fw-bold text-dark">{{ analytics.tong_gio_lam|default:0|floatformat:1 }}</div>
-                        <div class="text-muted small text-uppercase fw-bold">Giờ học tập (phút)</div>
+                        <div class="stat-icon text-white">📝</div>
+                        <div class="display-5 fw-bold text-white">{{ analytics.tong_bai_da_lam|default:0 }}</div>
+                        <div class="text-white-50 small text-uppercase fw-bold">Đề thi đã làm</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card border-0 h-100 shadow-sm" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="card-body p-4 text-center">
+                        <div class="stat-icon text-white">🎯</div>
+                        <div class="display-5 fw-bold text-white">{{ analytics.diem_trung_binh|default:0|floatformat:2 }}</div>
+                        <div class="text-white-50 small text-uppercase fw-bold">Điểm trung bình</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card border-0 h-100 shadow-sm" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <div class="card-body p-4 text-center">
+                        <div class="stat-icon text-white">⏱️</div>
+                        <div class="display-5 fw-bold text-white">{{ analytics.tong_gio_hoc|default:0|floatformat:1 }}</div>
+                        <div class="text-white-50 small text-uppercase fw-bold">Tổng giờ học</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card border-0 h-100 shadow-sm" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <div class="card-body p-4 text-center">
+                        <div class="stat-icon text-white">🎓</div>
+                        <div class="display-5 fw-bold text-white">{{ analytics.tong_gio_lam|default:0|floatformat:1 }}</div>
+                        <div class="text-white-50 small text-uppercase fw-bold">Giờ thi</div>
                     </div>
                 </div>
             </div>
@@ -145,15 +233,15 @@
 
         <!-- Thành tựu Xếp hạng -->
         {% if user_achievements %}
-        <div class="card border-0 mb-4 achievement-card" style="color: white;">
+        <div class="card border-0 mb-4 achievement-card shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px;">
             <div class="card-body p-4">
                 <h5 class="fw-bold mb-3 d-flex align-items-center">
-                    <span class="me-2">🏆</span> Thành tựu Xếp hạng
+                    <span class="me-2">🏆</span> Thành tựu Nổi bật
                 </h5>
                 <div class="row g-3">
                     {% for achievement in user_achievements %}
                     <div class="col-md-6">
-                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1);">
                             <div class="d-flex align-items-center mb-2">
                                 <span class="me-2" style="font-size: 1.5rem;">
                                     {% if achievement.achievement_type == 'top_100_all_time' %}🌟
@@ -181,7 +269,7 @@
                     {% endfor %}
                 </div>
                 <div class="text-center mt-3">
-                    <a href="/leaderboard/achievements/" class="btn btn-light btn-sm">
+                    <a href="/leaderboard/achievements/" class="btn btn-light btn-sm rounded-pill px-4">
                         <i class="bi bi-trophy"></i> Xem tất cả thành tựu
                     </a>
                 </div>
@@ -190,22 +278,30 @@
         {% endif %}
 
         <!-- Huy hiệu -->
-        <div class="card border-0 mb-4">
+        <div class="card border-0 mb-4 shadow-sm" style="border-radius: 15px;">
             <div class="card-body p-4">
-                <h5 class="fw-bold mb-3">Huy hiệu</h5>
-                <div class="d-flex flex-wrap gap-2">
+                <h5 class="fw-bold mb-3">Huy hiệu Thành tích</h5>
+                <div class="row g-3">
                     {% for item in display_badges %}
-                        {% if item.achieved %}
-                            <div class="badge-custom badge-tier-{{ item.badge.tier }}" title="{{ item.badge.description }}" data-bs-toggle="tooltip">
-                                <span>🏅</span> <strong>{{ item.badge.get_vietnamese_name }}</strong>
-                            </div>
-                        {% else %}
-                            <div class="badge-custom border" style="background:#f8f9fa; color:#adb5bd; opacity:0.7; cursor:help;" title="Chưa đạt: {{ item.badge.description }}" data-bs-toggle="tooltip">
-                                <span>🔒</span> {{ item.badge.get_vietnamese_name }}
-                            </div>
-                        {% endif %}
+                        <div class="col-md-6 col-lg-4">
+                            {% if item.achieved %}
+                                <div class="p-3 rounded-3 text-center" style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); border: 1px solid #dee2e6;" title="{{ item.badge.description }}" data-bs-toggle="tooltip">
+                                    <div class="fs-4 mb-2">🏅</div>
+                                    <div class="fw-bold text-dark">{{ item.badge.get_vietnamese_name }}</div>
+                                    <div class="small text-muted">{{ item.badge.description }}</div>
+                                </div>
+                            {% else %}
+                                <div class="p-3 rounded-3 text-center opacity-75" style="background: #f8f9fa; border: 1px dashed #ced4da;" title="Chưa đạt: {{ item.badge.description }}" data-bs-toggle="tooltip">
+                                    <div class="fs-4 mb-2">🔒</div>
+                                    <div class="fw-bold text-muted">{{ item.badge.get_vietnamese_name }}</div>
+                                    <div class="small text-muted">{{ item.badge.description }}</div>
+                                </div>
+                            {% endif %}
+                        </div>
                     {% empty %}
-                        <p class="text-muted small mb-0">Hệ thống chưa có huy hiệu nào.</p>
+                        <div class="col-12">
+                            <p class="text-muted small mb-0 text-center py-3">Hệ thống chưa có huy hiệu nào.</p>
+                        </div>
                     {% endfor %}
                 </div>
             </div>

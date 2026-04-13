@@ -64,6 +64,9 @@ class LeaderboardEntry(models.Model):
     weekly_flashcard_count = models.IntegerField(default=0, help_text='Number of flashcards studied this week')
     flashcard_streak = models.IntegerField(default=0, help_text='Current flashcard study streak')
     
+    # Study time tracking
+    total_study_time_minutes = models.IntegerField(default=0, help_text='Total study time in minutes (exams + flashcards)')
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

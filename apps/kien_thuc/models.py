@@ -212,3 +212,49 @@ class FlashcardTestAnswer(models.Model):
 
     def __str__(self):
         return f'{self.bai_kiem_tra.nguoi_dung.username} - {self.flashcard.id} - {"Đúng" if self.dung else "Sai"}'
+
+
+class FlashcardStudySession(models.Model):
+    """
+    Tracks individual flashcard study sessions with time spent
+    """
+    nguoi_dung = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flashcard_sessions')
+    bo_flashcard = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE, related_name='study_sessions')
+    
+    # Session details
+    ngay_bat_dau = models.DateTimeField(auto_now_add=True)
+    ngay_ket_thuc = models.DateTimeField(null=True, blank=True)
+    thoi_gian_hoc = models.IntegerField(default=0)  # Total time spent in seconds
+    so_the_da_xem = models.IntegerField(default=0)  # Number of cards viewed
+    so_the_da_hoc = models.IntegerField(default=0)  # Number of cards studied/reviewed
+    ty_le_dung = models.FloatField(default=0.0)  # Accuracy rate
+    
+    # Session type
+    CHE_DO_CHOICES = [
+        ('study', 'Học mới'),
+        ('review', 'Ôn tập'),
+        ('test', 'Kiểm tra'),
+    ]
+    che_do = models.CharField(max_length=20, choices=CHE_DO_CHOICES, default='study')
+    
+    class Meta:
+        verbose_name = 'Phiên học Flashcard'
+        verbose_name_plural = 'Phiên học Flashcard'
+        ordering = ['-ngay_bat_dau']
+
+    def __str__(self):
+        return f'{self.nguoi_dung.username} - {self.bo_flashcard.tieu_de} - {self.thoi_gian_hoc}s'
+
+    def cap_nhat_thoi_gian_hoc(self):
+        """Update total study time in seconds"""
+        if self.ngay_bat_dau and self.ngay_ket_thuc:
+            self.thoi_gian_hoc = int((self.ngay_ket_thuc - self.ngay_bat_dau).total_seconds())
+            self.save()
+
+    def tinh_ty_le_dung(self):
+        """Calculate accuracy rate"""
+        if self.so_the_da_hoc > 0:
+            self.ty_le_dung = (self.so_the_da_xem / self.so_the_da_hoc) * 100
+        else:
+            self.ty_le_dung = 0.0
+        self.save()

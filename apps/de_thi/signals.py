@@ -90,13 +90,52 @@ def award_exam_xp(ket_qua):
     # Determine XP reward based on exam type
     # For official exams that are not violated, award full XP
     if ket_qua.is_official and not ket_qua.is_violated:
-        xp_amount, reason = get_exam_xp_reward(ket_qua.diem)
-        # Award XP for official exams
-        result = award_xp(ket_qua.nguoi_dung, xp_amount, reason)
+        # Check if this is the first official submission for this exam to prevent duplicate XP
+        first_official_submission = KetQua.objects.filter(
+            nguoi_dung=ket_qua.nguoi_dung,
+            de_thi=ket_qua.de_thi,
+            is_official=True
+        ).order_by('ngay_lam').first()
         
-        if result and result.get('leveled_up'):
-            # User leveled up! Could send notification here
-            pass
+        # Only award XP if this is the first official submission for this exam
+        if first_official_submission and first_official_submission.id == ket_qua.id:
+            xp_amount, reason = get_exam_xp_reward(ket_qua.diem)
+            # Award XP for official exams
+            result = award_xp(ket_qua.nguoi_dung, xp_amount, reason)
+            
+            if result:
+                # Send XP notification if XP was actually awarded
+                try:
+                    from apps.notifications.utils import create_notification
+                    xp_message = f'Bạn đã nhận được {xp_amount} XP từ bài thi "{ket_qua.de_thi.tieu_de}"'
+                    if result.get('leveled_up'):
+                        # User leveled up!
+                        xp_message += f'. Chúc mừng bạn đã lên cấp {result["new_level"]}!'
+                    
+                    create_notification(
+                        recipient=ket_qua.nguoi_dung,
+                        notification_type='xp_award',
+                        title=f'+{xp_amount} XP!',
+                        message=xp_message,
+                        action_url=f'/de-thi/ket-qua/{ket_qua.id}/',
+                        content_object=ket_qua
+                    )
+                except ImportError:
+                    pass  # Notifications not available
+        else:
+            # For subsequent official submissions, don't award XP but could send a different notification
+            try:
+                from apps.notifications.utils import create_notification
+                create_notification(
+                    recipient=ket_qua.nguoi_dung,
+                    notification_type='exam_result',
+                    title='📋 Kết quả thi',
+                    message=f'Bạn đã hoàn thành lại bài thi "{ket_qua.de_thi.tieu_de}" nhưng không nhận thêm XP (XP chỉ được tính 1 lần duy nhất)',
+                    action_url=f'/de-thi/ket-qua/{ket_qua.id}/',
+                    content_object=ket_qua
+                )
+            except ImportError:
+                pass  # Notifications not available
     # For practice modes, award XP only for first 5 attempts per day
     elif ket_qua.che_do in ['luyen_tap', 'luyen_tung_cau']:
         # Check if the user has already earned XP for this exam today (first 5 attempts)
