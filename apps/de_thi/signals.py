@@ -107,7 +107,7 @@ def award_exam_xp(ket_qua):
                 # Send XP notification if XP was actually awarded
                 try:
                     from apps.notifications.utils import create_notification
-                    xp_message = f'Bạn đã nhận được {xp_amount} XP từ bài thi "{ket_qua.de_thi.tieu_de}"'
+                    xp_message = f'Bạn đã nhận được {xp_amount} XP từ bài thi "{ket_qua.de_thi.ten}"'
                     if result.get('leveled_up'):
                         # User leveled up!
                         xp_message += f'. Chúc mừng bạn đã lên cấp {result["new_level"]}!'

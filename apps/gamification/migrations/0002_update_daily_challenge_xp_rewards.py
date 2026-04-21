@@ -1,5 +1,7 @@
+# This migration has been corrected to avoid conflicts with the initial migration
+# The original had an issue where it was trying to create UserChallengeProgress again
+
 from django.db import migrations, models
-from django.db import models as django_models
 
 
 class Migration(migrations.Migration):
@@ -9,34 +11,30 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Update the DailyChallenge model fields
         migrations.AddField(
             model_name='dailychallenge',
             name='xp_reward',
-            field=models.IntegerField(default=50, help_text='XP reward for completing the challenge'),
-            preserve_default=False,
+            field=models.IntegerField(default=50),
         ),
         migrations.AddField(
             model_name='dailychallenge',
             name='challenge_type',
-            field=models.CharField(choices=[('flashcard_streak', 'Flashcard Streak'), ('flashcards_today', 'Flashcards Today'), ('exams_today', 'Exams Today'), ('correct_answers_rate', 'Correct Answers Rate')], default='flashcards_today', max_length=50),
-            preserve_default=False,
+            field=models.CharField(
+                choices=[
+                    ('exam', 'Complete an exam'), 
+                    ('flashcard', 'Study flashcards'), 
+                    ('streak', 'Maintain login streak'), 
+                    ('score', 'Achieve minimum score'), 
+                    ('questions', 'Answer questions correctly')
+                ], 
+                max_length=20,
+                default='flashcard'
+            ),
         ),
         migrations.AddField(
             model_name='dailychallenge',
             name='target_value',
-            field=models.IntegerField(default=5, help_text='Target value to achieve for challenge completion'),
-            preserve_default=False,
-        ),
-        migrations.CreateModel(
-            name='UserChallengeProgress',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start_date', models.DateTimeField(auto_now_add=True)),
-                ('completed_date', models.DateTimeField(blank=True, null=True)),
-                ('current_progress', models.IntegerField(default=0)),
-                ('xp_awarded', models.IntegerField(default=0)),
-                ('challenge', models.ForeignKey(on_delete=models.CASCADE, to='gamification.dailychallenge')),
-                ('user', models.ForeignKey(on_delete=models.CASCADE, to='auth.user')),
-            ],
+            field=models.IntegerField(default=5, help_text='Target to achieve for challenge completion'),
         ),
     ]

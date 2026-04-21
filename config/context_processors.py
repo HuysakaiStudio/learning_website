@@ -25,3 +25,13 @@ def cache_buster(request):
     return {
         'CACHE_VERSION': cache_version
     }
+
+
+def notebook_context(request):
+    """Add notebook sidebar availability to all templates"""
+    # Check if user is authenticated to determine if notebook sidebar should be available
+    is_authenticated = hasattr(request, 'user') and request.user.is_authenticated
+    
+    return {
+        'SHOW_NOTEBOOK_SIDEBAR': is_authenticated
+    }

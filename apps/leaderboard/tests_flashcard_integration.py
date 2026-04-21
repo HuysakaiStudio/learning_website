@@ -1,35 +1,46 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
-from apps.leaderboard.models import LeaderboardEntry
-from apps.kien_thuc.models import FlashcardSet, Flashcard, FlashcardProgress
+from apps.leaderboard.models import Leaderboard, LeaderboardEntry
+from apps.kien_thuc.models import FlashcardSet, Flashcard, FlashcardProgress, Mon
 from apps.gamification.models import DailyChallenge, UserChallengeProgress
+
 
 class FlashcardLeaderboardIntegrationTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='testpass')
         
+        # Create a subject first
+        self.subject = Mon.objects.create(ten='Mathematics', mo_ta='Math subject')
+        
+        # Create a leaderboard first
+        self.leaderboard = Leaderboard.objects.create(
+            period='all_time',
+            category='flashcard'
+        )
+        
         # Create a leaderboard entry for the user
         self.leaderboard_entry = LeaderboardEntry.objects.create(
             user=self.user,
-            subject_id=1,  # Assuming a subject exists
+            leaderboard=self.leaderboard,
             total_score=100.0,
             rank=10
         )
         
-        # Create a flashcard set and flashcards
+        # Create a flashcard set and flashcards - using correct field names
         self.flashcard_set = FlashcardSet.objects.create(
             tieu_de='Test Set',
             mo_ta='Test Description',
-            nguoi_tao=self.user,
-            trang_thai='published'
+            mon=self.subject,  # Add required mon field
+            creator=self.user,
+            status='published'
         )
         
         self.flashcard = Flashcard.objects.create(
-            bo_flashcard=self.flashcard_set,
+            flashcard_set=self.flashcard_set,
             mat_truoc='Front',
             mat_sau='Back',
-            vi_tri=1
+            thu_tu=1
         )
 
     def test_leaderboard_updates_on_flashcard_study(self):
@@ -41,15 +52,14 @@ class FlashcardLeaderboardIntegrationTest(TestCase):
         
         # Simulate studying a flashcard and getting progress
         progress, created = FlashcardProgress.objects.get_or_create(
-            nguoi_dung=self.user,
+            user=self.user,
             flashcard=self.flashcard,
             defaults={
-                'trang_thai': 'learning',
-                'he_so_de_dang': 2.5,
-                'so_lan_hien_thi': 1,
-                'so_lan_dung': 1,
-                'lan_cuoi_hien_thi': timezone.now(),
-                'next_review_date': timezone.now()
+                'is_learned': False,
+                'next_review_date': timezone.now(),
+                'interval': 0,
+                'ease_factor': 2.5,
+                'repetition_count': 0
             }
         )
         
@@ -79,21 +89,57 @@ class FlashcardLeaderboardIntegrationTest(TestCase):
         self.leaderboard_entry.refresh_from_db()
         self.assertEqual(self.leaderboard_entry.flashcard_streak, 0)
         
-        # Simulate studying flashcards for 3 consecutive days
-        for i in range(3):
-            study_date = timezone.now() - timezone.timedelta(days=i)
-            
-            # Create flashcard progress for each day
-            FlashcardProgress.objects.create(
-                nguoi_dung=self.user,
-                flashcard=self.flashcard,
-                trang_thai='learning',
-                he_so_de_dang=2.5,
-                so_lan_hien_thi=1,
-                so_lan_dung=1,
-                lan_cuoi_hien_thi=study_date,
-                next_review_date=study_date
-            )
+        # Create multiple flashcards to simulate studying different cards each day
+        flashcard2 = Flashcard.objects.create(
+            flashcard_set=self.flashcard_set,
+            mat_truoc='Front 2',
+            mat_sau='Back 2',
+            thu_tu=2
+        )
+        
+        flashcard3 = Flashcard.objects.create(
+            flashcard_set=self.flashcard_set,
+            mat_truoc='Front 3',
+            mat_sau='Back 3',
+            thu_tu=3
+        )
+        
+        # Create flashcard progress for each day with different flashcards
+        FlashcardProgress.objects.get_or_create(
+            user=self.user,
+            flashcard=self.flashcard,
+            defaults={
+                'is_learned': False,
+                'next_review_date': timezone.now() - timezone.timedelta(days=2),
+                'interval': 0,
+                'ease_factor': 2.5,
+                'repetition_count': 0
+            }
+        )
+        
+        FlashcardProgress.objects.get_or_create(
+            user=self.user,
+            flashcard=flashcard2,
+            defaults={
+                'is_learned': False,
+                'next_review_date': timezone.now() - timezone.timedelta(days=1),
+                'interval': 0,
+                'ease_factor': 2.5,
+                'repetition_count': 0
+            }
+        )
+        
+        FlashcardProgress.objects.get_or_create(
+            user=self.user,
+            flashcard=flashcard3,
+            defaults={
+                'is_learned': False,
+                'next_review_date': timezone.now(),
+                'interval': 0,
+                'ease_factor': 2.5,
+                'repetition_count': 0
+            }
+        )
         
         # Update streak in leaderboard
         self.leaderboard_entry.flashcard_streak = 3
@@ -106,13 +152,12 @@ class FlashcardLeaderboardIntegrationTest(TestCase):
         """Test integration between flashcard study and daily challenges"""
         # Create a flashcard-related daily challenge
         daily_challenge = DailyChallenge.objects.create(
-            name='Study 5 Flashcards Today',
+            title='Study 5 Flashcards Today',  # Changed from 'name' to 'title'
             description='Study at least 5 flashcards in one day',
-            challenge_type='flashcards_today',
+            challenge_type='flashcard',  # Changed from 'flashcards_today' to 'flashcard'
             target_value=5,
             xp_reward=100,
-            start_date=timezone.now().date(),
-            end_date=timezone.now().date() + timezone.timedelta(days=1)
+            date=timezone.now().date(),  # Changed from 'start_date'/'end_date' to 'date'
         )
         
         # Initially no progress
@@ -122,36 +167,71 @@ class FlashcardLeaderboardIntegrationTest(TestCase):
         ).exists()
         self.assertFalse(progress_exists)
         
-        # User studies 5 flashcards (simulate by creating progress records)
-        for i in range(5):
-            FlashcardProgress.objects.create(
-                nguoi_dung=self.user,
-                flashcard=self.flashcard,
-                trang_thai='learning',
-                he_so_de_dang=2.5,
-                so_lan_hien_thi=1,
-                so_lan_dung=1,
-                lan_cuoi_hien_thi=timezone.now(),
-                next_review_date=timezone.now()
+        # Create multiple different flashcards to study (avoiding unique constraint)
+        flashcard2 = Flashcard.objects.create(
+            flashcard_set=self.flashcard_set,
+            mat_truoc='Front 2',
+            mat_sau='Back 2',
+            thu_tu=2
+        )
+        
+        flashcard3 = Flashcard.objects.create(
+            flashcard_set=self.flashcard_set,
+            mat_truoc='Front 3',
+            mat_sau='Back 3',
+            thu_tu=3
+        )
+        
+        flashcard4 = Flashcard.objects.create(
+            flashcard_set=self.flashcard_set,
+            mat_truoc='Front 4',
+            mat_sau='Back 4',
+            thu_tu=4
+        )
+        
+        flashcard5 = Flashcard.objects.create(
+            flashcard_set=self.flashcard_set,
+            mat_truoc='Front 5',
+            mat_sau='Back 5',
+            thu_tu=5
+        )
+        
+        # User studies 5 different flashcards
+        for flashcard in [self.flashcard, flashcard2, flashcard3, flashcard4, flashcard5]:
+            FlashcardProgress.objects.get_or_create(
+                user=self.user,
+                flashcard=flashcard,
+                defaults={
+                    'is_learned': False,
+                    'next_review_date': timezone.now(),
+                    'interval': 0,
+                    'ease_factor': 2.5,
+                    'repetition_count': 0
+                }
             )
         
         # Check if challenge progress was created
         progress, created = UserChallengeProgress.objects.get_or_create(
             user=self.user,
-            challenge=daily_challenge
+            challenge=daily_challenge,
+            defaults={
+                'current_value': 0,
+                'completed_at': None,
+                'xp_awarded': 0
+            }
         )
         
         # Update progress
-        progress.current_progress = 5
-        if progress.current_progress >= daily_challenge.target_value:
-            progress.completed_date = timezone.now()
+        progress.current_value = 5  # Changed from 'current_progress' to 'current_value'
+        if progress.current_value >= daily_challenge.target_value:
+            progress.completed_at = timezone.now()  # Changed from 'completed_date' to 'completed_at'
             progress.xp_awarded = daily_challenge.xp_reward
         
         progress.save()
         
         # Verify challenge was completed
         progress.refresh_from_db()
-        self.assertIsNotNone(progress.completed_date)
+        self.assertIsNotNone(progress.completed_at)
         self.assertEqual(progress.xp_awarded, daily_challenge.xp_reward)
 
     def test_leaderboard_ranking_by_flashcard_performance(self):
@@ -159,10 +239,16 @@ class FlashcardLeaderboardIntegrationTest(TestCase):
         # Create another user
         user2 = User.objects.create_user(username='testuser2', password='testpass')
         
+        # Create leaderboard for second user
+        leaderboard2 = Leaderboard.objects.create(
+            period='all_time',
+            category='flashcard'
+        )
+        
         # Create leaderboard entry for second user
         leaderboard_entry2 = LeaderboardEntry.objects.create(
             user=user2,
-            subject_id=1,
+            leaderboard=leaderboard2,
             total_score=80.0,
             rank=15
         )
@@ -193,9 +279,19 @@ class FlashcardLeaderboardIntegrationTest(TestCase):
 class FlashcardScoreCalculationTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='testpass')
+        
+        # Create a subject first
+        self.subject = Mon.objects.create(ten='Mathematics', mo_ta='Math subject')
+        
+        # Create a leaderboard first
+        self.leaderboard = Leaderboard.objects.create(
+            period='all_time',
+            category='flashcard'
+        )
+        
         self.leaderboard_entry = LeaderboardEntry.objects.create(
             user=self.user,
-            subject_id=1,
+            leaderboard=self.leaderboard,
             total_score=100.0,
             rank=10
         )

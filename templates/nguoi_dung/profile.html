@@ -104,7 +104,7 @@
                 </div>
                 <div class="progress" style="height: 12px; border-radius: 6px; background: rgba(255,255,255,0.2);">
                     <div id="xp-progress-bar" class="progress-bar"
-                         style="width: {% if gamification_data.level_progress %}{{ gamification_data.level_progress.progress_percent|default:0}}{% else %}0{% endif %}%; background: linear-gradient(90deg, #4ade80, #22c55e); border-radius: 6px;">
+                         style="width: {% if gamification_data.level_progress %}{{ gamification_data.level_progress.progress_percent|default:0 }}{% else %}0{% endif %}%; background: linear-gradient(90deg, #4ade80, #22c55e); border-radius: 6px;">
                     </div>
                 </div>
             </div>

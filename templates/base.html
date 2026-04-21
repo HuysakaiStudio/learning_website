@@ -55,6 +55,9 @@
   <link rel="stylesheet" href="{% static 'css/import-form.css' %}?v={{ CACHE_VERSION }}">
   <link rel="stylesheet" href="{% static 'css/responsive-enhancements.css' %}?v={{ CACHE_VERSION }}">
 
+  <!-- Notebook Sidebar CSS -->
+  <link rel="stylesheet" href="{% static 'css/notebook-sidebar.css' %}?v={{ CACHE_VERSION }}">
+
   <script src="{% static 'js/dark-mode.js' %}?v={{ CACHE_VERSION }}"></script>
 
   <!-- Page-specific CSS -->
@@ -267,6 +270,7 @@
         <!-- Right: User Actions - Desktop Only -->
         <ul class="navbar-nav align-items-lg-center gap-2 d-none d-lg-flex">
 
+
           <!-- Theme Toggle -->
           <li class="nav-item">
             <button id="theme-toggle" class="btn btn-sm btn-outline-secondary border-0 rounded-circle btn-icon-circle"
@@ -372,32 +376,7 @@
     {% block content %}{% endblock %}
   </main>
 
-  <!-- Floating Action Button for Create Content -->
-  {% if user.is_authenticated %}
-  <div class="fab-container">
-    <button class="fab-main" id="fab-main" aria-label="Tạo nội dung">
-      <i class="bi bi-plus-lg"></i>
-    </button>
-    <div class="fab-menu" id="fab-menu">
-      <a href="{% url 'kien_thuc:tao_bai_viet' %}" class="fab-item" title="Tạo bài viết">
-        <i class="bi bi-pencil-square"></i>
-        <span>Bài viết</span>
-      </a>
-      <a href="{% url 'kien_thuc:tao_flashcard_set' %}" class="fab-item" title="Tạo flashcard">
-        <i class="bi bi-lightning-fill"></i>
-        <span>Flashcard</span>
-      </a>
-      <a href="{% url 'de_thi:tao_de_thi' %}" class="fab-item" title="Tạo đề thi">
-        <i class="bi bi-file-earmark-text"></i>
-        <span>Đề thi</span>
-      </a>
-      <a href="{% url 'studio:dashboard' %}" class="fab-item" title="Studio">
-        <i class="bi bi-palette"></i>
-        <span>Studio</span>
-      </a>
-    </div>
-  </div>
-  {% endif %}
+
 
   <footer class="bg-light py-4 mt-5" role="contentinfo">
     <div class="container text-center">

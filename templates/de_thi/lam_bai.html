@@ -11,7 +11,7 @@
 
 {% block content %}
 <!-- Question Palette -->
-<div class="question-palette" id="question-palette">
+<div class="question-palette" id="question-palette" style="z-index: 1000;">
   <div class="palette-header">
     <span class="palette-title">Danh sách câu hỏi</span>
     <button class="palette-toggle" id="palette-toggle" aria-label="Thu gọn">
@@ -869,4 +869,5 @@ nopBai = function() {
 
 setInterval(saveDraft, 30000);
 </script>
+
 {% endblock %}

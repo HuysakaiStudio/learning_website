@@ -821,7 +821,6 @@
     <div class="keyboard-hint" id="keyboard-hint" {% if mode != 'review' %}style="display: none;"{% endif %}>
       💡 Phím tắt: Mũi tên trái=Đang học, Mũi tên phải=Đã thuộc, Space=Lật
     </div>
-    </div>
   </div>
 
   <div id="completion-area" style="display: none;">
@@ -1129,6 +1128,7 @@
     if (completionArea) completionArea.style.display = 'block';
   }
 
+
   // Keyboard shortcuts
   document.addEventListener('keydown', (e) => {
     // Chỉ cho phép phím Space khi đang ở study-area
@@ -1254,4 +1254,5 @@
     }
   });
 </script>
+
 {% endblock %}

@@ -51,14 +51,13 @@ def edit_article(request, bai_id):
         mon_id = request.POST.get('mon')
         tieu_de = request.POST.get('tieu_de')
         noi_dung = request.POST.get('noi_dung')
-        thu_tu = request.POST.get('thu_tu', 0)
         
         mon = get_object_or_404(Mon, id=mon_id)
         
         bai_viet.mon = mon
         bai_viet.tieu_de = tieu_de
         bai_viet.noi_dung = noi_dung
-        bai_viet.thu_tu = thu_tu
+        # Skip thu_tu update since field is removed
         
         # Re-moderation: Reset to pending if published content is edited by non-staff
         if bai_viet.status == 'rejected':

@@ -1,26 +1,56 @@
 {% extends 'base.html' %}
 {% block title %}{{ bai.tieu_de }}{% endblock %}
+
 {% block content %}
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-  <a href="{% url 'kien_thuc:bai_viet_theo_mon' bai.mon.id %}" style="color:#1a73e8;text-decoration:none">
-    ← {{ bai.mon.icon }} {{ bai.mon.ten }}
-  </a>
-  {% if user.is_staff %}
-  <a href="/kien-thuc/bai/{{ bai.id }}/xoa/"
-     style="padding:8px 16px;background:#fce8e8;color:#e53935;
-            border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">
-    🗑️ Xóa bài
-  </a>
-  {% endif %}
+<div style="max-width:780px;margin:0 auto;padding:20px">
+
+  <!-- Article Header -->
+  <div style="margin-bottom:24px">
+    <h1 style="font-size:28px;font-weight:600;margin:0 0 12px;color:#2c3e50">{{ bai.tieu_de }}</h1>
+    
+    <div style="display:flex;gap:16px;font-size:14px;color:#7f8c8d;margin-bottom:16px">
+      <span>{{ bai.mon.icon }} {{ bai.mon.ten }}</span>
+      <span>👁️ {{ bai.view_count }} lượt xem</span>
+      <span>📅 {{ bai.ngay_tao|date:"d/m/Y" }}</span>
+    </div>
+  </div>
+
+  <!-- Article Content -->
+  <div class="article-content tex2jax_ignore" 
+       style="line-height:1.8;color:#34495e;font-size:16px;background:white;padding:30px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.05)">
+    {{ bai.processed_content|safe }}
+  </div>
+
+  <!-- Action Buttons -->
+  <div style="margin-top:24px;padding:20px;background:#f8f9fa;border-radius:12px;display:flex;gap:12px;justify-content:flex-end">
+    {% if user.is_authenticated %}
+      {% if user == bai.nguoi_dang or user.is_staff %}
+        <a href="{% url 'studio:edit_article' bai.id %}" 
+           style="padding:10px 20px;background:#3498db;color:white;text-decoration:none;border-radius:8px;font-size:14px">
+          ✏️ Sửa bài viết
+        </a>
+      {% endif %}
+    {% endif %}
+    
+    <a href="{% url 'kien_thuc:bai_viet_theo_mon' bai.mon.id %}"
+       style="padding:10px 20px;background:#ecf0f1;color:#2c3e50;text-decoration:none;border-radius:8px;font-size:14px">
+      ← Danh sách bài viết
+    </a>
+  </div>
+
 </div>
 
-<div style="background:white;padding:32px;border-radius:12px;
-            box-shadow:0 2px 8px rgba(0,0,0,0.08)">
-  <h1 style="font-size:24px;margin-bottom:8px">{{ bai.tieu_de }}</h1>
-  <p style="color:#888;font-size:13px;margin-bottom:24px;
-            padding-bottom:24px;border-bottom:1px solid #eee">
-    {{ bai.mon.ten }} • Đăng bởi {{ bai.nguoi_dang.username|default:"Admin" }} • {{ bai.ngay_tao|date:"d/m/Y" }} • <i class="bi bi-eye"></i> {{ bai.view_count }} lượt xem
-  </p>
-  <div style="line-height:1.8;font-size:16px" id="noi-dung-bai">{{ bai.noi_dung|linebreaks }}</div>
-</div>
+<!-- Include MathJax for formula rendering -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Render MathJax formulas if available
+  if (typeof MathJax !== 'undefined') {
+    const contentDiv = document.querySelector('.article-content');
+    MathJax.typesetPromise([contentDiv]).catch(function(err) {
+      console.log('MathJax error:', err);
+    });
+  }
+});
+</script>
+
 {% endblock %}

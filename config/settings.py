@@ -86,6 +86,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'config.context_processors.cache_buster',
+                'config.context_processors.notebook_context',
             ],
         },
     },

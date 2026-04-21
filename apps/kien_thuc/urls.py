@@ -26,4 +26,18 @@ urlpatterns = [
     path('api/flashcard/test/answer/', views.submit_flashcard_test_answer, name='submit_flashcard_test_answer'),
     path('flashcard/test/<int:test_id>/finish/', views.finish_flashcard_test, name='finish_flashcard_test'),
     path('api/flashcard/session/end/', views.end_flashcard_session, name='end_flashcard_session'),
+    
+    # Personal Knowledge Outline URLs
+    path('notebooks/', views.notebook_dashboard, name='notebook_dashboard'),
+    path('api/notebooks/', views.api_notebooks, name='api_notebooks'),
+    path('api/notebooks/<int:notebook_id>/', views.api_notebook_detail, name='api_notebook_detail'),
+    path('api/notebooks/<int:notebook_id>/sections/', views.api_notebook_sections, name='api_notebook_sections'),
+    path('api/sections/<int:section_id>/', views.api_section_detail, name='api_section_detail'),
+    path('api/note-tags/', views.api_note_tags, name='api_note_tags'),
+    path('api/note-search/', views.api_note_search, name='api_note_search'),
+    
+    # Smart Notes API URLs
+    path('api/notes/', views.api_notes, name='api_notes'),
+    path('api/notes/<int:note_id>/', views.api_note_detail, name='api_note_detail'),
+    path('api/notes/<str:note_type>/<int:obj_id>/', views.api_notes_context, name='api_notes_context'),
 ]

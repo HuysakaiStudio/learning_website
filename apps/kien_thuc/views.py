@@ -2,13 +2,14 @@ import json
 import csv
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Mon, BaiViet, FlashcardSet, Flashcard, FlashcardProgress, FlashcardTest, FlashcardTestAnswer
+from .models import Mon, BaiViet, FlashcardSet, Flashcard, FlashcardProgress, FlashcardTest, FlashcardTestAnswer, Notebook, NoteSection, NoteTag, NotebookTag, Note
 from .forms import FlashcardSetForm, FlashcardForm # Giả sử bạn đã có các form này
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
+import re
 
 def danh_sach_mon(request):
     mon_list = Mon.objects.all()
@@ -38,7 +39,55 @@ def chi_tiet_bai_viet(request, bai_id):
     bai.view_count += 1
     bai.save(update_fields=['view_count'])
 
+    # Process content to render markdown-like formatting
+    processed_content = render_markdown_content(bai.noi_dung)
+    bai.processed_content = processed_content
+
     return render(request, 'kien_thuc/chi_tiet_bai_viet.html', {'bai': bai})
+
+
+def render_markdown_content(text):
+    """
+    Render markdown-like content with HTML formatting
+    Handles: headers, bold, italic, horizontal rules, and preserves formulas
+    """
+    # Temporarily protect formulas from processing
+    formulas = []
+    def replace_formula(match):
+        nonlocal formulas
+        formulas.append(match.group(0))
+        return f'%%FORMULA_{len(formulas)-1}%%'
+    
+    # Find and temporarily replace formulas
+    text = re.sub(r'(\$\$[\s\S]*?\$\$|\$[^\$]*?\$)', replace_formula, text)
+    
+    # Escape HTML characters to prevent XSS (but preserve our formula placeholders)
+    text = text.replace('&', '&').replace('<', '<').replace('>', '>')
+    
+    # Process markdown syntax
+    # Headers
+    text = re.sub(r'^# (.+)$', r'<h2 style="font-size:22px;font-weight:600;margin:24px 0 12px;color:#2980b9">\1</h2>', text, flags=re.MULTILINE)
+    text = re.sub(r'^## (.+)$', r'<h3 style="font-size:20px;font-weight:500;margin:20px 0 10px;color:#3498db">\1</h3>', text, flags=re.MULTILINE)
+    text = re.sub(r'^### (.+)$', r'<h4 style="font-size:18px;font-weight:500;margin:18px 0 8px;color:#3498db">\1</h4>', text, flags=re.MULTILINE)
+    
+    # Bold text
+    text = re.sub(r'\*\*(.+?)\*\*', r'<strong style="font-weight:600;">\1</strong>', text)
+    
+    # Italic text
+    text = re.sub(r'\*(.+?)\*', r'<em style="font-style:italic;">\1</em>', text)
+    
+    # Horizontal rules
+    text = re.sub(r'^──+$', r'<hr style="border:none;border-top:1px solid #eee;margin:16px 0">', text, flags=re.MULTILINE)
+    
+    # Preserve line breaks
+    text = text.replace('\n', '<br>')
+    
+    # Restore formulas
+    for i, formula in enumerate(formulas):
+        text = text.replace(f'%%FORMULA_{i}%%', formula)
+    
+    return text
+
 
 @login_required
 def export_flashcards(request, set_id, format):
@@ -97,7 +146,7 @@ def flashcard_dashboard(request):
         learned=Count('flashcards__id', filter=Q(flashcards__flashcardprogress__user=request.user, flashcards__flashcardprogress__is_learned=True), distinct=True),
         learning=Count('flashcards__id', filter=Q(flashcards__flashcardprogress__user=request.user, flashcards__flashcardprogress__is_learned=False), distinct=True)
     ).filter(total__gt=0)  # Đảm bảo chỉ hiển thị bộ có thẻ
-    
+
     context = {
         'all_sets_count': all_sets_count,
         'user_sets_count': user_sets_count,
@@ -112,8 +161,6 @@ def tao_bai_viet(request):
         mon_id = request.POST.get('mon')
         tieu_de = request.POST.get('tieu_de')
         noi_dung = request.POST.get('noi_dung')
-        thu_tu = request.POST.get('thu_tu', 0)
-        
         mon = get_object_or_404(Mon, id=mon_id)
         
         status = 'published' if request.user.is_staff else 'pending'
@@ -123,7 +170,7 @@ def tao_bai_viet(request):
             tieu_de=tieu_de,
             noi_dung=noi_dung,
             nguoi_dang=request.user,
-            thu_tu=thu_tu,
+            thu_tu=0,  # Default to 0 since field is removed
             status=status
         )
         
@@ -276,18 +323,47 @@ def them_flashcard(request, flashcard_set_id):
             flashcard_set.cap_nhat_so_luong()
             messages.success(request, 'Đã xóa thẻ!')
         elif action == 'import':
-            bulk_data = request.POST.get('bulk_data', '')
-            lines = bulk_data.strip().split('\n')
-            for line in lines:
-                if '|' in line:
-                    front, back = line.split('|', 1)
-                    Flashcard.objects.create(
-                        flashcard_set=flashcard_set,
-                        mat_truoc=front.strip(),
-                        mat_sau=back.strip()
-                    )
-            flashcard_set.cap_nhat_so_luong()
-            messages.success(request, 'Đã nhập thẻ thành công!')
+            import_file = request.FILES.get('import_file')
+            imported_count = 0
+
+            if import_file:
+                # Handle CSV file upload
+                try:
+                    # Use utf-8-sig to handle BOM if present
+                    decoded_file = import_file.read().decode('utf-8-sig').splitlines()
+                    reader = csv.reader(decoded_file, delimiter=';')
+                    for row in reader:
+                        if len(row) >= 2:
+                            Flashcard.objects.create(
+                                flashcard_set=flashcard_set,
+                                mat_truoc=row[0].strip(),
+                                mat_sau=row[1].strip()
+                            )
+                            imported_count += 1
+                except Exception as e:
+                    messages.error(request, f'Lỗi khi đọc file CSV: {e}')
+            else:
+                # Handle text-based import
+                bulk_data = request.POST.get('bulk_data', '')
+                if bulk_data:
+                    lines = bulk_data.strip().split('\n')
+                    for line in lines:
+                        if '|' in line:
+                            front, back = line.split(';', 1)
+                            Flashcard.objects.create(
+                                flashcard_set=flashcard_set,
+                                mat_truoc=front.strip(),
+                                mat_sau=back.strip()
+                            )
+                            imported_count += 1
+            
+            if imported_count > 0:
+                flashcard_set.cap_nhat_so_luong()
+                messages.success(request, f'Đã nhập thành công {imported_count} thẻ!')
+            elif not import_file and not request.POST.get('bulk_data'):
+                messages.warning(request, 'Vui lòng cung cấp file hoặc nội dung để nhập.')
+            else:
+                messages.warning(request, 'Không tìm thấy dữ liệu hợp lệ để nhập. Hãy kiểm tra lại định dạng.')
         else:
             form = FlashcardForm(request.POST)
             if form.is_valid():
@@ -411,7 +487,7 @@ def start_flashcard_test(request, flashcard_set_id):
     
     # Giới hạn số lượng câu hỏi (ví dụ: tối đa 20 câu)
     selected_flashcards = all_flashcards[:20]  # Giới hạn số lượng câu hỏi
-    
+
     # Tạo dữ liệu câu hỏi trắc nghiệm
     multiple_choice_data = []
     for i, main_card in enumerate(selected_flashcards):
@@ -601,3 +677,636 @@ def end_flashcard_session(request):
         })
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+
+# Personal Knowledge Outline Feature Views
+
+@login_required
+def notebook_dashboard(request):
+    """
+    Dashboard showing all user's notebooks
+    """
+    notebooks = Notebook.objects.filter(user=request.user).select_related('user').prefetch_related('sections', 'notebook_tags__tag')
+    
+    # Get all user's tags for filtering
+    user_tags = NoteTag.objects.filter(user=request.user)
+    
+    # Apply tag filter if provided
+    tag_filter = request.GET.get('tag')
+    if tag_filter:
+        notebooks = notebooks.filter(notebook_tags__tag__id=tag_filter)
+    
+    context = {
+        'notebooks': notebooks,
+        'user_tags': user_tags,
+        'selected_tag': tag_filter
+    }
+    return render(request, 'kien_thuc/notebook_dashboard.html', context)
+
+
+@login_required
+def api_notebooks(request):
+    """
+    API endpoint for managing notebooks
+    """
+    if request.method == 'GET':
+        # Get all user's notebooks
+        notebooks = Notebook.objects.filter(user=request.user).select_related('user').prefetch_related('sections', 'notebook_tags__tag')
+        
+        data = []
+        for notebook in notebooks:
+            notebook_data = {
+                'id': notebook.id,
+                'title': notebook.title,
+                'description': notebook.description,
+                'visibility': notebook.visibility,
+                'created_at': notebook.created_at.isoformat(),
+                'updated_at': notebook.updated_at.isoformat(),
+                'sections': [
+                    {
+                        'id': section.id,
+                        'title': section.title,
+                        'order': section.order,
+                        'created_at': section.created_at.isoformat(),
+                        'updated_at': section.updated_at.isoformat()
+                    } for section in notebook.sections.all()
+                ],
+                'tags': [
+                    {
+                        'id': tag.tag.id,
+                        'name': tag.tag.name,
+                        'color': tag.tag.color
+                    } for tag in notebook.notebook_tags.all()
+                ]
+            }
+            data.append(notebook_data)
+        
+        return JsonResponse({'notebooks': data})
+    
+    elif request.method == 'POST':
+        # Create a new notebook
+        try:
+            data = json.loads(request.body)
+            title = data.get('title', '').strip()
+            description = data.get('description', '')
+            visibility = data.get('visibility', 'private')
+            tag_ids = data.get('tag_ids', [])
+            
+            if not title:
+                return JsonResponse({'error': 'Title is required'}, status=400)
+            
+            notebook = Notebook.objects.create(
+                user=request.user,
+                title=title,
+                description=description,
+                visibility=visibility
+            )
+            
+            # Associate tags if provided
+            for tag_id in tag_ids:
+                try:
+                    tag = NoteTag.objects.get(id=tag_id, user=request.user)
+                    NotebookTag.objects.create(notebook=notebook, tag=tag)
+                except NoteTag.DoesNotExist:
+                    # Skip invalid tag IDs
+                    continue
+            
+            return JsonResponse({
+                'id': notebook.id,
+                'title': notebook.title,
+                'description': notebook.description,
+                'visibility': notebook.visibility,
+                'created_at': notebook.created_at.isoformat(),
+                'updated_at': notebook.updated_at.isoformat()
+            })
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def api_notebook_detail(request, notebook_id):
+    """
+    API endpoint for managing a specific notebook
+    """
+    try:
+        notebook = Notebook.objects.get(id=notebook_id, user=request.user)
+    except Notebook.DoesNotExist:
+        return JsonResponse({'error': 'Notebook not found'}, status=404)
+    
+    if request.method == 'GET':
+        # Get notebook with sections
+        data = {
+            'id': notebook.id,
+            'title': notebook.title,
+            'description': notebook.description,
+            'visibility': notebook.visibility,
+            'created_at': notebook.created_at.isoformat(),
+            'updated_at': notebook.updated_at.isoformat(),
+            'sections': [
+                {
+                    'id': section.id,
+                    'title': section.title,
+                    'content': section.content,
+                    'order': section.order,
+                    'created_at': section.created_at.isoformat(),
+                    'updated_at': section.updated_at.isoformat()
+                } for section in notebook.sections.all().order_by('order', 'created_at')
+            ],
+            'tags': [
+                {
+                    'id': tag.tag.id,
+                    'name': tag.tag.name,
+                    'color': tag.tag.color
+                } for tag in notebook.notebook_tags.all()
+            ]
+        }
+        return JsonResponse(data)
+    
+    elif request.method == 'PUT':
+        # Update notebook
+        try:
+            data = json.loads(request.body)
+            title = data.get('title', '').strip()
+            description = data.get('description', '')
+            visibility = data.get('visibility', 'private')
+            tag_ids = data.get('tag_ids', [])
+            
+            if not title:
+                return JsonResponse({'error': 'Title is required'}, status=400)
+            
+            notebook.title = title
+            notebook.description = description
+            notebook.visibility = visibility
+            notebook.save()
+            
+            # Update tags - first remove all existing tags
+            NotebookTag.objects.filter(notebook=notebook).delete()
+            
+            # Then add new tags
+            for tag_id in tag_ids:
+                try:
+                    tag = NoteTag.objects.get(id=tag_id, user=request.user)
+                    NotebookTag.objects.create(notebook=notebook, tag=tag)
+                except NoteTag.DoesNotExist:
+                    # Skip invalid tag IDs
+                    continue
+            
+            return JsonResponse({
+                'id': notebook.id,
+                'title': notebook.title,
+                'description': notebook.description,
+                'visibility': notebook.visibility,
+                'created_at': notebook.created_at.isoformat(),
+                'updated_at': notebook.updated_at.isoformat()
+            })
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    elif request.method == 'DELETE':
+        # Delete notebook
+        notebook.delete()
+        return JsonResponse({'success': True})
+
+
+@login_required
+def api_notebook_sections(request, notebook_id):
+    """
+    API endpoint for managing sections within a notebook
+    """
+    try:
+        notebook = Notebook.objects.get(id=notebook_id, user=request.user)
+    except Notebook.DoesNotExist:
+        return JsonResponse({'error': 'Notebook not found'}, status=404)
+    
+    if request.method == 'GET':
+        # Get all sections for the notebook
+        sections = NoteSection.objects.filter(notebook=notebook).order_by('order', 'created_at')
+        data = [
+            {
+                'id': section.id,
+                'title': section.title,
+                'content': section.content,
+                'order': section.order,
+                'created_at': section.created_at.isoformat(),
+                'updated_at': section.updated_at.isoformat()
+            } for section in sections
+        ]
+        return JsonResponse({'sections': data})
+    
+    elif request.method == 'POST':
+        # Create a new section
+        try:
+            data = json.loads(request.body)
+            title = data.get('title', '').strip()
+            content = data.get('content', '')
+            order = data.get('order', 0)
+            
+            if not title:
+                return JsonResponse({'error': 'Title is required'}, status=400)
+            
+            section = NoteSection.objects.create(
+                notebook=notebook,
+                title=title,
+                content=content,
+                order=order
+            )
+            
+            return JsonResponse({
+                'id': section.id,
+                'title': section.title,
+                'content': section.content,
+                'order': section.order,
+                'created_at': section.created_at.isoformat(),
+                'updated_at': section.updated_at.isoformat()
+            })
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def api_section_detail(request, section_id):
+    """
+    API endpoint for managing a specific section
+    """
+    try:
+        section = NoteSection.objects.get(id=section_id, notebook__user=request.user)
+    except NoteSection.DoesNotExist:
+        return JsonResponse({'error': 'Section not found'}, status=404)
+    
+    if request.method == 'GET':
+        # Get section
+        data = {
+            'id': section.id,
+            'title': section.title,
+            'content': section.content,
+            'order': section.order,
+            'created_at': section.created_at.isoformat(),
+            'updated_at': section.updated_at.isoformat(),
+            'notebook_id': section.notebook.id
+        }
+        return JsonResponse(data)
+    
+    elif request.method == 'PUT':
+        # Update section
+        try:
+            data = json.loads(request.body)
+            title = data.get('title', '').strip()
+            content = data.get('content', '')
+            order = data.get('order', section.order)
+            
+            if not title:
+                return JsonResponse({'error': 'Title is required'}, status=400)
+            
+            section.title = title
+            section.content = content
+            section.order = order
+            section.save()
+            
+            return JsonResponse({
+                'id': section.id,
+                'title': section.title,
+                'content': section.content,
+                'order': section.order,
+                'created_at': section.created_at.isoformat(),
+                'updated_at': section.updated_at.isoformat(),
+                'notebook_id': section.notebook.id
+            })
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    elif request.method == 'DELETE':
+        # Delete section
+        section.delete()
+        return JsonResponse({'success': True})
+
+
+@login_required
+def api_note_tags(request):
+    """
+    API endpoint for managing note tags
+    """
+    if request.method == 'GET':
+        # Get all user's tags
+        tags = NoteTag.objects.filter(user=request.user)
+        data = [
+            {
+                'id': tag.id,
+                'name': tag.name,
+                'color': tag.color
+            } for tag in tags
+        ]
+        return JsonResponse({'tags': data})
+    
+    elif request.method == 'POST':
+        # Create a new tag
+        try:
+            data = json.loads(request.body)
+            name = data.get('name', '').strip()
+            color = data.get('color', '#007bff')
+            
+            if not name:
+                return JsonResponse({'error': 'Tag name is required'}, status=400)
+            
+            # Check if tag already exists for this user
+            existing_tag = NoteTag.objects.filter(user=request.user, name=name).first()
+            if existing_tag:
+                return JsonResponse({'error': 'Tag already exists'}, status=400)
+            
+            tag = NoteTag.objects.create(
+                user=request.user,
+                name=name,
+                color=color
+            )
+            
+            return JsonResponse({
+                'id': tag.id,
+                'name': tag.name,
+                'color': tag.color
+            })
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def api_note_search(request):
+    """
+    API endpoint for searching user's notebooks and sections
+    """
+    query = request.GET.get('q', '').strip()
+    tag_id = request.GET.get('tag')
+    
+    if not query:
+        return JsonResponse({'results': []})
+    
+    # Search in notebooks and sections
+    notebooks = Notebook.objects.filter(user=request.user)
+    sections = NoteSection.objects.filter(notebook__user=request.user)
+    
+    # Apply tag filter if provided
+    if tag_id:
+        try:
+            tag = NoteTag.objects.get(id=tag_id, user=request.user)
+            notebooks = notebooks.filter(notebook_tags__tag=tag)
+            sections = sections.filter(notebook__notebook_tags__tag=tag)
+        except NoteTag.DoesNotExist:
+            # If tag doesn't exist, return empty results
+            return JsonResponse({'results': []})
+    
+    # Search in titles and content
+    notebooks = notebooks.filter(Q(title__icontains=query) | Q(description__icontains=query))
+    sections = sections.filter(Q(title__icontains=query) | Q(content__icontains=query))
+    
+    results = []
+    
+    # Add notebooks to results
+    for notebook in notebooks:
+        results.append({
+            'type': 'notebook',
+            'id': notebook.id,
+            'title': notebook.title,
+            'description': notebook.description,
+            'url': f'/notebooks/{notebook.id}/',
+            'updated_at': notebook.updated_at.isoformat()
+        })
+    
+    # Add sections to results
+    for section in sections:
+        results.append({
+            'type': 'section',
+            'id': section.id,
+            'title': section.title,
+            'content_preview': section.content[:100] + '...' if len(section.content) > 100 else section.content,
+            'notebook_id': section.notebook.id,
+            'notebook_title': section.notebook.title,
+            'url': f'/notebooks/{section.notebook.id}/#section-{section.id}',
+            'updated_at': section.updated_at.isoformat()
+        })
+    
+    # Sort results by updated_at (most recent first)
+    results.sort(key=lambda x: x['updated_at'], reverse=True)
+    
+    return JsonResponse({'results': results})
+
+
+# Smart Notes API Views
+
+@login_required
+def api_notes(request):
+    """
+    API endpoint for managing user notes
+    """
+    if request.method == 'GET':
+        # Get all user's notes with optional filtering
+        note_type = request.GET.get('type')
+        is_pinned = request.GET.get('pinned')
+        
+        notes = Note.objects.filter(user=request.user).select_related('question', 'flashcard', 'article')
+        
+        if note_type:
+            notes = notes.filter(note_type=note_type)
+        if is_pinned:
+            notes = notes.filter(is_pinned=(is_pinned.lower() == 'true'))
+        
+        data = []
+        for note in notes:
+            note_data = {
+                'id': note.id,
+                'title': note.title,
+                'content': note.content,
+                'note_type': note.note_type,
+                'is_pinned': note.is_pinned,
+                'created_at': note.created_at.isoformat(),
+                'updated_at': note.updated_at.isoformat(),
+                'associated_id': None,
+                'associated_title': None,
+            }
+            
+            # Add associated content info
+            if note.question:
+                note_data['associated_id'] = note.question.id
+                note_data['associated_title'] = note.question.noi_dung[:50] + '...' if len(note.question.noi_dung) > 50 else note.question.noi_dung
+            elif note.flashcard:
+                note_data['associated_id'] = note.flashcard.id
+                note_data['associated_title'] = note.flashcard.mat_truoc
+            elif note.article:
+                note_data['associated_id'] = note.article.id
+                note_data['associated_title'] = note.article.tieu_de
+            
+            data.append(note_data)
+        
+        return JsonResponse({'notes': data})
+    
+    elif request.method == 'POST':
+        # Create a new note
+        try:
+            data = json.loads(request.body)
+            note_type = data.get('note_type', '').strip()
+            title = data.get('title', '').strip()
+            content = data.get('content', '')
+            is_pinned = data.get('is_pinned', False)
+            associated_id = data.get('associated_id')
+            
+            if not note_type or not associated_id:
+                return JsonResponse({'error': 'Note type and associated ID are required'}, status=400)
+            
+            # Create note with proper associations
+            note = Note.objects.create(
+                user=request.user,
+                note_type=note_type,
+                title=title,
+                content=content,
+                is_pinned=is_pinned
+            )
+            
+            # Set the appropriate association based on note_type
+            if note_type == 'question':
+                from apps.de_thi.models import CauHoi
+                try:
+                    question = CauHoi.objects.get(id=associated_id)
+                    note.question = question
+                except CauHoi.DoesNotExist:
+                    return JsonResponse({'error': 'Question not found'}, status=404)
+            elif note_type == 'flashcard':
+                try:
+                    flashcard = Flashcard.objects.get(id=associated_id)
+                    note.flashcard = flashcard
+                except Flashcard.DoesNotExist:
+                    return JsonResponse({'error': 'Flashcard not found'}, status=404)
+            elif note_type == 'article':
+                try:
+                    article = BaiViet.objects.get(id=associated_id)
+                    note.article = article
+                except BaiViet.DoesNotExist:
+                    return JsonResponse({'error': 'Article not found'}, status=404)
+            else:
+                return JsonResponse({'error': 'Invalid note type'}, status=400)
+            
+            note.save()
+            
+            return JsonResponse({
+                'id': note.id,
+                'title': note.title,
+                'content': note.content,
+                'note_type': note.note_type,
+                'is_pinned': note.is_pinned,
+                'created_at': note.created_at.isoformat(),
+                'updated_at': note.updated_at.isoformat(),
+                'associated_id': associated_id,
+            })
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def api_note_detail(request, note_id):
+    """
+    API endpoint for managing a specific note
+    """
+    try:
+        note = Note.objects.get(id=note_id, user=request.user)
+    except Note.DoesNotExist:
+        return JsonResponse({'error': 'Note not found'}, status=404)
+    
+    if request.method == 'GET':
+        # Get note
+        note_data = {
+            'id': note.id,
+            'title': note.title,
+            'content': note.content,
+            'note_type': note.note_type,
+            'is_pinned': note.is_pinned,
+            'created_at': note.created_at.isoformat(),
+            'updated_at': note.updated_at.isoformat(),
+            'associated_id': None,
+        }
+        
+        if note.question:
+            note_data['associated_id'] = note.question.id
+        elif note.flashcard:
+            note_data['associated_id'] = note.flashcard.id
+        elif note.article:
+            note_data['associated_id'] = note.article.id
+        
+        return JsonResponse(note_data)
+    
+    elif request.method == 'PUT':
+        # Update note
+        try:
+            data = json.loads(request.body)
+            title = data.get('title', '').strip()
+            content = data.get('content', '')
+            is_pinned = data.get('is_pinned', note.is_pinned)
+            
+            note.title = title
+            note.content = content
+            note.is_pinned = is_pinned
+            note.save()
+            
+            return JsonResponse({
+                'id': note.id,
+                'title': note.title,
+                'content': note.content,
+                'note_type': note.note_type,
+                'is_pinned': note.is_pinned,
+                'created_at': note.created_at.isoformat(),
+                'updated_at': note.updated_at.isoformat(),
+                'associated_id': data.get('associated_id'),
+            })
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    elif request.method == 'DELETE':
+        # Delete note
+        note.delete()
+        return JsonResponse({'success': True})
+
+
+@login_required
+def api_notes_context(request, note_type, obj_id):
+    """
+    API endpoint for getting notes associated with specific content
+    """
+    if note_type not in ['question', 'flashcard', 'article']:
+        return JsonResponse({'error': 'Invalid note type'}, status=400)
+    
+    try:
+        # Get all notes for this user associated with the specific content
+        notes = Note.objects.filter(user=request.user)
+        
+        if note_type == 'question':
+            notes = notes.filter(question_id=obj_id)
+        elif note_type == 'flashcard':
+            notes = notes.filter(flashcard_id=obj_id)
+        elif note_type == 'article':
+            notes = notes.filter(article_id=obj_id)
+        
+        notes = notes.select_related('question', 'flashcard', 'article').order_by('-is_pinned', '-updated_at')
+        
+        data = []
+        for note in notes:
+            data.append({
+                'id': note.id,
+                'title': note.title,
+                'content': note.content,
+                'is_pinned': note.is_pinned,
+                'created_at': note.created_at.isoformat(),
+                'updated_at': note.updated_at.isoformat(),
+            })
+        
+        return JsonResponse({'notes': data})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

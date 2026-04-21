@@ -1,4 +1,5 @@
 import uuid
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -258,3 +259,154 @@ class FlashcardStudySession(models.Model):
         else:
             self.ty_le_dung = 0.0
         self.save()
+
+
+# ════════════════════════════════════════════════════════════════
+# PERSONAL KNOWLEDGE OUTLINE MODELS
+# ════════════════════════════════════════════════════════════════
+
+class Notebook(models.Model):
+    """
+    Personal notebook for organizing knowledge outlines
+    """
+    VISIBILITY_CHOICES = [
+        ('private', 'Private'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notebooks')
+    title = models.CharField(max_length=200, verbose_name='Tên sổ ghi chú')
+    description = models.TextField(blank=True, verbose_name='Mô tả')
+    visibility = models.CharField(max_length=20, choices=VISIBILITY_CHOICES, default='private')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Sổ ghi chú cá nhân'
+        verbose_name_plural = 'Sổ ghi chú cá nhân'
+        ordering = ['-updated_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.title}"
+
+
+class NoteSection(models.Model):
+    """
+    Section within a notebook (like chapters or topics)
+    """
+    notebook = models.ForeignKey(Notebook, on_delete=models.CASCADE, related_name='sections')
+    title = models.CharField(max_length=200, verbose_name='Tiêu đề mục')
+    content = models.TextField(help_text='Nội dung hỗ trợ Markdown và MathJax', verbose_name='Nội dung')
+    order = models.IntegerField(default=0, verbose_name='Thứ tự')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Phần ghi chú'
+        verbose_name_plural = 'Phần ghi chú'
+        ordering = ['order', '-updated_at']
+
+    def __str__(self):
+        return f"{self.notebook.title} - {self.title}"
+
+
+class NoteTag(models.Model):
+    """
+    Tags for organizing personal notes
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='note_tags')
+    name = models.CharField(max_length=50, verbose_name='Tên thẻ')
+    color = models.CharField(max_length=7, default='#007bff', verbose_name='Màu sắc')  # Hex color
+    
+    class Meta:
+        verbose_name = 'Thẻ ghi chú'
+        verbose_name_plural = 'Thẻ ghi chú'
+        unique_together = ['user', 'name']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.name}"
+
+
+class NotebookTag(models.Model):
+    """
+    Junction table to connect notebooks with tags
+    """
+    notebook = models.ForeignKey(Notebook, on_delete=models.CASCADE, related_name='notebook_tags')
+    tag = models.ForeignKey(NoteTag, on_delete=models.CASCADE)
+    
+    class Meta:
+        unique_together = ['notebook', 'tag']
+
+    def __str__(self):
+        return f"{self.notebook.title} - {self.tag.name}"
+
+
+class Note(models.Model):
+    """
+    Personal notes for questions, flashcards, and articles
+    """
+    NOTE_TYPE_CHOICES = [
+        ('question', 'Question'),
+        ('flashcard', 'Flashcard'),
+        ('article', 'Article'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notes')
+    
+    # Note type and association
+    note_type = models.CharField(max_length=20, choices=NOTE_TYPE_CHOICES)
+    
+    # Associated content (polymorphic-like behavior)
+    question = models.ForeignKey(
+        'de_thi.CauHoi',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='notes'
+    )
+    flashcard = models.ForeignKey(
+        'kien_thuc.Flashcard',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='notes'
+    )
+    article = models.ForeignKey(
+        'kien_thuc.BaiViet',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='notes'
+    )
+    
+    # Note content with rich formatting support
+    title = models.CharField(max_length=200, blank=True)
+    content = models.TextField(help_text='Note content supporting Markdown and MathJax')
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_pinned = models.BooleanField(default=False)  # Pin important notes
+    
+    class Meta:
+        verbose_name = 'Ghi chú cá nhân'
+        verbose_name_plural = 'Ghi chú cá nhân'
+        ordering = ['-updated_at']
+        indexes = [
+            models.Index(fields=['user', 'note_type']),
+            models.Index(fields=['user', '-updated_at']),
+            models.Index(fields=['user', 'is_pinned', '-updated_at']),
+        ]
+
+    def __str__(self):
+        note_title = self.title or f"Note on {self.note_type}"
+        return f"{self.user.username} - {note_title}"
+
+    def clean(self):
+        """Ensure exactly one content type is associated"""
+        associations = sum([
+            bool(self.question),
+            bool(self.flashcard),
+            bool(self.article),
+        ])
+        if associations != 1:
+            raise ValidationError("Exactly one content type (question, flashcard, or article) must be associated with the note")
