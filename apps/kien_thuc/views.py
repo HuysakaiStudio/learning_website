@@ -348,7 +348,7 @@ def them_flashcard(request, flashcard_set_id):
                 if bulk_data:
                     lines = bulk_data.strip().split('\n')
                     for line in lines:
-                        if '|' in line:
+                        if ';' in line:
                             front, back = line.split(';', 1)
                             Flashcard.objects.create(
                                 flashcard_set=flashcard_set,
